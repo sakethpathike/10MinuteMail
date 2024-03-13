@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "663089772745",
+    "project_id": "minutemail-952c0",
+    "storage_bucket": "minutemail-952c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:663089772745:android:6bfd41b964c3a08c62b518",
+        "android_client_info": {
+          "package_name": "sakethh.tenmin.mail"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkdw77_Wj8Cq7RtCYbcev0mx6hr9owTdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:663089772745:android:cb3304f6336c1a7862b518",
+        "android_client_info": {
+          "package_name": "sakethh.tenmin.mail.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkdw77_Wj8Cq7RtCYbcev0mx6hr9owTdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
