@@ -1,11 +1,6 @@
 package sakethh.tenmin.mail.ui.info
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,12 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +34,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import sakethh.tenmin.mail.ui.common.pulsateEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,34 +111,11 @@ private fun CollapsableFAQItem(question: String, description: String) {
     val isExpandClicked = rememberSaveable {
         mutableStateOf(false)
     }
-    val itemState = remember { mutableStateOf(ItemState.Idle) }
-    val scale = animateFloatAsState(
-        if (itemState.value == ItemState.Pressed) 0.9f else 1f,
-        label = ""
-    )
-
     Column {
         Row(
             modifier = Modifier
-                .clickable(interactionSource = remember {
-                    MutableInteractionSource()
-                }, indication = null, onClick = {
+                .pulsateEffect {
                     isExpandClicked.value = !isExpandClicked.value
-                })
-                .graphicsLayer {
-                    scaleX = scale.value
-                    scaleY = scale.value
-                }
-                .pointerInput(itemState.value) {
-                    awaitPointerEventScope {
-                        itemState.value = if (itemState.value == ItemState.Pressed) {
-                            waitForUpOrCancellation()
-                            ItemState.Idle
-                        } else {
-                            awaitFirstDown(false)
-                            ItemState.Pressed
-                        }
-                    }
                 }
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
