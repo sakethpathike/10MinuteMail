@@ -103,7 +103,7 @@ fun NavigationDrawer(modalNavigationBarState: DrawerState, content: @Composable 
                         )
                     }, label = {
                         Text(
-                            text = "10 Minute Mail",
+                            text = "Info",
                             style = MaterialTheme.typography.titleSmall,
                         )
                     }, selected = true, onClick = {

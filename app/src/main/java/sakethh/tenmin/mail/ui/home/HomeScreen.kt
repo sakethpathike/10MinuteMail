@@ -25,7 +25,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.inbox.InboxScreen
+import sakethh.tenmin.mail.ui.info.InfoScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,12 +77,14 @@ fun HomeScreen() {
                 })
         }) {
             NavHost(
-                navController = navController,
-                startDestination = "start",
+                navController = navController, startDestination = NavigationRoutes.INBOX.name,
                 modifier = Modifier.padding(it)
             ) {
-                composable("start") {
+                composable(NavigationRoutes.INBOX.name) {
                     InboxScreen()
+                }
+                composable(NavigationRoutes.ABOUT.name) {
+                    InfoScreen()
                 }
             }
         }
