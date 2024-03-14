@@ -14,9 +14,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +54,9 @@ fun MailItem() {
     val (totalHeight, totalWidth) = remember {
         Pair(mutableStateOf(0), mutableStateOf(0))
     }
+    val draggingTowardsRight = remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(key1 = isDragging.value) {
         if (!isDragging.value) {
             itemOffSetX.value = 0f
@@ -61,15 +65,35 @@ fun MailItem() {
     }
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.tertiary)
-                .matchParentSize()
+            .background(if (draggingTowardsRight.value) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer)
         ) {
-            Text(text = "sample")
+        if (draggingTowardsRight.value) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DeleteForever,
+                    contentDescription = "Delete Forever"
+                )
+                Text(text = "Delete", style = MaterialTheme.typography.titleSmall)
+            }
+        } else {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Archive, contentDescription = "Archive"
+                )
+                Text(text = "Archive", style = MaterialTheme.typography.titleSmall)
+            }
         }
         Row(
             modifier = Modifier
@@ -88,6 +112,7 @@ fun MailItem() {
                         change.consume()
                         isDragging.value = true
                         itemOffSetX.value += dragAmount
+                        draggingTowardsRight.value = itemOffSetX.value < 0
                         if (itemOffSetX.value / totalWidth.value >= 0.5) {
 
                         }
@@ -102,6 +127,7 @@ fun MailItem() {
                         isDragging.value = false
                     })
                 }
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(15.dp)
                 .fillMaxWidth(),
         ) {
