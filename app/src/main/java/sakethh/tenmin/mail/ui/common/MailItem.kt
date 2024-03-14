@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,17 +61,21 @@ fun MailItem() {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth(0.75f),
-                    style =  MaterialTheme.typography.titleMedium,
-                    fontWeight = if(!isChecked.value) FontWeight.Bold else FontWeight.Normal,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = if (!isChecked.value) FontWeight.Bold else FontWeight.Normal,
                     fontSize = 16.sp,
-                    color = if(!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                    color = if (!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                        0.75f
+                    )
                 )
                 Text(
                     text = "7:32 PM",
                     textAlign = TextAlign.End,
-                    style =  MaterialTheme.typography.titleSmall,
-                    fontWeight = if(!isChecked.value) FontWeight.Bold else FontWeight.Normal,
-                    color = if(!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = if (!isChecked.value) FontWeight.Bold else FontWeight.Normal,
+                    color = if (!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                        0.75f
+                    )
                 )
             }
             Row(
@@ -80,7 +83,10 @@ fun MailItem() {
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.fillMaxWidth(0.90f),verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.90f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
                     Text(
                         text = buildString {
                             repeat(20) {
@@ -88,11 +94,13 @@ fun MailItem() {
                             }
                         },
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis   ,
-                        style =  MaterialTheme.typography.titleSmall,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleSmall,
                         fontSize = 12.sp,
-                        fontWeight = if(!isChecked.value) FontWeight.Bold else FontWeight.Normal,
-                        color = if(!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                        fontWeight = if (!isChecked.value) FontWeight.Bold else FontWeight.Normal,
+                        color = if (!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                            0.75f
+                        )
                     )
                     Text(
                         text = buildString {
@@ -103,8 +111,10 @@ fun MailItem() {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 12.sp,
-                        style =  MaterialTheme.typography.titleSmall,
-                        color = if(!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                        style = MaterialTheme.typography.titleSmall,
+                        color = if (!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                            0.75f
+                        )
                     )
                 }
                 Icon(
