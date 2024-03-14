@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInbox
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -65,6 +67,48 @@ fun NavigationDrawer(modalNavigationBarState: DrawerState, content: @Composable 
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
                 Divider()
+                Spacer(modifier = Modifier.height(15.dp))
+                NavigationDrawerItem(
+                    modifier = Modifier.fillMaxWidth(0.95f),
+                    shape = RoundedCornerShape(
+                        topStart = 0.dp,
+                        bottomStart = 0.dp,
+                        topEnd = 25.dp,
+                        bottomEnd = 25.dp
+                    ), icon = {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }, label = {
+                        Text(
+                            text = "Settings",
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    }, selected = true, onClick = {
+
+                    })
+                Spacer(modifier = Modifier.height(15.dp))
+                NavigationDrawerItem(
+                    modifier = Modifier.fillMaxWidth(0.95f),
+                    shape = RoundedCornerShape(
+                        topStart = 0.dp,
+                        bottomStart = 0.dp,
+                        topEnd = 25.dp,
+                        bottomEnd = 25.dp
+                    ), icon = {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "About"
+                        )
+                    }, label = {
+                        Text(
+                            text = "10 Minute Mail",
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    }, selected = true, onClick = {
+
+                    })
             }
         }) {
         content()
