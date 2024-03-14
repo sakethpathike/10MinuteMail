@@ -34,7 +34,7 @@ fun SignUpScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 25.dp, end = 25.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = buildAnnotatedString {
@@ -45,11 +45,15 @@ fun SignUpScreen() {
                         append("10 Minute Mail ")
                     }
                     append("\n")
-                    append("The Android Email client built for using temporary email accounts based on ")
+                    append("A ")
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
+                        append("temporary email")
+                    }
+                    append(" client for Android, built on the secure ")
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
                         append("mail.gw")
                     }
-                    append(" API.\n")
+                    append(" API. Free, open-source, and user-friendly.")
 
                 }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
             )
