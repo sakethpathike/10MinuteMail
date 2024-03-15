@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.data.remote.api.model
+package sakethh.tenmin.mail.data.remote.api.model.account
 
 import kotlinx.serialization.Serializable
 

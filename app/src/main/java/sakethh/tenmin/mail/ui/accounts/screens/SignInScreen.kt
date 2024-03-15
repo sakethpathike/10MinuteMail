@@ -29,10 +29,10 @@ import sakethh.tenmin.mail.ui.theme.fonts
 @Composable
 fun SignInScreen(accountsVM: AccountsVM = hiltViewModel()) {
     val emailAddress = rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf("pftbiggtm@mynanaimohomes.com")
     }
     val emailPassword = rememberSaveable {
-        mutableStateOf("")
+        mutableStateOf("fA2G]6Tq")
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
