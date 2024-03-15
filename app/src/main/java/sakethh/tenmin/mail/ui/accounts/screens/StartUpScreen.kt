@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.accounts
+package sakethh.tenmin.mail.ui.accounts.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SignUpScreen() {
+fun StartUpScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Column(
             modifier = Modifier
@@ -59,13 +59,13 @@ fun SignUpScreen() {
             )
             Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
                 Text(
-                    text = "Sign in", style = MaterialTheme.typography.titleSmall
+                    text = "Generate a temporary email account",
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
             FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {}) {
                 Text(
-                    text = "Generate a temporary email account",
-                    style = MaterialTheme.typography.titleSmall
+                    text = "Sign in", style = MaterialTheme.typography.titleSmall
                 )
             }
             Row {

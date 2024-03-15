@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.accounts
+package sakethh.tenmin.mail.ui.accounts.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
