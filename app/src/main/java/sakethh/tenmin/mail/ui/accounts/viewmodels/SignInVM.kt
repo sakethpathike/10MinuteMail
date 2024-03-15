@@ -16,7 +16,7 @@ import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
 import javax.inject.Inject
 
 @HiltViewModel
-class AccountsVM @Inject constructor(
+class SignInVM @Inject constructor(
     private val mailRepository: MailRepository, private val currentSessionRepo: CurrentSessionRepo
 ) : ViewModel() {
     private val _uiEvent = Channel<StartUpEvent>()

@@ -31,14 +31,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import sakethh.tenmin.mail.data.local.model.CurrentSession
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
-import sakethh.tenmin.mail.ui.accounts.viewmodels.AccountsVM
+import sakethh.tenmin.mail.ui.accounts.viewmodels.SignInVM
 import sakethh.tenmin.mail.ui.theme.fonts
 
 @Composable
-fun SignInScreen(accountsVM: AccountsVM = hiltViewModel(), navController: NavController) {
-    val uiEvent = accountsVM.uiEvent.collectAsState(initial = StartUpEvent.None)
+fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavController) {
+    val uiEvent = signInVM.uiEvent.collectAsState(initial = StartUpEvent.None)
     LaunchedEffect(key1 = true) {
-        accountsVM.uiEvent.collect {
+        signInVM.uiEvent.collect {
             when (it) {
                 is StartUpEvent.NavigateToMail -> navController.navigate(it.navigationRoute)
 
@@ -54,7 +54,7 @@ fun SignInScreen(accountsVM: AccountsVM = hiltViewModel(), navController: NavCon
             .animateContentSize(), contentAlignment = Alignment.Center
     ) {
         SignInComponent(uiEvent = uiEvent, onSignInClick = { emailAddress, emailPassword ->
-            accountsVM.onUiClickEvent(AccountsUiEvent.SignIn(emailAddress, emailPassword))
+            signInVM.onUiClickEvent(AccountsUiEvent.SignIn(emailAddress, emailPassword))
         })
 
     }
