@@ -1,5 +1,5 @@
 package sakethh.tenmin.mail
 
 enum class NavigationRoutes {
-    INBOX, ABOUT
+    INBOX, ABOUT, STARTUP, SIGN_IN, HOME
 }

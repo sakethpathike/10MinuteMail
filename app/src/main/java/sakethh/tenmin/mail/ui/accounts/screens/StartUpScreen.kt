@@ -26,9 +26,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import sakethh.tenmin.mail.NavigationRoutes
 
 @Composable
-fun StartUpScreen() {
+fun StartUpScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Column(
             modifier = Modifier
@@ -63,7 +65,9 @@ fun StartUpScreen() {
                     style = MaterialTheme.typography.titleSmall
                 )
             }
-            FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                navController.navigate(NavigationRoutes.SIGN_IN.name)
+            }) {
                 Text(
                     text = "Sign in", style = MaterialTheme.typography.titleSmall
                 )
