@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.ui.home
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,18 +15,30 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import sakethh.tenmin.mail.NavigationRoutes
 
 @Composable
-fun NavigationDrawer(modalNavigationBarState: DrawerState, content: @Composable () -> Unit) {
+fun NavigationDrawer(
+    navController: NavController,
+    modalNavigationBarState: DrawerState,
+    content: @Composable () -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
     ModalNavigationDrawer(gesturesEnabled = true,
         drawerState = modalNavigationBarState,
         drawerContent = {
@@ -86,7 +99,14 @@ fun NavigationDrawer(modalNavigationBarState: DrawerState, content: @Composable 
                             style = MaterialTheme.typography.titleSmall,
                         )
                     }, selected = true, onClick = {
-
+                        coroutineScope.launch {
+                            awaitAll(async { navController.navigate(NavigationRoutes.SETTINGS.name) },
+                                async {
+                                    modalNavigationBarState.animateTo(
+                                        DrawerValue.Closed, tween(300)
+                                    )
+                                })
+                        }
                     })
                 Spacer(modifier = Modifier.height(15.dp))
                 NavigationDrawerItem(
@@ -107,7 +127,14 @@ fun NavigationDrawer(modalNavigationBarState: DrawerState, content: @Composable 
                             style = MaterialTheme.typography.titleSmall,
                         )
                     }, selected = true, onClick = {
-
+                        coroutineScope.launch {
+                            awaitAll(async { navController.navigate(NavigationRoutes.ABOUT.name) },
+                                async {
+                                    modalNavigationBarState.animateTo(
+                                        DrawerValue.Closed, tween(300)
+                                    )
+                                })
+                        }
                     })
             }
         }) {

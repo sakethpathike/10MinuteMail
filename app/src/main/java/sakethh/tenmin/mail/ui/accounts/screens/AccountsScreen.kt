@@ -27,11 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import sakethh.tenmin.mail.ui.common.AccountItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountsScreen() {
+fun AccountsScreen(navController: NavController) {
     val lazyListState = rememberLazyListState()
     Scaffold(floatingActionButton = {
         ExtendedFloatingActionButton(expanded = remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }.value != 0 && !lazyListState.isScrollInProgress,
@@ -50,7 +51,7 @@ fun AccountsScreen() {
             onClick = { })
     }, floatingActionButtonPosition = FabPosition.End, topBar = {
         CenterAlignedTopAppBar(navigationIcon = {
-            IconButton(onClick = { }) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Navigation Icon To Home Screen"
