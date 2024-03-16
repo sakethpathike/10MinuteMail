@@ -3,7 +3,6 @@ package sakethh.tenmin.mail.ui.accounts
 import sakethh.tenmin.mail.NavigationRoutes
 
 sealed class StartUpEvent {
-    data object ShowLoadingDataTransition : StartUpEvent()
     data object FetchingTokenAndID : StartUpEvent()
     data object FetchingMailAccountData : StartUpEvent()
     data object CheckingIfAnySessionAlreadyExists : StartUpEvent()

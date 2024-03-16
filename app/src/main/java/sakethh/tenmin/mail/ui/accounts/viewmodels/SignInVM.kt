@@ -26,7 +26,6 @@ class SignInVM @Inject constructor(
         when (accountsUiEvent) {
             is AccountsUiEvent.SignIn -> {
                 viewModelScope.launch {
-                    sendUIEvent(StartUpEvent.ShowLoadingDataTransition)
                     sendUIEvent(StartUpEvent.FetchingTokenAndID)
                     val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
                         body = AccountInfo(

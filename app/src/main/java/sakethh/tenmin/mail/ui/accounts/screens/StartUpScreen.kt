@@ -3,22 +3,18 @@ package sakethh.tenmin.mail.ui.accounts.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Help
-import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +51,14 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
             }
         }
     }
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+            .imePadding(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
         if (!checkingForActiveSession.value) {
             StartUpComponent(navController = navController)
         } else {
@@ -128,37 +131,6 @@ private fun StartUpComponent(navController: NavController) {
                 Text(
                     text = "Sign in", style = MaterialTheme.typography.titleSmall
                 )
-            }
-            Row {
-                TextButton(onClick = {}) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(0.5f), contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.QuestionAnswer,
-                                contentDescription = "FAQ Icon"
-                            )
-                            Text(
-                                text = " FAQ", style = MaterialTheme.typography.titleSmall
-                            )
-                        }
-                    }
-                }
-                TextButton(onClick = {}) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.Help, contentDescription = "Help Icon")
-                            Text(
-                                text = " Help",
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                        }
-                    }
-
-                }
             }
             Spacer(modifier = Modifier)
     }

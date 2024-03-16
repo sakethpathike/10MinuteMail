@@ -4,8 +4,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
@@ -41,7 +44,6 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
             when (it) {
                 is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute)
 
-                is StartUpEvent.ShowLoadingDataTransition -> Unit
                 else -> Unit
             }
         }
@@ -50,7 +52,10 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .animateContentSize(), contentAlignment = Alignment.Center
+            .animateContentSize()
+            .navigationBarsPadding()
+            .imePadding(),
+        contentAlignment = Alignment.BottomCenter
     ) {
         SignInComponent(uiEvent = uiEvent, onSignInClick = { emailAddress, emailPassword ->
             signInVM.onUiClickEvent(AccountsUiEvent.SignIn(emailAddress, emailPassword))
@@ -65,10 +70,10 @@ private fun SignInComponent(
     onSignInClick: (emailAddress: String, emailPassword: String) -> Unit
 ) {
     val emailAddress = rememberSaveable {
-        mutableStateOf("eodtwrltk@mynanaimohomes.com")
+        mutableStateOf("ptardk@miteon.com")
     }
     val emailPassword = rememberSaveable {
-        mutableStateOf("+bxq&&6l")
+        mutableStateOf("&iwb0oRI")
     }
 
     Column(
@@ -85,7 +90,7 @@ private fun SignInComponent(
             }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
         )
         OutlinedTextField(
-            readOnly = uiEvent.value == StartUpEvent.ShowLoadingDataTransition,
+            readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
             textStyle = TextStyle(
                 fontFamily = fonts, fontWeight = FontWeight.Normal
             ),
@@ -100,7 +105,7 @@ private fun SignInComponent(
                 )
             })
         OutlinedTextField(
-            readOnly = uiEvent.value == StartUpEvent.ShowLoadingDataTransition,
+            readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
             textStyle = TextStyle(
                 fontFamily = fonts, fontWeight = FontWeight.Normal
             ),
@@ -114,7 +119,7 @@ private fun SignInComponent(
                     text = "Email password", style = MaterialTheme.typography.titleSmall
                 )
             })
-        if (uiEvent.value == StartUpEvent.None) {
+        if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
             Button(modifier = Modifier.fillMaxWidth(), onClick = {
                 onSignInClick(emailAddress.value, emailPassword.value)
             }) {
@@ -122,8 +127,11 @@ private fun SignInComponent(
                     text = "Sign in", style = MaterialTheme.typography.titleSmall
                 )
             }
-        } else {
-            LinearProgressIndicator(Modifier.fillMaxWidth())
+        }
+        if (uiEvent.value != StartUpEvent.None) {
+            if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
             Text(
                 text = "Status", style = MaterialTheme.typography.titleSmall,
             )
@@ -131,5 +139,6 @@ private fun SignInComponent(
                 text = uiEvent.value.toString(), style = MaterialTheme.typography.titleMedium,
             )
         }
+        Spacer(modifier = Modifier)
     }
 }

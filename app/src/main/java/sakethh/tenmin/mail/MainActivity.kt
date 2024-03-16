@@ -48,6 +48,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                rememberSystemUiController().setNavigationBarColor(
+                    color = MaterialTheme.colorScheme.surface
+                )
             }
         }
     }
