@@ -14,7 +14,7 @@ interface CurrentSessionDao {
     fun getCurrentSessionAsAFlow(): Flow<CurrentSession>
 
     @Query("SELECT * FROM currentSession")
-    fun getCurrentSession(): CurrentSession
+    suspend fun getCurrentSession(): CurrentSession
 
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM currentSession")
     suspend fun hasActiveSession(): Boolean

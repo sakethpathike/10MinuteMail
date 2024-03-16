@@ -9,7 +9,7 @@ class CurrentSessionImpl(private val currentSessionDao: CurrentSessionDao) : Cur
         return currentSessionDao.getCurrentSessionAsAFlow()
     }
 
-    override fun getCurrentSession(): CurrentSession {
+    override suspend fun getCurrentSession(): CurrentSession {
         return currentSessionDao.getCurrentSession()
     }
 

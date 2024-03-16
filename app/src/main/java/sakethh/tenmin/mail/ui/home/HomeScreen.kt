@@ -108,7 +108,7 @@ fun HomeScreen() {
                     InfoScreen()
                 }
                 composable(NavigationRoutes.ACCOUNTS.name) {
-                    AccountsScreen(navController)
+                    AccountsScreen(navController = navController)
                 }
                 composable(NavigationRoutes.SETTINGS.name) {
                     SettingsScreen()

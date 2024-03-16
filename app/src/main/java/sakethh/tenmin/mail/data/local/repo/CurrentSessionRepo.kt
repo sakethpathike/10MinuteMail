@@ -6,7 +6,7 @@ import sakethh.tenmin.mail.data.local.model.CurrentSession
 interface CurrentSessionRepo {
     fun getCurrentSessionAsAFlow(): Flow<CurrentSession>
 
-    fun getCurrentSession(): CurrentSession
+    suspend fun getCurrentSession(): CurrentSession
 
     suspend fun hasActiveSession(): Boolean
 

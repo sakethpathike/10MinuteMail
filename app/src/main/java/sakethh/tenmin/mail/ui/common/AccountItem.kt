@@ -6,14 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AccountItem() {
+fun AccountItem(emailAddress: String, emailId: String) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -32,7 +31,10 @@ fun AccountItem() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(end = 15.dp)
+        ) {
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = "Mail Sender Image",
@@ -40,45 +42,27 @@ fun AccountItem() {
             )
             Spacer(modifier = Modifier.width(15.dp))
             Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 SelectionContainer {
                     Text(
-                        text = buildString {
-                            repeat(20) {
-                                append("sample ")
-                            }
-                        },
+                        text = emailAddress,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
-                        modifier = Modifier.fillMaxWidth(0.85f),
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Start
                     )
                 }
                 SelectionContainer {
                     Text(
-                        text = buildString {
-                            repeat(20) {
-                                append("sample ")
-                            }
-                        },
+                        text = emailId,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
-                        modifier = Modifier.fillMaxWidth(0.85f),
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Start
                     )
                 }
             }
-        }
-        Spacer(modifier = Modifier.width(15.dp))
-        IconButton(onClick = { }) {
-            Icon(
-                imageVector = Icons.Default.CopyAll,
-                contentDescription = "Icon for copying both email and password"
-            )
         }
     }
 }
