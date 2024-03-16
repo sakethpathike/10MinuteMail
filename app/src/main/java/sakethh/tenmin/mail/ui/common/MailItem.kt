@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.common
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -31,17 +32,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @SuppressLint("AutoboxingStateValueProperty", "AutoboxingStateCreation")
 @Composable
-fun MailItem() {
+fun MailItem(intro: String, createdAt: String, subject: String, fromName: String) {
     val isChecked = remember {
         mutableStateOf(false)
     }
@@ -61,8 +65,8 @@ fun MailItem() {
         if (!isDragging.value) {
             itemOffSetX.value = 0f
         }
-
     }
+    val activity = LocalContext.current as Activity
     Box(
         modifier = Modifier
             .background(if (draggingTowardsRight.value) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer)
@@ -144,15 +148,9 @@ fun MailItem() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = buildString {
-                            repeat(20) {
-                                append(itemOffSetX.value)
-                                append(" ")
-                            }
-                        },
+                        text = subject,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth(0.75f),
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(0.65f),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = if (!isChecked.value) FontWeight.Bold else FontWeight.Normal,
                         fontSize = 16.sp,
@@ -160,14 +158,20 @@ fun MailItem() {
                             0.75f
                         )
                     )
+
+                    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US)
+                    val date = inputFormat.parse(createdAt)
+                    val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
+                    val formattedTimestamp = outputFormat.format(date)
+
                     Text(
-                        text = "7:32 PM",
+                        text = formattedTimestamp,
                         textAlign = TextAlign.End,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = if (!isChecked.value) FontWeight.Bold else FontWeight.Normal,
                         color = if (!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
                             0.75f
-                        )
+                        ), maxLines = 1
                     )
                 }
                 Row(
@@ -180,26 +184,18 @@ fun MailItem() {
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Text(
-                            text = buildString {
-                                repeat(20) {
-                                    append("CC ")
-                                }
-                            },
+                            text = intro,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.titleSmall,
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontWeight = if (!isChecked.value) FontWeight.Bold else FontWeight.Normal,
                             color = if (!isChecked.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
                                 0.75f
                             )
                         )
                         Text(
-                            text = buildString {
-                                repeat(20) {
-                                    append("Body ")
-                                }
-                            },
+                            text = "From: $fromName",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             fontSize = 12.sp,

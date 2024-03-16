@@ -12,7 +12,7 @@ interface MailRepository {
 
     suspend fun getExistingMailAccountData(id: String, token: String): Response<AccountData>
 
-    suspend fun getMessages(token: String, pageNo: Int): Response<Mail>
+    suspend fun getMessages(token: String, pageNo: Int): Mail
 
     suspend fun deleteAnAccount(id: String, token: String): Response<Unit>
 

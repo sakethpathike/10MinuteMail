@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.channels.consumeEach
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.StartUpVM
@@ -42,7 +44,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
         mutableStateOf(true)
     }
     LaunchedEffect(key1 = true) {
-        startUpVM.uiEvent.collect {
+        startUpVM.uiEvent.consumeEach {
             when (it) {
                 is StartUpEvent.CheckingIfAnySessionAlreadyExists -> checkingForActiveSession.value =
                     true
@@ -68,7 +70,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 StartUpComponent(
-                    startUpVM = startUpVM,
+                    uiEvent = startUpVM.uiEventAsFlow.collectAsState(initial = StartUpEvent.None),
                     navController = navController,
                     onGenerateANewAccountClick = {
                         startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
@@ -105,9 +107,11 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
 
 @Composable
 private fun StartUpComponent(
-    startUpVM: StartUpVM, navController: NavController, onGenerateANewAccountClick: () -> Unit
+    uiEvent: State<StartUpEvent>,
+    navController: NavController,
+    onGenerateANewAccountClick: () -> Unit
 ) {
-        Column(
+    Column(
             modifier = Modifier
                 .animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -133,7 +137,6 @@ private fun StartUpComponent(
 
                 }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
             )
-            val uiEvent = startUpVM.uiEvent.collectAsState(initial = StartUpEvent.None)
             if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
                 Button(modifier = Modifier.fillMaxWidth(), onClick = {
                     onGenerateANewAccountClick()

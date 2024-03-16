@@ -19,7 +19,7 @@ class MailImpl(private val mailService: MailService) : MailRepository {
         return mailService.getExistingMailAccountData(id, "Bearer ".plus(token))
     }
 
-    override suspend fun getMessages(token: String, pageNo: Int): Response<Mail> {
+    override suspend fun getMessages(token: String, pageNo: Int): Mail {
         return mailService.getMessages(
             authorization = "Bearer ".plus(token), pageNo = pageNo.toString()
         )

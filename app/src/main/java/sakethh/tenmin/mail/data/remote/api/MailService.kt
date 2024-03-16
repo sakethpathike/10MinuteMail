@@ -28,7 +28,7 @@ interface MailService {
     suspend fun getMessages(
         @Header("Authorization") authorization: String,
         @Query("page") pageNo: String
-    ): Response<Mail>
+    ): Mail
 
     @DELETE("/accounts/{id}")
     suspend fun deleteAnAccount(

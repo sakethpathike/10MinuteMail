@@ -22,7 +22,8 @@ class StartUpVM @Inject constructor(
 ) :
     ViewModel() {
     private val _uiEvent = Channel<StartUpEvent>()
-    val uiEvent = _uiEvent.receiveAsFlow()
+    val uiEvent = _uiEvent
+    val uiEventAsFlow = _uiEvent.receiveAsFlow()
 
     init {
         viewModelScope.launch {

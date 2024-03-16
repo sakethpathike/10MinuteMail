@@ -23,6 +23,7 @@ class AccountVM @Inject constructor(
     private val currentSessionRepo: CurrentSessionRepo, private val mailRepository: MailRepository
 ) :
     ViewModel() {
+
     private val _currentSessionData = MutableStateFlow(
         CurrentSession(
             mailAddress = "",
@@ -33,6 +34,7 @@ class AccountVM @Inject constructor(
         )
     )
     val currentSessionData = _currentSessionData.asStateFlow()
+
     private val _uiEvent = Channel<StartUpEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
