@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
+import sakethh.tenmin.mail.data.local.model.CurrentSession
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
@@ -36,21 +37,59 @@ class StartUpVM @Inject constructor(
     fun onUiClickEvent(accountsUiEvent: AccountsUiEvent) {
         when (accountsUiEvent) {
             is AccountsUiEvent.GenerateANewTemporaryMailAccount -> {
-                // ::
                 viewModelScope.launch {
+                    sendUIEvent(StartUpEvent.Domains.FetchingDomains)
                     val rawDomainsData = mailRepository.getDomains()
                     if (rawDomainsData.code() != 200) {
-                        sendUIEvent(StartUpEvent.DomainsNotFound)
+                        sendUIEvent(StartUpEvent.Domains.FetchingDomains)
                         return@launch
                     }
                     val domainsData = rawDomainsData.body()!!
-                    val newEmailAddress = (1..8).map {
-                        ('a'..'z') + ('A'..'Z') + ('0'..'9').random()
-                    }.joinToString().plus("@${domainsData.domains.random()}")
+                    sendUIEvent(StartUpEvent.GeneratingMailAddressAndPassword)
                     val newAccountData = AccountInfo(
-                        address = newEmailAddress, password = UUID.randomUUID().toString()
+                        address = UUID.randomUUID().toString().replace("-", "")
+                            .plus("@${domainsData.domains.random().domain}"),
+                        password = UUID.randomUUID().toString().replace("-", "")
                     )
+                    sendUIEvent(StartUpEvent.CreatingANewAccount)
                     mailRepository.createANewAccount(newAccountData)
+                    sendUIEvent(StartUpEvent.FetchingTokenAndID)
+                    val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
+                        body = AccountInfo(
+                            address = newAccountData.address,
+                            password = newAccountData.password
+                        )
+                    )
+                    when (rawRequestedEmailTokenAndID.code()) {
+                        401 -> {
+                            sendUIEvent(StartUpEvent.HttpResponse.Invalid401)
+                            return@launch
+                        }
+                    }
+                    val requestedEmailTokenAndIDBody = rawRequestedEmailTokenAndID.body()
+                    sendUIEvent(StartUpEvent.FetchingMailAccountData)
+                    val accountData = mailRepository.getExistingMailAccountData(
+                        requestedEmailTokenAndIDBody?.id ?: "0",
+                        requestedEmailTokenAndIDBody?.token ?: ""
+                    ).body()!!
+
+                    val newData = CurrentSession(
+                        mailAddress = newAccountData.address,
+                        mailPassword = newAccountData.password,
+                        mailId = requestedEmailTokenAndIDBody?.id ?: "0",
+                        token = requestedEmailTokenAndIDBody?.token ?: "0",
+                        createdAt = accountData.createdAt
+                    )
+                    sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
+
+                    if (currentSessionRepo.hasActiveSession()) {
+                        sendUIEvent(StartUpEvent.UpdatingLocalDatabase)
+                        currentSessionRepo.updateCurrentSession(newData)
+                    } else {
+                        sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
+                        currentSessionRepo.addANewCurrentSession(newData)
+                    }
+                    sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 

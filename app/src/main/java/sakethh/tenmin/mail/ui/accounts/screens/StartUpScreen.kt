@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.ui.accounts.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -51,7 +53,6 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
             }
         }
     }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -60,9 +61,19 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
         contentAlignment = Alignment.BottomCenter
     ) {
         if (!checkingForActiveSession.value) {
-            StartUpComponent(navController = navController, onGenerateANewAccountClick = {
-                startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
-            })
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                StartUpComponent(
+                    startUpVM = startUpVM,
+                    navController = navController,
+                    onGenerateANewAccountClick = {
+                        startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
+                    })
+            }
         } else {
             Column(
                 Modifier
@@ -93,11 +104,12 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
 }
 
 @Composable
-private fun StartUpComponent(navController: NavController, onGenerateANewAccountClick: () -> Unit) {
+private fun StartUpComponent(
+    startUpVM: StartUpVM, navController: NavController, onGenerateANewAccountClick: () -> Unit
+) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 25.dp, end = 25.dp),
+                .animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
@@ -121,19 +133,34 @@ private fun StartUpComponent(navController: NavController, onGenerateANewAccount
 
                 }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
             )
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                onGenerateANewAccountClick()
-            }) {
-                Text(
-                    text = "Generate a temporary email account",
-                    style = MaterialTheme.typography.titleSmall
-                )
+            val uiEvent = startUpVM.uiEvent.collectAsState(initial = StartUpEvent.None)
+            if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
+                Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                    onGenerateANewAccountClick()
+                }) {
+                    Text(
+                        text = "Generate a temporary email account",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+                FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                    navController.navigate(NavigationRoutes.SIGN_IN.name)
+                }) {
+                    Text(
+                        text = "Sign in", style = MaterialTheme.typography.titleSmall
+                    )
+                }
             }
-            FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {
-                navController.navigate(NavigationRoutes.SIGN_IN.name)
-            }) {
+            if (uiEvent.value != StartUpEvent.None) {
+                if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                }
                 Text(
-                    text = "Sign in", style = MaterialTheme.typography.titleSmall
+                    text = "Status", style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = uiEvent.value.toString(),
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
             Spacer(modifier = Modifier)

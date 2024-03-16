@@ -6,12 +6,16 @@ sealed class StartUpEvent {
     data object CheckingIfAnySessionAlreadyExists : StartUpEvent()
     data object AddingDataToLocalDatabase : StartUpEvent()
     data object UpdatingLocalDatabase : StartUpEvent()
-    data class Navigate(val navigationRoute: String) :
-        StartUpEvent()
+    data class Navigate(val navigationRoute: String) : StartUpEvent()
 
     data object None : StartUpEvent()
-    data object DomainsNotFound : HttpResponse()
+    sealed class Domains : StartUpEvent() {
+        data object DomainsNotFound : Domains()
+        data object FetchingDomains : Domains()
+    }
 
+    data object GeneratingMailAddressAndPassword : StartUpEvent()
+    data object CreatingANewAccount : StartUpEvent()
     sealed class HttpResponse : StartUpEvent() {
         data object BadRequest400 : HttpResponse()
         data object Invalid401 : HttpResponse()
