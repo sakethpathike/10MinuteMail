@@ -1,16 +1,16 @@
 package sakethh.tenmin.mail.ui.accounts
 
-import sakethh.tenmin.mail.NavigationRoutes
-
 sealed class StartUpEvent {
     data object FetchingTokenAndID : StartUpEvent()
     data object FetchingMailAccountData : StartUpEvent()
     data object CheckingIfAnySessionAlreadyExists : StartUpEvent()
     data object AddingDataToLocalDatabase : StartUpEvent()
     data object UpdatingLocalDatabase : StartUpEvent()
-    data class Navigate(val navigationRoute: String = NavigationRoutes.HOME.name) :
+    data class Navigate(val navigationRoute: String) :
         StartUpEvent()
+
     data object None : StartUpEvent()
+    data object DomainsNotFound : HttpResponse()
 
     sealed class HttpResponse : StartUpEvent() {
         data object BadRequest400 : HttpResponse()

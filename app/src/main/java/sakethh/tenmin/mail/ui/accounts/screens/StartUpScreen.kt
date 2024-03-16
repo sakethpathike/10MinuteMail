@@ -60,7 +60,9 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
         contentAlignment = Alignment.BottomCenter
     ) {
         if (!checkingForActiveSession.value) {
-            StartUpComponent(navController = navController)
+            StartUpComponent(navController = navController, onGenerateANewAccountClick = {
+                startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
+            })
         } else {
             Column(
                 Modifier
@@ -91,7 +93,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
 }
 
 @Composable
-private fun StartUpComponent(navController: NavController) {
+private fun StartUpComponent(navController: NavController, onGenerateANewAccountClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,7 +121,9 @@ private fun StartUpComponent(navController: NavController) {
 
                 }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
             )
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                onGenerateANewAccountClick()
+            }) {
                 Text(
                     text = "Generate a temporary email account",
                     style = MaterialTheme.typography.titleSmall

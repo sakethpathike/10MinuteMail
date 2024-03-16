@@ -11,6 +11,7 @@ import retrofit2.http.Query
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountData
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.data.remote.api.model.account.Token
+import sakethh.tenmin.mail.data.remote.api.model.domain.Domain
 import sakethh.tenmin.mail.data.remote.api.model.mail.Mail
 
 interface MailService {
@@ -33,4 +34,12 @@ interface MailService {
     suspend fun deleteAnAccount(
         @Path("id") id: String, @Header("Authorization") authorization: String
     ): Response<Unit>
+
+    @POST("/accounts")
+    suspend fun createANewAccount(
+        @Body accountInfo: AccountInfo
+    ): Response<Unit>
+
+    @GET("/domains?page=1")
+    suspend fun getDomains(): Response<Domain>
 }
