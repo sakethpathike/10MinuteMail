@@ -9,7 +9,7 @@ sealed class StartUpEvent {
     data object CheckingIfAnySessionAlreadyExists : StartUpEvent()
     data object AddingDataToLocalDatabase : StartUpEvent()
     data object UpdatingLocalDatabase : StartUpEvent()
-    data class NavigateToMail(val navigationRoute: String = NavigationRoutes.HOME.name) :
+    data class Navigate(val navigationRoute: String = NavigationRoutes.HOME.name) :
         StartUpEvent()
     data object None : StartUpEvent()
 }

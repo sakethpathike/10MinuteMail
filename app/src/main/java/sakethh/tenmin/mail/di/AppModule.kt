@@ -13,6 +13,8 @@ import retrofit2.Retrofit
 import sakethh.tenmin.mail.data.local.LocalDatabase
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionImpl
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
+import sakethh.tenmin.mail.data.remote.api.MailImpl
+import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.MailService
 import javax.inject.Singleton
 
@@ -46,4 +48,12 @@ object AppModule {
     fun provideCurrentSessionRepository(db: LocalDatabase): CurrentSessionRepo {
         return CurrentSessionImpl(db.currentSessionDao)
     }
+
+    @Provides
+    @Singleton
+    fun provideMailRepository(mailService: MailService): MailRepository {
+        return MailImpl(mailService)
+    }
+
+
 }

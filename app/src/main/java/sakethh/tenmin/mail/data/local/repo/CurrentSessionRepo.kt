@@ -13,4 +13,6 @@ interface CurrentSessionRepo {
     suspend fun addANewCurrentSession(currentSession: CurrentSession)
 
     suspend fun updateCurrentSession(currentSession: CurrentSession)
+    suspend fun deleteCurrentSession(currentSession: CurrentSession)
+
 }

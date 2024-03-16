@@ -49,7 +49,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 is StartUpEvent.CheckingIfAnySessionAlreadyExists -> checkingForActiveSession.value =
                     true
 
-                is StartUpEvent.NavigateToMail -> navController.navigate(it.navigationRoute)
+                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute)
                 is StartUpEvent.None -> checkingForActiveSession.value = false
                 else -> Unit
             }

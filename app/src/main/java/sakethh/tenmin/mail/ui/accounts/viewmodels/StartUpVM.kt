@@ -21,7 +21,7 @@ class StartUpVM @Inject constructor(private val currentSessionRepo: CurrentSessi
         viewModelScope.launch {
             sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
             if (currentSessionRepo.hasActiveSession()) {
-                return@launch sendUIEvent(StartUpEvent.NavigateToMail())
+                return@launch sendUIEvent(StartUpEvent.Navigate())
             }
             sendUIEvent(StartUpEvent.None)
         }

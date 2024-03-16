@@ -40,7 +40,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
     LaunchedEffect(key1 = true) {
         signInVM.uiEvent.collect {
             when (it) {
-                is StartUpEvent.NavigateToMail -> navController.navigate(it.navigationRoute)
+                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute)
 
                 is StartUpEvent.ShowLoadingDataTransition -> Unit
                 else -> Unit

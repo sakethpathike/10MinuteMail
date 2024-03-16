@@ -24,4 +24,8 @@ class CurrentSessionImpl(private val currentSessionDao: CurrentSessionDao) : Cur
     override suspend fun updateCurrentSession(currentSession: CurrentSession) {
         currentSessionDao.updateCurrentSession(currentSession)
     }
+
+    override suspend fun deleteCurrentSession(currentSession: CurrentSession) {
+        currentSessionDao.deleteCurrentSession(currentSession)
+    }
 }

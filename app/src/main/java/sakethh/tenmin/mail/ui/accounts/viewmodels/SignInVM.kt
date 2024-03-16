@@ -56,11 +56,12 @@ class SignInVM @Inject constructor(
                         sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
                         currentSessionRepo.addANewCurrentSession(newData)
                     }
-                    sendUIEvent(StartUpEvent.NavigateToMail(NavigationRoutes.HOME.name))
+                    sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 
-            AccountsUiEvent.OpenMail -> sendUIEvent(StartUpEvent.NavigateToMail(NavigationRoutes.HOME.name))
+            is AccountsUiEvent.OpenMail -> sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+            else -> Unit
         }
     }
 
