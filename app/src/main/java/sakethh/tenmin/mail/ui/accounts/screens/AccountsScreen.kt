@@ -3,6 +3,7 @@ package sakethh.tenmin.mail.ui.accounts.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,10 +11,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -83,6 +87,30 @@ fun AccountsScreen(accountVM: AccountVM = hiltViewModel(), navController: NavCon
             }
             item {
                 CurrentSessionItem(currentSessionData.mailAddress, currentSessionData.mailPassword)
+                Spacer(modifier = Modifier.height(5.dp))
+                FilledTonalButton(onClick = {
+
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Sign out",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1
+                    )
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ), onClick = {
+
+                    }, modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Delete account permanently",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1
+                    )
+                }
             }
             item {
                 Text(text = "Other Accounts", style = MaterialTheme.typography.titleSmall)
