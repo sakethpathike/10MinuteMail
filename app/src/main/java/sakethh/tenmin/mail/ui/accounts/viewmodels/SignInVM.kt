@@ -28,23 +28,29 @@ class SignInVM @Inject constructor(
                 viewModelScope.launch {
                     sendUIEvent(StartUpEvent.ShowLoadingDataTransition)
                     sendUIEvent(StartUpEvent.FetchingTokenAndID)
-                    val requestedEmailTokenAndID = mailRepository.getTokenAndID(
+                    val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
                         body = AccountInfo(
                             address = accountsUiEvent.emailAddress,
                             password = accountsUiEvent.emailPassword
                         )
                     )
+                    when (rawRequestedEmailTokenAndID.code()) {
+                        401 -> {
+                            sendUIEvent(StartUpEvent.HttpResponse.Invalid401)
+                            return@launch
+                        }
+                    }
+                    val requestedEmailTokenAndIDBody = rawRequestedEmailTokenAndID.body()!!
                     sendUIEvent(StartUpEvent.FetchingMailAccountData)
                     val accountData = mailRepository.getExistingMailAccountData(
-                        requestedEmailTokenAndID.id,
-                        requestedEmailTokenAndID.token
-                    )
+                        requestedEmailTokenAndIDBody.id, requestedEmailTokenAndIDBody.token
+                    ).body()!!
 
                     val newData = CurrentSession(
                         mailAddress = accountsUiEvent.emailAddress,
                         mailPassword = accountsUiEvent.emailPassword,
-                        mailId = requestedEmailTokenAndID.id,
-                        token = requestedEmailTokenAndID.token,
+                        mailId = requestedEmailTokenAndIDBody.id,
+                        token = requestedEmailTokenAndIDBody.token,
                         createdAt = accountData.createdAt
                     )
                     sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)

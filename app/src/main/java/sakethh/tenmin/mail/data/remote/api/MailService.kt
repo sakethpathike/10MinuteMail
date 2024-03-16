@@ -15,19 +15,19 @@ import sakethh.tenmin.mail.data.remote.api.model.mail.Mail
 
 interface MailService {
     @POST("/token")
-    suspend fun getAccountTokenAndID(@Body body: AccountInfo): Token
+    suspend fun getAccountTokenAndID(@Body body: AccountInfo): Response<Token>
 
     @GET("/accounts/{id}")
     suspend fun getExistingMailAccountData(
         @Path("id") id: String,
         @Header("Authorization") authorization: String
-    ): AccountData
+    ): Response<AccountData>
 
     @GET("/messages")
     suspend fun getMessages(
         @Header("Authorization") authorization: String,
         @Query("page") pageNo: String
-    ): Mail
+    ): Response<Mail>
 
     @DELETE("/accounts/{id}")
     suspend fun deleteAnAccount(
