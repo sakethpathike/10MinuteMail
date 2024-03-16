@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.data.remote.api
 
+import retrofit2.Response
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountData
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.data.remote.api.model.account.Token
@@ -18,5 +19,9 @@ class MailImpl(private val mailService: MailService) : MailRepository {
         return mailService.getMessages(
             authorization = "Bearer ".plus(token), pageNo = pageNo.toString()
         )
+    }
+
+    override suspend fun deleteAnAccount(id: String, token: String): Response<Unit> {
+        return mailService.deleteAnAccount(id, "Bearer ".plus(token))
     }
 }

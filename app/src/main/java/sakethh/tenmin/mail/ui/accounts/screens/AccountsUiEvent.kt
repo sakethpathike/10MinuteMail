@@ -4,5 +4,5 @@ sealed class AccountsUiEvent {
     data class SignIn(val emailAddress: String, val emailPassword: String) : AccountsUiEvent()
     data object OpenMail : AccountsUiEvent()
     data object SignOut : AccountsUiEvent()
-    data object DeleteAccountPermanently : AccountsUiEvent()
+    data object DeleteCurrentSessionAccountPermanently : AccountsUiEvent()
 }

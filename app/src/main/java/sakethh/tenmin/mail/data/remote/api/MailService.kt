@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.data.remote.api
 
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -31,5 +32,5 @@ interface MailService {
     @DELETE("/accounts/{id}")
     suspend fun deleteAnAccount(
         @Path("id") id: String, @Header("Authorization") authorization: String
-    )
+    ): Response<Unit>
 }

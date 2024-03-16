@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.model.CurrentSession
 
 interface CurrentSessionRepo {
-    fun getCurrentSessionAsAFlow(): Flow<CurrentSession>
+    fun getCurrentSessionAsAFlow(): Flow<CurrentSession?>
 
     suspend fun getCurrentSession(): CurrentSession
 

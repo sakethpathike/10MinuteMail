@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                             SignInScreen(navController = navController)
                         }
                         composable(route = NavigationRoutes.HOME.name) {
-                            HomeScreen()
+                            HomeScreen(mainNavController = navController)
                         }
                     }
                 }

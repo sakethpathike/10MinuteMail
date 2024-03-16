@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,7 +38,7 @@ import sakethh.tenmin.mail.ui.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(mainNavController: NavController) {
     val navController = rememberNavController()
     val topAppBarState = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val modalNavigationBarState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -108,7 +109,10 @@ fun HomeScreen() {
                     InfoScreen()
                 }
                 composable(NavigationRoutes.ACCOUNTS.name) {
-                    AccountsScreen(navController = navController)
+                    AccountsScreen(
+                        navController = navController,
+                        mainNavController = mainNavController
+                    )
                 }
                 composable(NavigationRoutes.SETTINGS.name) {
                     SettingsScreen()

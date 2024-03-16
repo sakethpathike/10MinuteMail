@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -32,14 +33,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.AccountVM
 import sakethh.tenmin.mail.ui.common.AccountItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountsScreen(accountVM: AccountVM = hiltViewModel(), navController: NavController) {
+fun AccountsScreen(
+    accountVM: AccountVM = hiltViewModel(),
+    navController: NavController,
+    mainNavController: NavController
+) {
     val lazyListState = rememberLazyListState()
     val currentSessionData = accountVM.currentSessionData.collectAsState().value
+    LaunchedEffect(key1 = true) {
+        accountVM.uiEvent.collect {
+            when (it) {
+                is StartUpEvent.Navigate -> mainNavController.navigate(it.navigationRoute) {
+                    popUpTo(0)
+                }
+
+                else -> Unit
+            }
+        }
+    }
     Scaffold(floatingActionButton = {
         ExtendedFloatingActionButton(expanded = remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }.value != 0 && !lazyListState.isScrollInProgress,
             icon = {
@@ -89,7 +106,7 @@ fun AccountsScreen(accountVM: AccountVM = hiltViewModel(), navController: NavCon
                 CurrentSessionItem(currentSessionData.mailAddress, currentSessionData.mailPassword)
                 Spacer(modifier = Modifier.height(5.dp))
                 FilledTonalButton(onClick = {
-
+                    accountVM.onUIEvent(AccountsUiEvent.SignOut)
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Sign out",
@@ -102,7 +119,7 @@ fun AccountsScreen(accountVM: AccountVM = hiltViewModel(), navController: NavCon
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
                     ), onClick = {
-
+                        accountVM.onUIEvent(AccountsUiEvent.DeleteCurrentSessionAccountPermanently)
                     }, modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(

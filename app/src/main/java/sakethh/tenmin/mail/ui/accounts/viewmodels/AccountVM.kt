@@ -13,15 +13,14 @@ import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.CurrentSession
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
-import sakethh.tenmin.mail.data.remote.api.MailService
+import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountVM @Inject constructor(
-    private val currentSessionRepo: CurrentSessionRepo,
-    private val mailService: MailService
+    private val currentSessionRepo: CurrentSessionRepo, private val mailRepository: MailRepository
 ) :
     ViewModel() {
     private val _currentSessionData = MutableStateFlow(
@@ -39,17 +38,17 @@ class AccountVM @Inject constructor(
 
     init {
         viewModelScope.launch {
-            currentSessionRepo.getCurrentSessionAsAFlow().collect {
-                _currentSessionData.emit(it)
+            currentSessionRepo.getCurrentSessionAsAFlow().collect { currentSessionData ->
+                currentSessionData?.let { _currentSessionData.emit(it) }
             }
         }
     }
 
     fun onUIEvent(event: AccountsUiEvent) {
         when (event) {
-            is AccountsUiEvent.DeleteAccountPermanently -> deleteCurrentSessionWithAnAction { mailID, mailToken ->
+            is AccountsUiEvent.DeleteCurrentSessionAccountPermanently -> deleteCurrentSessionWithAnAction { mailID, mailToken ->
                 viewModelScope.launch {
-                    mailService.deleteAnAccount(mailID, mailToken)
+                    mailRepository.deleteAnAccount(mailID, mailToken)
                 }
             }
 

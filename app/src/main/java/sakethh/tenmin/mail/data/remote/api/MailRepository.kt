@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.data.remote.api
 
+import retrofit2.Response
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountData
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.data.remote.api.model.account.Token
@@ -11,4 +12,6 @@ interface MailRepository {
     suspend fun getExistingMailAccountData(id: String, token: String): AccountData
 
     suspend fun getMessages(token: String, pageNo: Int): Mail
+
+    suspend fun deleteAnAccount(id: String, token: String): Response<Unit>
 }

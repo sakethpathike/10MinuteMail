@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import sakethh.tenmin.mail.data.local.model.CurrentSession
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.SignInVM
 import sakethh.tenmin.mail.ui.theme.fonts
@@ -61,22 +60,15 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
 }
 
 @Composable
-private fun LoadedDataComponent(currentSession: CurrentSession) {
-    Column {
-        Text(text = "${currentSession.id}\n${currentSession.createdAt}\n${currentSession.token}\n${currentSession.mailId}\n${currentSession.mailAddress}")
-    }
-}
-
-@Composable
 private fun SignInComponent(
     uiEvent: State<StartUpEvent>,
     onSignInClick: (emailAddress: String, emailPassword: String) -> Unit
 ) {
     val emailAddress = rememberSaveable {
-        mutableStateOf("pftbiggtm@mynanaimohomes.com")
+        mutableStateOf("eodtwrltk@mynanaimohomes.com")
     }
     val emailPassword = rememberSaveable {
-        mutableStateOf("fA2G]6Tq")
+        mutableStateOf("+bxq&&6l")
     }
 
     Column(
