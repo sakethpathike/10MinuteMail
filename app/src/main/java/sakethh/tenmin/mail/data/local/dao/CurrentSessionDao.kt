@@ -6,34 +6,26 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import sakethh.tenmin.mail.data.local.model.Accounts
+import sakethh.tenmin.mail.data.local.model.CurrentSession
 
 @Dao
 interface CurrentSessionDao {
 
-    @Query("SELECT * FROM accounts WHERE isACurrentSession = 1")
-    fun getCurrentSessionAsAFlow(): Flow<Accounts>
+    @Query("SELECT * FROM currentSession")
+    fun getCurrentSessionAsAFlow(): Flow<CurrentSession>
 
-    @Query("SELECT * FROM accounts WHERE isACurrentSession = 1")
-    suspend fun getCurrentSession(): Accounts
+    @Query("SELECT * FROM currentSession")
+    suspend fun getCurrentSession(): CurrentSession
 
-    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM accounts WHERE isACurrentSession = 1")
+    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM currentSession")
     suspend fun hasActiveSession(): Boolean
 
-    @Query("UPDATE accounts SET isACurrentSession = 0")
-    suspend fun resetCurrentSessionForAllRows()
-
-    @Query("SELECT * FROM accounts WHERE isACurrentSession = 0")
-    suspend fun getAllAccountsExcludingCurrentSession(): Flow<List<Accounts>>
-
-    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM accounts WHERE mailAddress = :emailAddress")
-    suspend fun doesThisEmailExistsInLocalDB(emailAddress: String): Boolean
     @Insert
-    suspend fun addANewCurrentSession(accounts: Accounts)
+    suspend fun addANewCurrentSession(currentSession: CurrentSession)
 
     @Update
-    suspend fun updateCurrentSession(accounts: Accounts)
+    suspend fun updateCurrentSession(currentSession: CurrentSession)
 
     @Delete
-    suspend fun deleteCurrentSession(accounts: Accounts)
+    suspend fun deleteCurrentSession(currentSession: CurrentSession)
 }

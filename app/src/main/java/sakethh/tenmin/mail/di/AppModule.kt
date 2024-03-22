@@ -11,8 +11,10 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import sakethh.tenmin.mail.data.local.LocalDatabase
-import sakethh.tenmin.mail.data.local.repo.CurrentSessionImpl
-import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
+import sakethh.tenmin.mail.data.local.repo.accounts.AccountsImpl
+import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionImpl
+import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailImpl
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.MailService
@@ -47,6 +49,12 @@ object AppModule {
     @Singleton
     fun provideCurrentSessionRepository(db: LocalDatabase): CurrentSessionRepo {
         return CurrentSessionImpl(db.currentSessionDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountsRepository(db: LocalDatabase): AccountsRepo {
+        return AccountsImpl(db.accountsDao)
     }
 
     @Provides

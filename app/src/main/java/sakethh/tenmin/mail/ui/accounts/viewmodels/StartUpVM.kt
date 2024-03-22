@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.Accounts
-import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
+import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
@@ -18,7 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartUpVM @Inject constructor(
-    private val currentSessionRepo: CurrentSessionRepo, private val mailRepository: MailRepository
+    private val currentSessionRepo: CurrentSessionRepo,
+    private val mailRepository: MailRepository,
+    private val accountsRepo: AccountsRepo
 ) :
     ViewModel() {
     private val _uiEvent = Channel<StartUpEvent>()
@@ -84,17 +88,21 @@ class StartUpVM @Inject constructor(
                         mailPassword = newAccountData.password,
                         mailId = requestedEmailTokenAndIDBody?.id ?: "0",
                         token = requestedEmailTokenAndIDBody?.token ?: "0",
-                        createdAt = accountData.createdAt,
-                        isACurrentSession = true
+                        createdAt = accountData.createdAt
                     )
-                    sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
-
+                    sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
+                    accountsRepo.addANewAccount(newData)
+                    val currentSession = CurrentSession(
+                        mailAddress = newData.mailAddress,
+                        mailPassword = newData.mailPassword,
+                        mailId = newData.mailId,
+                        token = newData.token,
+                        createdAt = newData.createdAt
+                    )
                     if (currentSessionRepo.hasActiveSession()) {
-                        sendUIEvent(StartUpEvent.UpdatingLocalDatabase)
-                        currentSessionRepo.updateCurrentSession(newData)
+                        currentSessionRepo.updateCurrentSession(currentSession)
                     } else {
-                        sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
-                        currentSessionRepo.addANewCurrentSession(newData)
+                        currentSessionRepo.addANewCurrentSession(currentSession)
                     }
                     sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
                 }

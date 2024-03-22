@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.Accounts
-import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
+import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
@@ -21,16 +23,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountVM @Inject constructor(
-    private val currentSessionRepo: CurrentSessionRepo, private val mailRepository: MailRepository
+    private val currentSessionRepo: CurrentSessionRepo,
+    private val mailRepository: MailRepository,
+    private val accountsRepo: AccountsRepo
 ) :
     ViewModel() {
 
     private val _currentSessionData = MutableStateFlow(
-        Accounts(
+        CurrentSession(
             mailAddress = "",
             mailPassword = "",
             mailId = "",
-            token = "", createdAt = "", isACurrentSession = false
+            token = "", createdAt = ""
         )
     )
     val currentSessionData = _currentSessionData.asStateFlow()
@@ -45,11 +49,13 @@ class AccountVM @Inject constructor(
     init {
         viewModelScope.launch {
             currentSessionRepo.getCurrentSessionAsAFlow().collect { currentSessionData ->
-                currentSessionData?.let { _currentSessionData.emit(it) }
+                currentSessionData?.let {
+                    _currentSessionData.emit(it)
+                }
             }
         }
         viewModelScope.launch {
-            currentSessionRepo.getAllAccountsExcludingCurrentSession().collectLatest {
+            accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
                 _allAccountsExcludingCurrentSessionData.emit(it)
             }
         }

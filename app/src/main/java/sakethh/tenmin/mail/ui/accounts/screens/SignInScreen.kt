@@ -44,7 +44,6 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                 is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
                     popUpTo(0)
                 }
-
                 else -> Unit
             }
         }
@@ -79,7 +78,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                 }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
             )
             OutlinedTextField(
-                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
+                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401 && uiEvent.value != StartUpEvent.MailAlreadyExists,
                 textStyle = TextStyle(
                     fontFamily = fonts, fontWeight = FontWeight.Normal
                 ),
@@ -94,7 +93,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                     )
                 })
             OutlinedTextField(
-                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
+                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401 && uiEvent.value != StartUpEvent.MailAlreadyExists,
                 textStyle = TextStyle(
                     fontFamily = fonts, fontWeight = FontWeight.Normal
                 ),
@@ -108,7 +107,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                         text = "Email password", style = MaterialTheme.typography.titleSmall
                     )
                 })
-            if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
+            if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401 || uiEvent.value == StartUpEvent.MailAlreadyExists) {
                 Button(modifier = Modifier.fillMaxWidth(), onClick = {
                     signInVM.onUiClickEvent(
                         AccountsUiEvent.SignIn(
@@ -123,7 +122,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                 }
             }
             if (uiEvent.value != StartUpEvent.None) {
-                if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
+                if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401 && uiEvent.value != StartUpEvent.MailAlreadyExists) {
                     LinearProgressIndicator(Modifier.fillMaxWidth())
                 }
                 Text(

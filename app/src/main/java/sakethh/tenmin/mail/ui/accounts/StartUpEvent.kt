@@ -5,6 +5,7 @@ sealed class StartUpEvent {
     data object FetchingMailAccountData : StartUpEvent()
     data object CheckingIfAnySessionAlreadyExists : StartUpEvent()
     data object AddingDataToLocalDatabase : StartUpEvent()
+    data object MailAlreadyExists : StartUpEvent()
     data object UpdatingLocalDatabase : StartUpEvent()
     data class Navigate(val navigationRoute: String) : StartUpEvent()
 
