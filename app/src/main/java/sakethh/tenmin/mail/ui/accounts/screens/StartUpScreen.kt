@@ -3,9 +3,11 @@ package sakethh.tenmin.mail.ui.accounts.screens
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,8 +15,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,11 +49,16 @@ import kotlinx.coroutines.channels.consumeEach
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.StartUpVM
+import sakethh.tenmin.mail.ui.common.AccountItem
 
 @Composable
 fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewModel()) {
     val checkingForActiveSession = rememberSaveable {
         mutableStateOf(true)
+    }
+    val existingAccountData = startUpVM.existingAccountData.collectAsState().value
+    val isAccountsExpanded = rememberSaveable {
+        mutableStateOf(false)
     }
     LaunchedEffect(key1 = true) {
         startUpVM.uiEvent.consumeEach {
@@ -67,46 +81,92 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
             .imePadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        if (!checkingForActiveSession.value) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                StartUpComponent(
-                    uiEvent = startUpVM.uiEventAsFlow.collectAsState(initial = StartUpEvent.None),
-                    navController = navController,
-                    onGenerateANewAccountClick = {
-                        startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
-                    })
-            }
-        } else {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp)
-            ) {
-                Text(
-                    text = "10 Minute Mail",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    fontSize = 26.sp
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Checking for an existing local active session",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 16.sp
-                    )
+        LazyColumn {
+            if (!checkingForActiveSession.value) {
+                item {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 25.dp, end = 25.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        StartUpComponent(uiEvent = startUpVM.uiEventAsFlow.collectAsState(initial = StartUpEvent.None),
+                            navController = navController,
+                            onGenerateANewAccountClick = {
+                                startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
+                            })
+                    }
                 }
-                Spacer(modifier = Modifier.height(50.dp))
+            } else {
+                item {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 25.dp, end = 25.dp)
+                    ) {
+                        Text(
+                            text = "10 Minute Mail",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 26.sp
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "Checking for an existing local active session",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontSize = 16.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(50.dp))
+                    }
+                }
             }
-        }
+
+            if (existingAccountData.isNotEmpty() && !checkingForActiveSession.value) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isAccountsExpanded.value = !isAccountsExpanded.value },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Sign in with previously logged-in accounts",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier
+                                .padding(15.dp)
+                                .fillMaxWidth(0.75f)
+                        )
+                        IconButton(onClick = {
+                            isAccountsExpanded.value = !isAccountsExpanded.value
+                        }) {
+                            Icon(
+                                imageVector = if (isAccountsExpanded.value) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = "Icons for expanding accounts that are either existing or previously used but not deleted."
+                            )
+                        }
+                    }
+                }
+                items(existingAccountData) {
+                    Box(modifier = Modifier.animateContentSize()) {
+                        if (isAccountsExpanded.value) {
+                            AccountItem(it.mailAddress, it.mailId, onAccountClick = {
+                                startUpVM.onUiClickEvent(
+                                    AccountsUiEvent.LoginUsingExistingAccount(
+                                        it
+                                    )
+                                )
+                            })
+                        }
+                    }
+                }
+            }
+
     }
     val context = LocalContext.current
     BackHandler {
@@ -119,6 +179,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
         } else {
             navController.popBackStack()
         }
+    }
     }
 }
 

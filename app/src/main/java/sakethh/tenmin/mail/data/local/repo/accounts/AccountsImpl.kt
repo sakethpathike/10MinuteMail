@@ -5,7 +5,7 @@ import sakethh.tenmin.mail.data.local.dao.AccountsDao
 import sakethh.tenmin.mail.data.local.model.Accounts
 
 class AccountsImpl(private val accountsDao: AccountsDao) : AccountsRepo {
-    override fun getAllAccountsAsAFlow(): Flow<Accounts> {
+    override fun getAllAccountsAsAFlow(): Flow<List<Accounts>> {
         return accountsDao.getAllAccountsAsAFlow()
     }
 

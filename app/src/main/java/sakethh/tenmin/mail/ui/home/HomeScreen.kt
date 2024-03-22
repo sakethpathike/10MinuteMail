@@ -109,7 +109,7 @@ fun HomeScreen(mainNavController: NavController) {
                     InboxScreen()
                 }
                 composable(NavigationRoutes.ABOUT.name) {
-                    InfoScreen()
+                    InfoScreen(navController)
                 }
                 composable(NavigationRoutes.ACCOUNTS.name) {
                     AccountsScreen(
@@ -118,7 +118,7 @@ fun HomeScreen(mainNavController: NavController) {
                     )
                 }
                 composable(NavigationRoutes.SETTINGS.name) {
-                    SettingsScreen()
+                    SettingsScreen(navController)
                 }
             }
         }

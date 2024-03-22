@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
@@ -29,6 +32,9 @@ class StartUpVM @Inject constructor(
     val uiEvent = _uiEvent
     val uiEventAsFlow = _uiEvent.receiveAsFlow()
 
+    private val _existingAccountData = MutableStateFlow(emptyList<Accounts>())
+    val existingAccountData = _existingAccountData.asStateFlow()
+
     companion object {
         var isNavigatingFromAccountsScreenForANewAccountCreation = false
     }
@@ -41,6 +47,11 @@ class StartUpVM @Inject constructor(
                 return@launch sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
             }
             sendUIEvent(StartUpEvent.None)
+        }
+        viewModelScope.launch {
+            accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
+                _existingAccountData.emit(it)
+            }
         }
     }
 
@@ -102,6 +113,26 @@ class StartUpVM @Inject constructor(
                     if (currentSessionRepo.hasActiveSession()) {
                         currentSessionRepo.updateCurrentSession(currentSession)
                     } else {
+                        currentSessionRepo.addANewCurrentSession(currentSession)
+                    }
+                    sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+                }
+            }
+
+            is AccountsUiEvent.LoginUsingExistingAccount -> {
+                viewModelScope.launch {
+                    val currentSession = CurrentSession(
+                        mailAddress = accountsUiEvent.account.mailAddress,
+                        mailPassword = accountsUiEvent.account.mailPassword,
+                        mailId = accountsUiEvent.account.mailId,
+                        token = accountsUiEvent.account.token,
+                        createdAt = accountsUiEvent.account.createdAt
+                    )
+                    if (currentSessionRepo.hasActiveSession()) {
+                        sendUIEvent(StartUpEvent.UpdatingLocalDatabase)
+                        currentSessionRepo.updateCurrentSession(currentSession)
+                    } else {
+                        sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
                         currentSessionRepo.addANewCurrentSession(currentSession)
                     }
                     sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))

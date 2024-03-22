@@ -11,7 +11,7 @@ import sakethh.tenmin.mail.data.local.model.Accounts
 @Dao
 interface AccountsDao {
     @Query("SELECT * FROM accounts")
-    fun getAllAccountsAsAFlow(): Flow<Accounts>
+    fun getAllAccountsAsAFlow(): Flow<List<Accounts>>
 
     @Query("SELECT * FROM accounts WHERE mailaddress NOT IN (SELECT mailaddress FROM currentSession)")
     fun getAllAccountsExcludingCurrentSession(): Flow<List<Accounts>>

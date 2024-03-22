@@ -58,10 +58,10 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
         contentAlignment = Alignment.BottomCenter
     ) {
         val emailAddress = rememberSaveable {
-            mutableStateOf("40d9a8fbfd2a485891d55577d92e95b2@maxamba.com")
+            mutableStateOf("")
         }
         val emailPassword = rememberSaveable {
-            mutableStateOf("545e7eadf4384ffda896cfb813c8da00")
+            mutableStateOf("")
         }
 
         Column(

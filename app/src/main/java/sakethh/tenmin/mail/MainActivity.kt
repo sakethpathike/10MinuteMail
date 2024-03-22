@@ -14,7 +14,6 @@ import sakethh.tenmin.mail.ui.accounts.screens.SignInScreen
 import sakethh.tenmin.mail.ui.accounts.screens.StartUpScreen
 import sakethh.tenmin.mail.ui.home.HomeScreen
 import sakethh.tenmin.mail.ui.inbox.InboxScreen
-import sakethh.tenmin.mail.ui.info.InfoScreen
 import sakethh.tenmin.mail.ui.theme.TenMinuteMailTheme
 
 @AndroidEntryPoint
@@ -31,9 +30,6 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = NavigationRoutes.STARTUP.name
                     ) {
-                        composable(route = NavigationRoutes.ABOUT.name) {
-                            InfoScreen()
-                        }
                         composable(route = NavigationRoutes.INBOX.name) {
                             InboxScreen()
                         }

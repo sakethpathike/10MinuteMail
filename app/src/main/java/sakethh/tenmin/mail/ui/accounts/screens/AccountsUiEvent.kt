@@ -8,6 +8,7 @@ sealed class AccountsUiEvent {
     data object OpenMail : AccountsUiEvent()
     data object GenerateANewTemporaryMailAccount : AccountsUiEvent()
     data object AddANewEmailAccount : AccountsUiEvent()
+    data class LoginUsingExistingAccount(val account: Accounts) : AccountsUiEvent()
     data object SignOut : AccountsUiEvent()
     data object DeleteCurrentSessionAccountPermanently : AccountsUiEvent()
 }
