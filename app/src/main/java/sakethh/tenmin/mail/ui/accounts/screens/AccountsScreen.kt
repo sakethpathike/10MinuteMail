@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -46,12 +47,12 @@ fun AccountsScreen(
 ) {
     val lazyListState = rememberLazyListState()
     val currentSessionData = accountVM.currentSessionData.collectAsState().value
+    val allAccountsExcludingCurrentSessionData =
+        accountVM.allAccountsExcludingCurrentSessionData.collectAsState().value
     LaunchedEffect(key1 = true) {
         accountVM.uiEvent.collect {
             when (it) {
-                is StartUpEvent.Navigate -> mainNavController.navigate(it.navigationRoute) {
-                    popUpTo(0)
-                }
+                is StartUpEvent.Navigate -> mainNavController.navigate(it.navigationRoute)
 
                 else -> Unit
             }
@@ -62,16 +63,17 @@ fun AccountsScreen(
             icon = {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Generate a new email address icon"
+                    contentDescription = "Add a new email address icon"
                 )
             },
             text = {
                 Text(
-                    text = "Generate a new email address",
+                    text = "Add a new email account",
                     style = MaterialTheme.typography.titleSmall
                 )
-            },
-            onClick = { })
+            }, onClick = {
+                accountVM.onUIEvent(AccountsUiEvent.AddANewEmailAccount)
+            })
     }, floatingActionButtonPosition = FabPosition.End, topBar = {
         CenterAlignedTopAppBar(navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
@@ -133,8 +135,8 @@ fun AccountsScreen(
                 Text(text = "Other Accounts", style = MaterialTheme.typography.titleSmall)
             }
 
-            items(20) {
-                AccountItem("tgrfhtgrhhrthtgrhtrshth", "dfgfdgfdgfdgfdgdfdgdfgdfgdhgdfhgfdghrth")
+            items(allAccountsExcludingCurrentSessionData) {
+                AccountItem(it.mailAddress, it.mailId)
             }
             item {
                 Spacer(modifier = Modifier.height(100.dp))

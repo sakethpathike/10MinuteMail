@@ -1,18 +1,19 @@
 package sakethh.tenmin.mail.data.local.repo
 
 import kotlinx.coroutines.flow.Flow
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.Accounts
 
 interface CurrentSessionRepo {
-    fun getCurrentSessionAsAFlow(): Flow<CurrentSession?>
+    fun getCurrentSessionAsAFlow(): Flow<Accounts?>
 
-    suspend fun getCurrentSession(): CurrentSession
+    suspend fun getCurrentSession(): Accounts
 
     suspend fun hasActiveSession(): Boolean
 
-    suspend fun addANewCurrentSession(currentSession: CurrentSession)
+    suspend fun addANewCurrentSession(accounts: Accounts)
 
-    suspend fun updateCurrentSession(currentSession: CurrentSession)
-    suspend fun deleteCurrentSession(currentSession: CurrentSession)
+    suspend fun updateCurrentSession(accounts: Accounts)
+    suspend fun deleteCurrentSession(accounts: Accounts)
+    suspend fun getAllAccountsExcludingCurrentSession(): Flow<List<Accounts>>
 
 }

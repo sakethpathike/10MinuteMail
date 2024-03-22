@@ -8,10 +8,11 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.Accounts
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
@@ -25,12 +26,11 @@ class AccountVM @Inject constructor(
     ViewModel() {
 
     private val _currentSessionData = MutableStateFlow(
-        CurrentSession(
+        Accounts(
             mailAddress = "",
             mailPassword = "",
             mailId = "",
-            token = "",
-            createdAt = ""
+            token = "", createdAt = "", isACurrentSession = false
         )
     )
     val currentSessionData = _currentSessionData.asStateFlow()
@@ -38,10 +38,19 @@ class AccountVM @Inject constructor(
     private val _uiEvent = Channel<StartUpEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    private val _allAccountsExcludingCurrentSessionData = MutableStateFlow(emptyList<Accounts>())
+    val allAccountsExcludingCurrentSessionData =
+        _allAccountsExcludingCurrentSessionData.asStateFlow()
+
     init {
         viewModelScope.launch {
             currentSessionRepo.getCurrentSessionAsAFlow().collect { currentSessionData ->
                 currentSessionData?.let { _currentSessionData.emit(it) }
+            }
+        }
+        viewModelScope.launch {
+            currentSessionRepo.getAllAccountsExcludingCurrentSession().collectLatest {
+                _allAccountsExcludingCurrentSessionData.emit(it)
             }
         }
     }
@@ -56,6 +65,14 @@ class AccountVM @Inject constructor(
 
             is AccountsUiEvent.SignOut -> deleteCurrentSessionWithAnAction { _, _ -> }
 
+            is AccountsUiEvent.AddANewEmailAccount -> {
+                StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = true
+                sendUIEvent(
+                    StartUpEvent.Navigate(
+                        navigationRoute = NavigationRoutes.STARTUP.name
+                    )
+                )
+            }
             else -> Unit
         }
     }
@@ -66,7 +83,8 @@ class AccountVM @Inject constructor(
             awaitAll(async { onDeleteAction(currentSession.mailId, currentSession.token) }, async {
                 currentSessionRepo.deleteCurrentSession(currentSession)
             }, async {
-                sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.SIGN_IN.name))
+                StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
+                sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.STARTUP.name))
             })
         }
     }

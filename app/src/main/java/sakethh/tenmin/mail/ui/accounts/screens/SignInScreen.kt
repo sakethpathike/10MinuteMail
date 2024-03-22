@@ -17,7 +17,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,7 +41,9 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
     LaunchedEffect(key1 = true) {
         signInVM.uiEvent.collect {
             when (it) {
-                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute)
+                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
+                    popUpTo(0)
+                }
 
                 else -> Unit
             }
@@ -57,88 +58,82 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
             .imePadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        SignInComponent(uiEvent = uiEvent, onSignInClick = { emailAddress, emailPassword ->
-            signInVM.onUiClickEvent(AccountsUiEvent.SignIn(emailAddress, emailPassword))
-        })
+        val emailAddress = rememberSaveable {
+            mutableStateOf("40d9a8fbfd2a485891d55577d92e95b2@maxamba.com")
+        }
+        val emailPassword = rememberSaveable {
+            mutableStateOf("545e7eadf4384ffda896cfb813c8da00")
+        }
 
-    }
-}
-
-@Composable
-private fun SignInComponent(
-    uiEvent: State<StartUpEvent>,
-    onSignInClick: (emailAddress: String, emailPassword: String) -> Unit
-) {
-    val emailAddress = rememberSaveable {
-        mutableStateOf("ptardk@miteon.com")
-    }
-    val emailPassword = rememberSaveable {
-        mutableStateOf("&iwb0oRI")
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 25.dp, end = 25.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp)
-    ) {
-        Text(
-            text = buildAnnotatedString {
-                withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, fontSize = 24.sp)) {
-                    append("Welcome back!")
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 25.dp, end = 25.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, fontSize = 24.sp)) {
+                        append("Welcome back!")
+                    }
+                }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
+            )
+            OutlinedTextField(
+                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
+                textStyle = TextStyle(
+                    fontFamily = fonts, fontWeight = FontWeight.Normal
+                ),
+                value = emailAddress.value,
+                onValueChange = {
+                    emailAddress.value = it
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = {
+                    Text(
+                        text = "Email address", style = MaterialTheme.typography.titleSmall
+                    )
+                })
+            OutlinedTextField(
+                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
+                textStyle = TextStyle(
+                    fontFamily = fonts, fontWeight = FontWeight.Normal
+                ),
+                value = emailPassword.value,
+                onValueChange = {
+                    emailPassword.value = it
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = {
+                    Text(
+                        text = "Email password", style = MaterialTheme.typography.titleSmall
+                    )
+                })
+            if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
+                Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                    signInVM.onUiClickEvent(
+                        AccountsUiEvent.SignIn(
+                            emailAddress.value,
+                            emailPassword.value
+                        )
+                    )
+                }) {
+                    Text(
+                        text = "Sign in", style = MaterialTheme.typography.titleSmall
+                    )
                 }
-            }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
-        )
-        OutlinedTextField(
-            readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
-            textStyle = TextStyle(
-                fontFamily = fonts, fontWeight = FontWeight.Normal
-            ),
-            value = emailAddress.value,
-            onValueChange = {
-                emailAddress.value = it
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = {
+            }
+            if (uiEvent.value != StartUpEvent.None) {
+                if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                }
                 Text(
-                    text = "Email address", style = MaterialTheme.typography.titleSmall
+                    text = "Status", style = MaterialTheme.typography.titleSmall,
                 )
-            })
-        OutlinedTextField(
-            readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401,
-            textStyle = TextStyle(
-                fontFamily = fonts, fontWeight = FontWeight.Normal
-            ),
-            value = emailPassword.value,
-            onValueChange = {
-                emailPassword.value = it
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = {
                 Text(
-                    text = "Email password", style = MaterialTheme.typography.titleSmall
-                )
-            })
-        if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                onSignInClick(emailAddress.value, emailPassword.value)
-            }) {
-                Text(
-                    text = "Sign in", style = MaterialTheme.typography.titleSmall
+                    text = uiEvent.value.toString(), style = MaterialTheme.typography.titleMedium,
                 )
             }
+            Spacer(modifier = Modifier)
         }
-        if (uiEvent.value != StartUpEvent.None) {
-            if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
-                LinearProgressIndicator(Modifier.fillMaxWidth())
-            }
-            Text(
-                text = "Status", style = MaterialTheme.typography.titleSmall,
-            )
-            Text(
-                text = uiEvent.value.toString(), style = MaterialTheme.typography.titleMedium,
-            )
-        }
-        Spacer(modifier = Modifier)
     }
 }

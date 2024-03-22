@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4fdeb2c6075d0708cd91a92bb8d59ebd",
+    "identityHash": "cb5f9a72afaca098b05c79dbab8825b9",
     "entities": [
       {
-        "tableName": "currentSession",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `mailAddress` TEXT NOT NULL, `mailPassword` TEXT NOT NULL, `mailId` TEXT NOT NULL, `token` TEXT NOT NULL, `createdAt` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "tableName": "accounts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `mailAddress` TEXT NOT NULL, `mailPassword` TEXT NOT NULL, `mailId` TEXT NOT NULL, `token` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `isACurrentSession` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -43,6 +43,12 @@
             "columnName": "createdAt",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "isACurrentSession",
+            "columnName": "isACurrentSession",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -58,7 +64,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4fdeb2c6075d0708cd91a92bb8d59ebd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb5f9a72afaca098b05c79dbab8825b9')"
     ]
   }
 }

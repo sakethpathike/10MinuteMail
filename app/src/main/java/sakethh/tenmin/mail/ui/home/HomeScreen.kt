@@ -3,6 +3,7 @@ package sakethh.tenmin.mail.ui.home
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -84,9 +85,11 @@ fun HomeScreen(mainNavController: NavController) {
                                         )
                                     }
                                 },
-                                modifier = Modifier.padding(
-                                    start = 5.dp, end = 20.dp, bottom = 15.dp
-                                ),
+                                modifier = Modifier
+                                    .padding(
+                                        start = 5.dp, end = 20.dp, bottom = 15.dp
+                                    )
+                                    .fillMaxWidth(),
                                 query = "",
                                 onQueryChange = {},
                                 onSearch = {},

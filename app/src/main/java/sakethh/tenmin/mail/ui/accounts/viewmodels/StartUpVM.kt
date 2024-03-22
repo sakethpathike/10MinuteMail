@@ -7,7 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.Accounts
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
@@ -25,10 +25,15 @@ class StartUpVM @Inject constructor(
     val uiEvent = _uiEvent
     val uiEventAsFlow = _uiEvent.receiveAsFlow()
 
+    companion object {
+        var isNavigatingFromAccountsScreenForANewAccountCreation = false
+    }
     init {
         viewModelScope.launch {
-            sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
-            if (currentSessionRepo.hasActiveSession()) {
+            if (!isNavigatingFromAccountsScreenForANewAccountCreation) {
+                sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
+            }
+            if (!isNavigatingFromAccountsScreenForANewAccountCreation && currentSessionRepo.hasActiveSession()) {
                 return@launch sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
             }
             sendUIEvent(StartUpEvent.None)
@@ -74,12 +79,13 @@ class StartUpVM @Inject constructor(
                         requestedEmailTokenAndIDBody?.token ?: ""
                     ).body()!!
 
-                    val newData = CurrentSession(
+                    val newData = Accounts(
                         mailAddress = newAccountData.address,
                         mailPassword = newAccountData.password,
                         mailId = requestedEmailTokenAndIDBody?.id ?: "0",
                         token = requestedEmailTokenAndIDBody?.token ?: "0",
-                        createdAt = accountData.createdAt
+                        createdAt = accountData.createdAt,
+                        isACurrentSession = true
                     )
                     sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
 

@@ -1,5 +1,7 @@
 package sakethh.tenmin.mail.ui.accounts.screens
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +52,9 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 is StartUpEvent.CheckingIfAnySessionAlreadyExists -> checkingForActiveSession.value =
                     true
 
-                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute)
+                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
+                    popUpTo(0)
+                }
                 is StartUpEvent.None -> checkingForActiveSession.value = false
                 else -> Unit
             }
@@ -101,6 +106,18 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 }
                 Spacer(modifier = Modifier.height(50.dp))
             }
+        }
+    }
+    val context = LocalContext.current
+    BackHandler {
+        if (!StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation) {
+            navController.backQueue.removeIf {
+                true
+            }
+            val activity = context as Activity
+            activity.moveTaskToBack(false)
+        } else {
+            navController.popBackStack()
         }
     }
 }

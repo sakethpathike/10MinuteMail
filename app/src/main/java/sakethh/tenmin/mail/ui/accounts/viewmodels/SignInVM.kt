@@ -7,7 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.Accounts
 import sakethh.tenmin.mail.data.local.repo.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
@@ -45,12 +45,13 @@ class SignInVM @Inject constructor(
                         requestedEmailTokenAndIDBody.id, requestedEmailTokenAndIDBody.token
                     ).body()!!
 
-                    val newData = CurrentSession(
+                    val newData = Accounts(
                         mailAddress = accountsUiEvent.emailAddress,
                         mailPassword = accountsUiEvent.emailPassword,
                         mailId = requestedEmailTokenAndIDBody.id,
                         token = requestedEmailTokenAndIDBody.token,
-                        createdAt = accountData.createdAt
+                        createdAt = accountData.createdAt,
+                        isACurrentSession = true
                     )
                     sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
 
