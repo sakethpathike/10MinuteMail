@@ -1,6 +1,5 @@
 package sakethh.tenmin.mail.ui.accounts.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -93,15 +92,15 @@ fun AccountsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
-                .padding(start = 15.dp, end = 15.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(it),
             state = lazyListState
         ) {
             item {
                 Text(
                     text = "Current Session", style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 12.dp)
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .padding(start = 15.dp, end = 15.dp)
                 )
             }
             item {
@@ -109,7 +108,10 @@ fun AccountsScreen(
                 Spacer(modifier = Modifier.height(5.dp))
                 FilledTonalButton(onClick = {
                     accountVM.onUIEvent(AccountsUiEvent.SignOut)
-                }, modifier = Modifier.fillMaxWidth()) {
+                }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 15.dp, end = 15.dp)
+                ) {
                     Text(
                         text = "Sign out",
                         style = MaterialTheme.typography.titleSmall,
@@ -122,7 +124,9 @@ fun AccountsScreen(
                         contentColor = MaterialTheme.colorScheme.onError
                     ), onClick = {
                         accountVM.onUIEvent(AccountsUiEvent.DeleteCurrentSessionAccountPermanently)
-                    }, modifier = Modifier.fillMaxWidth()
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 15.dp, end = 15.dp)
                 ) {
                     Text(
                         text = "Delete account permanently",
@@ -132,11 +136,17 @@ fun AccountsScreen(
                 }
             }
             item {
-                Text(text = "Other Accounts", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = "Other Accounts",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 20.dp, start = 15.dp, end = 15.dp)
+                )
             }
 
             items(allAccountsExcludingCurrentSessionData) {
-                AccountItem(it.mailAddress, it.mailId)
+                AccountItem(it.mailAddress, it.mailId, onAccountClick = {
+                    accountVM.onUIEvent(AccountsUiEvent.SwitchAccount(it))
+                })
             }
             item {
                 Spacer(modifier = Modifier.height(100.dp))

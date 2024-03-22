@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +24,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AccountItem(emailAddress: String, emailId: String) {
+fun AccountItem(emailAddress: String, emailId: String, onAccountClick: () -> Unit) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                onAccountClick()
+            }
+            .padding(start = 15.dp, end = 15.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

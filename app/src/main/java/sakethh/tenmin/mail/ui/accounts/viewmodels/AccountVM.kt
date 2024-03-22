@@ -79,6 +79,20 @@ class AccountVM @Inject constructor(
                     )
                 )
             }
+
+            is AccountsUiEvent.SwitchAccount -> {
+                viewModelScope.launch {
+                    currentSessionRepo.updateCurrentSession(
+                        CurrentSession(
+                            mailAddress = event.account.mailAddress,
+                            mailPassword = event.account.mailPassword,
+                            mailId = event.account.mailId,
+                            token = event.account.token,
+                            createdAt = event.account.createdAt
+                        )
+                    )
+                }
+            }
             else -> Unit
         }
     }

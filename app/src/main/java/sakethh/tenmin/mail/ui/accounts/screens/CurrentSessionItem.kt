@@ -33,7 +33,11 @@ fun CurrentSessionItem(emailAddress: String, emailPassword: String) {
         mutableStateOf(true)
     }
     val localClipBoardManager = LocalClipboardManager.current
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 15.dp, end = 15.dp, top = 20.dp)
+    ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
