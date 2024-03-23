@@ -9,8 +9,8 @@ import sakethh.tenmin.mail.data.local.model.InboxMail
 
 @Dao
 interface InboxDao {
-    @Query("SELECT * FROM inboxMail")
-    fun getAllMailsForCurrentSession(): Flow<List<InboxMail>>
+    @Query("SELECT * FROM inboxMail WHERE accountId=:accountId")
+    fun getAllMailsForCurrentSession(accountId: String): Flow<List<InboxMail>>
 
     @Insert
     suspend fun addANewMail(inboxMail: InboxMail)

@@ -23,6 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import sakethh.tenmin.mail.ui.common.MailItem
@@ -48,7 +52,7 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                 Text(
                     text = "Inbox", style = MaterialTheme.typography.titleSmall, modifier = Modifier
                 )
-                IconButton(onClick = {
+                IconButton(modifier = Modifier.padding(end = 10.dp), onClick = {
                     isCurrentSessionMailExpanded.value = !isCurrentSessionMailExpanded.value
                 }) {
                     Icon(
@@ -60,9 +64,15 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
             Box(modifier = Modifier.animateContentSize()) {
                 if (isCurrentSessionMailExpanded.value) {
                     Text(
-                        text = "Logged in as ${currentSessionData.mailAddress}",
+                        text = buildAnnotatedString {
+                            append("Logged in as ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                append(currentSessionData.accountAddress)
+                            }
+                        },
                         style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(start = 20.dp, top = 12.dp)
+                        modifier = Modifier.padding(start = 20.dp, top = 12.dp, end = 20.dp),
+                        softWrap = true
                     )
                 }
             }

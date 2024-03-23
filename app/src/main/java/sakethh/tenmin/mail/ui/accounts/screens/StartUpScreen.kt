@@ -156,7 +156,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 items(existingAccountsData) {
                     Box(modifier = Modifier.animateContentSize()) {
                         if (isAccountsExpanded.value) {
-                            AccountItem(it.mailAddress, it.mailId, onAccountClick = {
+                            AccountItem(it.accountAddress, it.accountId, onAccountClick = {
                                 startUpVM.onUiClickEvent(
                                     AccountsUiEvent.LoginUsingExistingAccount(
                                         it

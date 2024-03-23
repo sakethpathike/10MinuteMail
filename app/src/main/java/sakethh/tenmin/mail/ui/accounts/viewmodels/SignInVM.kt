@@ -55,11 +55,11 @@ class SignInVM @Inject constructor(
                     ).body()!!
 
                     val newData = Accounts(
-                        mailAddress = accountsUiEvent.emailAddress,
-                        mailPassword = accountsUiEvent.emailPassword,
-                        mailId = requestedEmailTokenAndIDBody.id,
-                        token = requestedEmailTokenAndIDBody.token,
-                        createdAt = accountData.createdAt,
+                        accountAddress = accountsUiEvent.emailAddress,
+                        accountPassword = accountsUiEvent.emailPassword,
+                        accountId = requestedEmailTokenAndIDBody.id,
+                        accountToken = requestedEmailTokenAndIDBody.token,
+                        accountCreatedAt = accountData.createdAt,
                     )
 
                     sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
@@ -67,11 +67,11 @@ class SignInVM @Inject constructor(
                         accountsRepo.addANewAccount(newData)
                     }
                     val currentSession = CurrentSession(
-                        mailAddress = newData.mailAddress,
-                        mailPassword = newData.mailPassword,
-                        mailId = newData.mailId,
-                        token = newData.token,
-                        createdAt = newData.createdAt
+                        accountAddress = newData.accountAddress,
+                        accountPassword = newData.accountPassword,
+                        accountId = newData.accountId,
+                        accountToken = newData.accountToken,
+                        accountCreatedAt = newData.accountCreatedAt
                     )
                     if (currentSessionRepo.hasActiveSession()) {
                         currentSessionRepo.updateCurrentSession(currentSession)

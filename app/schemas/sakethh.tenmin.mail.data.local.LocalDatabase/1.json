@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "16890bb66bc64c4f0515b11b9eec47d6",
+    "identityHash": "0a59303931236ce9163ca216310d8700",
     "entities": [
       {
         "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mailAddress` TEXT NOT NULL, `mailPassword` TEXT NOT NULL, `mailId` TEXT NOT NULL, `token` TEXT NOT NULL, `createdAt` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,32 +15,32 @@
             "notNull": true
           },
           {
-            "fieldPath": "mailAddress",
-            "columnName": "mailAddress",
+            "fieldPath": "accountAddress",
+            "columnName": "accountAddress",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "mailPassword",
-            "columnName": "mailPassword",
+            "fieldPath": "accountPassword",
+            "columnName": "accountPassword",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "mailId",
-            "columnName": "mailId",
+            "fieldPath": "accountId",
+            "columnName": "accountId",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "token",
-            "columnName": "token",
+            "fieldPath": "accountToken",
+            "columnName": "accountToken",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "createdAt",
-            "columnName": "createdAt",
+            "fieldPath": "accountCreatedAt",
+            "columnName": "accountCreatedAt",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -56,7 +56,7 @@
       },
       {
         "tableName": "currentSession",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `mailAddress` TEXT NOT NULL, `mailPassword` TEXT NOT NULL, `mailId` TEXT NOT NULL, `token` TEXT NOT NULL, `createdAt` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -65,32 +65,32 @@
             "notNull": true
           },
           {
-            "fieldPath": "mailAddress",
-            "columnName": "mailAddress",
+            "fieldPath": "accountAddress",
+            "columnName": "accountAddress",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "mailPassword",
-            "columnName": "mailPassword",
+            "fieldPath": "accountPassword",
+            "columnName": "accountPassword",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "mailId",
-            "columnName": "mailId",
+            "fieldPath": "accountId",
+            "columnName": "accountId",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "token",
-            "columnName": "token",
+            "fieldPath": "accountToken",
+            "columnName": "accountToken",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "createdAt",
-            "columnName": "createdAt",
+            "fieldPath": "accountCreatedAt",
+            "columnName": "accountCreatedAt",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -194,7 +194,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '16890bb66bc64c4f0515b11b9eec47d6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0a59303931236ce9163ca216310d8700')"
     ]
   }
 }

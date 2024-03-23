@@ -7,19 +7,19 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "accounts")
 data class Accounts(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val mailAddress: String,
-    val mailPassword: String,
-    val mailId: String,
-    val token: String,
-    val createdAt: String
+    val accountAddress: String,
+    val accountPassword: String,
+    val accountId: String,
+    val accountToken: String,
+    val accountCreatedAt: String
 )
 
 @Entity(tableName = "currentSession")
 data class CurrentSession(
     @PrimaryKey val id: Long = 0,
-    val mailAddress: String,
-    val mailPassword: String,
-    val mailId: String,
-    val token: String,
-    val createdAt: String
+    val accountAddress: String,
+    val accountPassword: String,
+    val accountId: String,
+    val accountToken: String,
+    val accountCreatedAt: String
 )

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.model.InboxMail
 
 interface InboxRepo {
-    fun getAllMailsForCurrentSession(): Flow<List<InboxMail>>
+    fun getAllMailsForCurrentSession(accountId: String): Flow<List<InboxMail>>
 
     suspend fun addANewMail(inboxMail: InboxMail)
 

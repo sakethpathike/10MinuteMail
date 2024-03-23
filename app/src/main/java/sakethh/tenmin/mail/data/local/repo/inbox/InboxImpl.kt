@@ -5,8 +5,8 @@ import sakethh.tenmin.mail.data.local.dao.InboxDao
 import sakethh.tenmin.mail.data.local.model.InboxMail
 
 class InboxImpl(private val inboxDao: InboxDao) : InboxRepo {
-    override fun getAllMailsForCurrentSession(): Flow<List<InboxMail>> {
-        return inboxDao.getAllMailsForCurrentSession()
+    override fun getAllMailsForCurrentSession(accountId: String): Flow<List<InboxMail>> {
+        return inboxDao.getAllMailsForCurrentSession(accountId)
     }
 
     override suspend fun addANewMail(inboxMail: InboxMail) {

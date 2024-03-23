@@ -29,7 +29,11 @@ class InboxVM @Inject constructor(
 
     private val _currentSessionData = MutableStateFlow(
         CurrentSession(
-            mailAddress = "", mailPassword = "", mailId = "", token = "", createdAt = ""
+            accountAddress = "",
+            accountPassword = "",
+            accountId = "",
+            accountToken = "",
+            accountCreatedAt = ""
         )
     )
     val currentSessionData = _currentSessionData.asStateFlow()
@@ -40,14 +44,12 @@ class InboxVM @Inject constructor(
     init {
         loadMails()
         viewModelScope.launch {
-            inboxRepo.getAllMailsForCurrentSession().collect {
-                _mails.emit(it)
-            }
-        }
-        viewModelScope.launch {
             currentSessionRepo.getCurrentSessionAsAFlow().collect { currentSessionData ->
-                currentSessionData?.let {
-                    _currentSessionData.emit(it)
+                currentSessionData?.let { currentSession ->
+                    _currentSessionData.emit(currentSession)
+                    inboxRepo.getAllMailsForCurrentSession(currentSession.accountId).collect {
+                        _mails.emit(it)
+                    }
                 }
             }
         }
@@ -57,7 +59,7 @@ class InboxVM @Inject constructor(
         loadedPreviouslyRequestedMailsPage = false
         ++currentPageNo
         viewModelScope.launch {
-            val token = currentSessionRepo.getCurrentSession()?.token
+            val token = currentSessionRepo.getCurrentSession()?.accountToken
             token?.let { nonNullToken ->
                 val rawMails = mailRepository.getMessages(
                     token = nonNullToken, currentPageNo
@@ -75,7 +77,7 @@ class InboxVM @Inject constructor(
                         ).execute()
                     }.body?.string()
                     InboxMail(
-                        accountId = mailData.accountId,
+                        accountId = mailData.accountId.replace("/accounts/", ""),
                         createdAt = mailData.createdAt,
                         from = mailData.from,
                         hasAttachments = mailData.hasAttachments,

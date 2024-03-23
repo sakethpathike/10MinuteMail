@@ -13,10 +13,10 @@ interface AccountsDao {
     @Query("SELECT * FROM accounts")
     fun getAllAccountsAsAFlow(): Flow<List<Accounts>>
 
-    @Query("SELECT * FROM accounts WHERE mailaddress NOT IN (SELECT mailaddress FROM currentSession)")
+    @Query("SELECT * FROM accounts WHERE accountAddress NOT IN (SELECT accountAddress FROM currentSession)")
     fun getAllAccountsExcludingCurrentSession(): Flow<List<Accounts>>
 
-    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM accounts WHERE mailAddress = :emailAddress")
+    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM accounts WHERE accountAddress = :emailAddress")
     suspend fun doesThisEmailAccountExistsInLocalDB(emailAddress: String): Boolean
 
     @Insert

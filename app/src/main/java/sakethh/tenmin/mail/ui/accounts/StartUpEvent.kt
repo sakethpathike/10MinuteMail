@@ -8,7 +8,7 @@ sealed class StartUpEvent {
     data object MailAlreadyExists : StartUpEvent()
     data object UpdatingLocalDatabase : StartUpEvent()
     data class Navigate(val navigationRoute: String) : StartUpEvent()
-
+    data object RelaunchTheApp : StartUpEvent()
     data object None : StartUpEvent()
     sealed class Domains : StartUpEvent() {
         data object DomainsNotFound : Domains()

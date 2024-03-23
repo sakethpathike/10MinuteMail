@@ -96,20 +96,20 @@ class StartUpVM @Inject constructor(
                     ).body()!!
 
                     val newData = Accounts(
-                        mailAddress = newAccountData.address,
-                        mailPassword = newAccountData.password,
-                        mailId = requestedEmailTokenAndIDBody?.id ?: "0",
-                        token = requestedEmailTokenAndIDBody?.token ?: "0",
-                        createdAt = accountData.createdAt
+                        accountAddress = newAccountData.address,
+                        accountPassword = newAccountData.password,
+                        accountId = requestedEmailTokenAndIDBody?.id ?: "0",
+                        accountToken = requestedEmailTokenAndIDBody?.token ?: "0",
+                        accountCreatedAt = accountData.createdAt
                     )
                     sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
                     accountsRepo.addANewAccount(newData)
                     val currentSession = CurrentSession(
-                        mailAddress = newData.mailAddress,
-                        mailPassword = newData.mailPassword,
-                        mailId = newData.mailId,
-                        token = newData.token,
-                        createdAt = newData.createdAt
+                        accountAddress = newData.accountAddress,
+                        accountPassword = newData.accountPassword,
+                        accountId = newData.accountId,
+                        accountToken = newData.accountToken,
+                        accountCreatedAt = newData.accountCreatedAt
                     )
                     if (currentSessionRepo.hasActiveSession()) {
                         currentSessionRepo.updateCurrentSession(currentSession)
@@ -123,11 +123,11 @@ class StartUpVM @Inject constructor(
             is AccountsUiEvent.LoginUsingExistingAccount -> {
                 viewModelScope.launch {
                     val currentSession = CurrentSession(
-                        mailAddress = accountsUiEvent.account.mailAddress,
-                        mailPassword = accountsUiEvent.account.mailPassword,
-                        mailId = accountsUiEvent.account.mailId,
-                        token = accountsUiEvent.account.token,
-                        createdAt = accountsUiEvent.account.createdAt
+                        accountAddress = accountsUiEvent.account.accountAddress,
+                        accountPassword = accountsUiEvent.account.accountPassword,
+                        accountId = accountsUiEvent.account.accountId,
+                        accountToken = accountsUiEvent.account.accountToken,
+                        accountCreatedAt = accountsUiEvent.account.accountCreatedAt
                     )
                     if (currentSessionRepo.hasActiveSession()) {
                         sendUIEvent(StartUpEvent.UpdatingLocalDatabase)

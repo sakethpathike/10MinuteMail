@@ -31,10 +31,10 @@ class AccountVM @Inject constructor(
 
     private val _currentSessionData = MutableStateFlow(
         CurrentSession(
-            mailAddress = "",
-            mailPassword = "",
-            mailId = "",
-            token = "", createdAt = ""
+            accountAddress = "",
+            accountPassword = "",
+            accountId = "",
+            accountToken = "", accountCreatedAt = ""
         )
     )
     val currentSessionData = _currentSessionData.asStateFlow()
@@ -84,13 +84,15 @@ class AccountVM @Inject constructor(
                 viewModelScope.launch {
                     currentSessionRepo.updateCurrentSession(
                         CurrentSession(
-                            mailAddress = event.account.mailAddress,
-                            mailPassword = event.account.mailPassword,
-                            mailId = event.account.mailId,
-                            token = event.account.token,
-                            createdAt = event.account.createdAt
+                            accountAddress = event.account.accountAddress,
+                            accountPassword = event.account.accountPassword,
+                            accountId = event.account.accountId,
+                            accountToken = event.account.accountToken,
+                            accountCreatedAt = event.account.accountCreatedAt
                         )
                     )
+                }.invokeOnCompletion {
+                    sendUIEvent(StartUpEvent.RelaunchTheApp)
                 }
             }
 
@@ -101,7 +103,12 @@ class AccountVM @Inject constructor(
     private fun deleteCurrentSessionWithAnAction(onDeleteAction: (mailID: String, mailToken: String) -> Unit) {
         val currentSession = currentSessionData.value
         viewModelScope.launch {
-            awaitAll(async { onDeleteAction(currentSession.mailId, currentSession.token) }, async {
+            awaitAll(async {
+                onDeleteAction(
+                    currentSession.accountId,
+                    currentSession.accountToken
+                )
+            }, async {
                 currentSessionRepo.deleteCurrentSession(currentSession)
             }, async {
                 StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
