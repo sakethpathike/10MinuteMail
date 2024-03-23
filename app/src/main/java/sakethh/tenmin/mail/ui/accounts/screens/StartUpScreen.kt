@@ -56,7 +56,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
     val checkingForActiveSession = rememberSaveable {
         mutableStateOf(true)
     }
-    val existingAccountData = startUpVM.existingAccountData.collectAsState().value
+    val existingAccountsData = startUpVM.existingAccountsData.collectAsState().value
     val isAccountsExpanded = rememberSaveable {
         mutableStateOf(false)
     }
@@ -126,7 +126,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 }
             }
 
-            if (existingAccountData.isNotEmpty() && !checkingForActiveSession.value) {
+            if (existingAccountsData.isNotEmpty() && !checkingForActiveSession.value) {
                 item {
                     Row(
                         modifier = Modifier
@@ -152,7 +152,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                         }
                     }
                 }
-                items(existingAccountData) {
+                items(existingAccountsData) {
                     Box(modifier = Modifier.animateContentSize()) {
                         if (isAccountsExpanded.value) {
                             AccountItem(it.mailAddress, it.mailId, onAccountClick = {

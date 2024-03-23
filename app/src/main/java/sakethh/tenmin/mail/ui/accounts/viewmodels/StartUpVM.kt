@@ -32,8 +32,8 @@ class StartUpVM @Inject constructor(
     val uiEvent = _uiEvent
     val uiEventAsFlow = _uiEvent.receiveAsFlow()
 
-    private val _existingAccountData = MutableStateFlow(emptyList<Accounts>())
-    val existingAccountData = _existingAccountData.asStateFlow()
+    private val _existingAccountsData = MutableStateFlow(emptyList<Accounts>())
+    val existingAccountsData = _existingAccountsData.asStateFlow()
 
     companion object {
         var isNavigatingFromAccountsScreenForANewAccountCreation = false
@@ -50,7 +50,7 @@ class StartUpVM @Inject constructor(
         }
         viewModelScope.launch {
             accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
-                _existingAccountData.emit(it)
+                _existingAccountsData.emit(it)
             }
         }
     }
