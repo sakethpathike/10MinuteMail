@@ -22,6 +22,12 @@ interface AccountsDao {
     @Insert
     suspend fun addANewAccount(account: Accounts)
 
+    @Query("UPDATE accounts SET isDeletedFromTheCloud = :isDeletedFromTheCloud WHERE accountId = :accountId")
+    suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean)
+
     @Delete
     suspend fun deleteAnAccount(account: Accounts)
+
+    @Query("DELETE FROM accounts WHERE accountId = :accountId")
+    suspend fun deleteAnAccount(accountId: String)
 }

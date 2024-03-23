@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0a59303931236ce9163ca216310d8700",
+    "identityHash": "dbb36dc7342db0f5837a03ee10a0239a",
     "entities": [
       {
         "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, `isDeletedFromTheCloud` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -42,6 +42,12 @@
             "fieldPath": "accountCreatedAt",
             "columnName": "accountCreatedAt",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDeletedFromTheCloud",
+            "columnName": "isDeletedFromTheCloud",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -56,7 +62,7 @@
       },
       {
         "tableName": "currentSession",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, `isDeletedFromTheCloud` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -92,6 +98,12 @@
             "fieldPath": "accountCreatedAt",
             "columnName": "accountCreatedAt",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDeletedFromTheCloud",
+            "columnName": "isDeletedFromTheCloud",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -194,7 +206,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0a59303931236ce9163ca216310d8700')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dbb36dc7342db0f5837a03ee10a0239a')"
     ]
   }
 }

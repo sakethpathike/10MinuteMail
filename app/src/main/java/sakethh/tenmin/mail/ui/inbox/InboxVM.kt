@@ -42,7 +42,6 @@ class InboxVM @Inject constructor(
     private var loadedPreviouslyRequestedMailsPage = true
 
     init {
-        loadMails()
         viewModelScope.launch {
             currentSessionRepo.getCurrentSessionAsAFlow().collect { currentSessionData ->
                 currentSessionData?.let { currentSession ->
@@ -53,9 +52,16 @@ class InboxVM @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            currentSessionRepo.getCurrentSession()?.isDeletedFromTheCloud?.let {
+                if (!it) {
+                    loadMailsFromTheCloud()
+                }
+            }
+        }
     }
 
-    private fun loadMails(): Any = if (loadedPreviouslyRequestedMailsPage) {
+    private fun loadMailsFromTheCloud(): Any = if (loadedPreviouslyRequestedMailsPage) {
         loadedPreviouslyRequestedMailsPage = false
         ++currentPageNo
         viewModelScope.launch {

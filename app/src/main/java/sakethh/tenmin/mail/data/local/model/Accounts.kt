@@ -11,7 +11,8 @@ data class Accounts(
     val accountPassword: String,
     val accountId: String,
     val accountToken: String,
-    val accountCreatedAt: String
+    val accountCreatedAt: String,
+    val isDeletedFromTheCloud: Boolean = false
 )
 
 @Entity(tableName = "currentSession")
@@ -21,5 +22,6 @@ data class CurrentSession(
     val accountPassword: String,
     val accountId: String,
     val accountToken: String,
-    val accountCreatedAt: String
+    val accountCreatedAt: String,
+    val isDeletedFromTheCloud: Boolean = false
 )

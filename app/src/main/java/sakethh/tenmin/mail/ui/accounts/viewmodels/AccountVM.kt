@@ -63,9 +63,15 @@ class AccountVM @Inject constructor(
 
     fun onUIEvent(event: AccountsUiEvent) {
         when (event) {
-            is AccountsUiEvent.DeleteCurrentSessionAccountPermanently -> deleteCurrentSessionWithAnAction { mailID, mailToken ->
+            is AccountsUiEvent.DeleteCurrentSessionAccountPermanently -> deleteCurrentSessionWithAnAction { accountId, accountToken ->
                 viewModelScope.launch {
-                    mailRepository.deleteAnAccount(mailID, mailToken)
+                    if (event.deleteAccountFromCloud) {
+                        mailRepository.deleteAnAccount(accountId, accountToken)
+                        accountsRepo.updateAccountStatus(accountId, isDeletedFromTheCloud = true)
+                    }
+                    if (event.deleteAccountLocally) {
+                        accountsRepo.deleteAnAccount(accountId)
+                    }
                 }
             }
 
@@ -100,7 +106,7 @@ class AccountVM @Inject constructor(
         }
     }
 
-    private fun deleteCurrentSessionWithAnAction(onDeleteAction: (mailID: String, mailToken: String) -> Unit) {
+    private fun deleteCurrentSessionWithAnAction(onDeleteAction: (accountId: String, accountToken: String) -> Unit) {
         val currentSession = currentSessionData.value
         viewModelScope.launch {
             awaitAll(async {

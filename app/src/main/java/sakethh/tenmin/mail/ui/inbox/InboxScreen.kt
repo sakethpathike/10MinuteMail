@@ -57,7 +57,7 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                 }) {
                     Icon(
                         imageVector = if (isCurrentSessionMailExpanded.value) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = "Icons for expanding or hiding the details of the current session's mail address.."
+                        contentDescription = "Icons for expanding or hiding the details of the current session's mail address."
                     )
                 }
             }

@@ -24,4 +24,13 @@ class AccountsImpl(private val accountsDao: AccountsDao) : AccountsRepo {
     override suspend fun deleteAnAccount(account: Accounts) {
         accountsDao.deleteAnAccount(account)
     }
+
+    override suspend fun deleteAnAccount(accountId: String) {
+        accountsDao.deleteAnAccount(accountId)
+    }
+
+    override suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean) {
+        accountsDao.updateAccountStatus(accountId, isDeletedFromTheCloud)
+    }
+
 }

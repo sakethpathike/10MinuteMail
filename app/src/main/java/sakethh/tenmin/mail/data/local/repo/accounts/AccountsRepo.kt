@@ -13,4 +13,7 @@ interface AccountsRepo {
     suspend fun addANewAccount(account: Accounts)
 
     suspend fun deleteAnAccount(account: Accounts)
+    suspend fun deleteAnAccount(accountId: String)
+    suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean)
+
 }

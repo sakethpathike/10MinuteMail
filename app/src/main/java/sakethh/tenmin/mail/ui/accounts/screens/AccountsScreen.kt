@@ -29,7 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import sakethh.tenmin.mail.MainActivity
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.components.DeleteAccountDialogBox
+import sakethh.tenmin.mail.ui.accounts.components.SignOutDialogBox
 import sakethh.tenmin.mail.ui.accounts.viewmodels.AccountVM
 import sakethh.tenmin.mail.ui.common.AccountItem
 
@@ -54,6 +58,12 @@ fun AccountsScreen(
         accountVM.allAccountsExcludingCurrentSessionData.collectAsState().value
     val context = LocalContext.current
     val activity = context as Activity
+    val isSignOutDialogBoxVisible = rememberSaveable {
+        mutableStateOf(false)
+    }
+    val isDeleteAccountDialogBoxVisible = rememberSaveable {
+        mutableStateOf(false)
+    }
     LaunchedEffect(key1 = true) {
         accountVM.uiEvent.collect {
             when (it) {
@@ -123,7 +133,7 @@ fun AccountsScreen(
                 Spacer(modifier = Modifier.height(5.dp))
                 FilledTonalButton(
                     onClick = {
-                        accountVM.onUIEvent(AccountsUiEvent.SignOut)
+                        isSignOutDialogBoxVisible.value = true
                     }, modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 15.dp, end = 15.dp)
@@ -137,7 +147,7 @@ fun AccountsScreen(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
                     ), onClick = {
-                        accountVM.onUIEvent(AccountsUiEvent.DeleteCurrentSessionAccountPermanently)
+                        isDeleteAccountDialogBoxVisible.value = true
                     }, modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 15.dp, end = 15.dp)
@@ -167,4 +177,22 @@ fun AccountsScreen(
             }
         }
     }
+    SignOutDialogBox(
+        isVisible = isSignOutDialogBoxVisible,
+        onSignOutClick = { accountVM.onUIEvent(AccountsUiEvent.SignOut) },
+        currentSessionMailAddress = currentSessionData.accountAddress
+    )
+
+    DeleteAccountDialogBox(
+        isVisible = isDeleteAccountDialogBoxVisible,
+        onDeleteAccountClick = { deleteAccountLocally, deleteAccountFromCloud ->
+            accountVM.onUIEvent(
+                AccountsUiEvent.DeleteCurrentSessionAccountPermanently(
+                    deleteAccountLocally,
+                    deleteAccountFromCloud
+                )
+            )
+        },
+        currentSessionMailAddress = currentSessionData.accountAddress
+    )
 }
