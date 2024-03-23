@@ -70,7 +70,7 @@ fun MailItem(intro: String, createdAt: String, subject: String, fromName: String
     Box(
         modifier = Modifier
             .background(if (draggingTowardsRight.value) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer)
-        ) {
+    ) {
         if (draggingTowardsRight.value) {
             Column(
                 verticalArrangement = Arrangement.Center,

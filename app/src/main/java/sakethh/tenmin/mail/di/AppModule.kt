@@ -15,6 +15,8 @@ import sakethh.tenmin.mail.data.local.repo.accounts.AccountsImpl
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
 import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionImpl
 import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
+import sakethh.tenmin.mail.data.local.repo.inbox.InboxImpl
+import sakethh.tenmin.mail.data.local.repo.inbox.InboxRepo
 import sakethh.tenmin.mail.data.remote.api.MailImpl
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.MailService
@@ -61,6 +63,12 @@ object AppModule {
     @Singleton
     fun provideMailRepository(mailService: MailService): MailRepository {
         return MailImpl(mailService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInboxRepo(db: LocalDatabase): InboxRepo {
+        return InboxImpl(db.inboxDao)
     }
 
 

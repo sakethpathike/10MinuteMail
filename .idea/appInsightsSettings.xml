@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AppInsightsSettings">
+    <option name="selectedTabId" value="Firebase Crashlytics" />
     <option name="tabSettings">
       <map>
         <entry key="Firebase Crashlytics">
@@ -8,14 +9,14 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="sakethh.tenmin.mail" />
-                  <option name="mobileSdkAppId" value="1:663089772745:android:6bfd41b964c3a08c62b518" />
+                  <option name="appId" value="sakethh.tenmin.mail.debug" />
+                  <option name="mobileSdkAppId" value="1:663089772745:android:cb3304f6336c1a7862b518" />
                   <option name="projectId" value="minutemail-952c0" />
                   <option name="projectNumber" value="663089772745" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
-              <option name="timeIntervalDays" value="THIRTY_DAYS" />
+              <option name="timeIntervalDays" value="ONE_DAY" />
               <option name="visibilityType" value="ALL" />
             </InsightsFilterSettings>
           </value>

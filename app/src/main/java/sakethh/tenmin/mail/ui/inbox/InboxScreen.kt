@@ -33,6 +33,7 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
     val isCurrentSessionMailExpanded = rememberSaveable {
         mutableStateOf(false)
     }
+    val inboxMails = inboxVM.mails.collectAsState().value
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             Row(Modifier
@@ -66,7 +67,7 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                 }
             }
         }
-        items(inboxVM.mails.value) {
+        items(inboxMails) {
             MailItem(
                 intro = it.intro,
                 createdAt = it.createdAt,

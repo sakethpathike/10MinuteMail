@@ -69,6 +69,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
                     popUpTo(0)
                 }
+
                 is StartUpEvent.None -> checkingForActiveSession.value = false
                 else -> Unit
             }
@@ -167,19 +168,19 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                 }
             }
 
-    }
-    val context = LocalContext.current
-    BackHandler {
-        if (!StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation) {
-            navController.backQueue.removeIf {
-                true
-            }
-            val activity = context as Activity
-            activity.moveTaskToBack(false)
-        } else {
-            navController.popBackStack()
         }
-    }
+        val context = LocalContext.current
+        BackHandler {
+            if (!StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation) {
+                navController.backQueue.removeIf {
+                    true
+                }
+                val activity = context as Activity
+                activity.moveTaskToBack(false)
+            } else {
+                navController.popBackStack()
+            }
+        }
     }
 }
 
@@ -190,60 +191,60 @@ private fun StartUpComponent(
     onGenerateANewAccountClick: () -> Unit
 ) {
     Column(
-            modifier = Modifier
-                .animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, fontSize = 24.sp)) {
-                        append("Welcome to\n")
-                    }
-                    withStyle(SpanStyle(fontWeight = FontWeight.Black, fontSize = 26.sp)) {
-                        append("10 Minute Mail ")
-                    }
-                    append("\n")
-                    append("A ")
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
-                        append("temporary email")
-                    }
-                    append(" client for Android, built on the secure ")
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
-                        append("mail.gw")
-                    }
-                    append(" API. Free, open-source, and user-friendly.")
+        modifier = Modifier
+            .animateContentSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, fontSize = 24.sp)) {
+                    append("Welcome to\n")
+                }
+                withStyle(SpanStyle(fontWeight = FontWeight.Black, fontSize = 26.sp)) {
+                    append("10 Minute Mail ")
+                }
+                append("\n")
+                append("A ")
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
+                    append("temporary email")
+                }
+                append(" client for Android, built on the secure ")
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
+                    append("mail.gw")
+                }
+                append(" API. Free, open-source, and user-friendly.")
 
-                }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
+            }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
+        )
+        if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
+            Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                onGenerateANewAccountClick()
+            }) {
+                Text(
+                    text = "Generate a temporary email account",
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                navController.navigate(NavigationRoutes.SIGN_IN.name)
+            }) {
+                Text(
+                    text = "Sign in", style = MaterialTheme.typography.titleSmall
+                )
+            }
+        }
+        if (uiEvent.value != StartUpEvent.None) {
+            if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
+            Text(
+                text = "Status", style = MaterialTheme.typography.titleSmall,
             )
-            if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
-                Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                    onGenerateANewAccountClick()
-                }) {
-                    Text(
-                        text = "Generate a temporary email account",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-                FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {
-                    navController.navigate(NavigationRoutes.SIGN_IN.name)
-                }) {
-                    Text(
-                        text = "Sign in", style = MaterialTheme.typography.titleSmall
-                    )
-                }
-            }
-            if (uiEvent.value != StartUpEvent.None) {
-                if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
-                    LinearProgressIndicator(Modifier.fillMaxWidth())
-                }
-                Text(
-                    text = "Status", style = MaterialTheme.typography.titleSmall,
-                )
-                Text(
-                    text = uiEvent.value.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            Spacer(modifier = Modifier)
+            Text(
+                text = uiEvent.value.toString(),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        Spacer(modifier = Modifier)
     }
 }

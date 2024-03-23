@@ -17,7 +17,7 @@ interface AccountsDao {
     fun getAllAccountsExcludingCurrentSession(): Flow<List<Accounts>>
 
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM accounts WHERE mailAddress = :emailAddress")
-    suspend fun doesThisEmailExistsInLocalDB(emailAddress: String): Boolean
+    suspend fun doesThisEmailAccountExistsInLocalDB(emailAddress: String): Boolean
 
     @Insert
     suspend fun addANewAccount(account: Accounts)

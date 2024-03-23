@@ -17,6 +17,10 @@ class InboxImpl(private val inboxDao: InboxDao) : InboxRepo {
         inboxDao.addAMultipleMails(inboxMail)
     }
 
+    override suspend fun doesThisMailExists(mailId: String): Boolean {
+        return inboxDao.doesThisMailExists(mailId)
+    }
+
     override suspend fun deleteAMail(inboxMail: InboxMail) {
         inboxDao.deleteAMail(inboxMail)
     }

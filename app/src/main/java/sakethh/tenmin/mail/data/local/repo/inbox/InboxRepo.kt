@@ -9,6 +9,7 @@ interface InboxRepo {
     suspend fun addANewMail(inboxMail: InboxMail)
 
     suspend fun addAMultipleMails(inboxMail: List<InboxMail>)
+    suspend fun doesThisMailExists(mailId: String): Boolean
 
     suspend fun deleteAMail(inboxMail: InboxMail)
 }

@@ -24,12 +24,12 @@ class ToMailTypeConverter {
     private val json = Json
 
     @TypeConverter
-    fun toString(to: To): String {
+    fun toString(to: List<To>): String {
         return json.encodeToString(to)
     }
 
     @TypeConverter
-    fun fromString(string: String): To {
+    fun fromString(string: String): List<To> {
         return json.decodeFromString(string)
     }
 }

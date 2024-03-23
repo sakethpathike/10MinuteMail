@@ -106,11 +106,12 @@ fun AccountsScreen(
             item {
                 CurrentSessionItem(currentSessionData.mailAddress, currentSessionData.mailPassword)
                 Spacer(modifier = Modifier.height(5.dp))
-                FilledTonalButton(onClick = {
-                    accountVM.onUIEvent(AccountsUiEvent.SignOut)
-                }, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 15.dp, end = 15.dp)
+                FilledTonalButton(
+                    onClick = {
+                        accountVM.onUIEvent(AccountsUiEvent.SignOut)
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 15.dp, end = 15.dp)
                 ) {
                     Text(
                         text = "Sign out",

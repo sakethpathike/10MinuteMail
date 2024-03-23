@@ -44,6 +44,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                 is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
                     popUpTo(0)
                 }
+
                 else -> Unit
             }
         }

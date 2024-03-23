@@ -38,6 +38,7 @@ class StartUpVM @Inject constructor(
     companion object {
         var isNavigatingFromAccountsScreenForANewAccountCreation = false
     }
+
     init {
         viewModelScope.launch {
             if (!isNavigatingFromAccountsScreenForANewAccountCreation) {

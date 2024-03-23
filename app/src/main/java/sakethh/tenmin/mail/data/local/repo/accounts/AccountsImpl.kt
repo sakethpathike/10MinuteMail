@@ -14,7 +14,7 @@ class AccountsImpl(private val accountsDao: AccountsDao) : AccountsRepo {
     }
 
     override suspend fun doesThisEmailExistsInLocalDB(emailAddress: String): Boolean {
-        return accountsDao.doesThisEmailExistsInLocalDB(emailAddress)
+        return accountsDao.doesThisEmailAccountExistsInLocalDB(emailAddress)
     }
 
     override suspend fun addANewAccount(account: Accounts) {
