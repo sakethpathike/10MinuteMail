@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import sakethh.tenmin.mail.ui.accounts.components.AccountDeletedFromTheCloudCard
 import sakethh.tenmin.mail.ui.common.MailItem
 
 @Composable
@@ -71,10 +72,13 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                             }
                         },
                         style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(start = 20.dp, top = 12.dp, end = 20.dp),
+                        modifier = Modifier.padding(start = 20.dp, end = 20.dp),
                         softWrap = true
                     )
                 }
+            }
+            if (currentSessionData.isDeletedFromTheCloud) {
+                AccountDeletedFromTheCloudCard(inInboxScreen = true)
             }
         }
         items(inboxMails) {

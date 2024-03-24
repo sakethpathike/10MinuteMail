@@ -31,17 +31,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.SignInVM
 import sakethh.tenmin.mail.ui.theme.fonts
 
 @Composable
 fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavController) {
-    val uiEvent = signInVM.uiEvent.collectAsState(initial = StartUpEvent.None)
+    val uiEvent = signInVM.uiEvent.collectAsState(initial = AccountsEvent.None)
     LaunchedEffect(key1 = true) {
         signInVM.uiEvent.collect {
             when (it) {
-                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
+                is AccountsEvent.Navigate -> navController.navigate(it.navigationRoute) {
                     popUpTo(0)
                 }
 
@@ -79,7 +79,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                 }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
             )
             OutlinedTextField(
-                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401 && uiEvent.value != StartUpEvent.MailAlreadyExists,
+                readOnly = uiEvent.value != AccountsEvent.None && uiEvent.value != AccountsEvent.HttpResponse.Invalid401 && uiEvent.value != AccountsEvent.MailAlreadyExists,
                 textStyle = TextStyle(
                     fontFamily = fonts, fontWeight = FontWeight.Normal
                 ),
@@ -94,7 +94,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                     )
                 })
             OutlinedTextField(
-                readOnly = uiEvent.value != StartUpEvent.None && uiEvent.value != StartUpEvent.HttpResponse.Invalid401 && uiEvent.value != StartUpEvent.MailAlreadyExists,
+                readOnly = uiEvent.value != AccountsEvent.None && uiEvent.value != AccountsEvent.HttpResponse.Invalid401 && uiEvent.value != AccountsEvent.MailAlreadyExists,
                 textStyle = TextStyle(
                     fontFamily = fonts, fontWeight = FontWeight.Normal
                 ),
@@ -108,7 +108,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                         text = "Email password", style = MaterialTheme.typography.titleSmall
                     )
                 })
-            if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401 || uiEvent.value == StartUpEvent.MailAlreadyExists) {
+            if (uiEvent.value == AccountsEvent.None || uiEvent.value == AccountsEvent.HttpResponse.Invalid401 || uiEvent.value == AccountsEvent.MailAlreadyExists) {
                 Button(modifier = Modifier.fillMaxWidth(), onClick = {
                     signInVM.onUiClickEvent(
                         AccountsUiEvent.SignIn(
@@ -122,8 +122,8 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
                     )
                 }
             }
-            if (uiEvent.value != StartUpEvent.None) {
-                if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401 && uiEvent.value != StartUpEvent.MailAlreadyExists) {
+            if (uiEvent.value != AccountsEvent.None) {
+                if (uiEvent.value != AccountsEvent.HttpResponse.Invalid401 && uiEvent.value != AccountsEvent.MailAlreadyExists) {
                     LinearProgressIndicator(Modifier.fillMaxWidth())
                 }
                 Text(

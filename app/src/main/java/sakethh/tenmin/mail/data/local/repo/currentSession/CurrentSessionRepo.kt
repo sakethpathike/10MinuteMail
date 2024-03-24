@@ -9,6 +9,7 @@ interface CurrentSessionRepo {
     suspend fun getCurrentSession(): CurrentSession?
 
     suspend fun hasActiveSession(): Boolean
+    suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean)
 
     suspend fun addANewCurrentSession(currentSession: CurrentSession)
 

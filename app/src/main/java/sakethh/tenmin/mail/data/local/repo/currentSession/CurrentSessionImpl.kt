@@ -17,6 +17,10 @@ class CurrentSessionImpl(private val currentSessionDao: CurrentSessionDao) : Cur
         return currentSessionDao.hasActiveSession()
     }
 
+    override suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean) {
+        currentSessionDao.updateAccountStatus(accountId, isDeletedFromTheCloud)
+    }
+
     override suspend fun addANewCurrentSession(currentSession: CurrentSession) {
         currentSessionDao.addANewCurrentSession(currentSession)
     }

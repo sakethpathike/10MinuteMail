@@ -20,6 +20,9 @@ interface CurrentSessionDao {
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM currentSession")
     suspend fun hasActiveSession(): Boolean
 
+    @Query("UPDATE currentSession SET isDeletedFromTheCloud= :isDeletedFromTheCloud WHERE accountId = :accountId")
+    suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean)
+
     @Insert
     suspend fun addANewCurrentSession(currentSession: CurrentSession)
 

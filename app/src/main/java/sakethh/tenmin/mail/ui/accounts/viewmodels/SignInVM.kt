@@ -13,7 +13,7 @@ import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
 import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
-import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class SignInVM @Inject constructor(
     private val currentSessionRepo: CurrentSessionRepo,
     private val accountsRepo: AccountsRepo
 ) : ViewModel() {
-    private val _uiEvent = Channel<StartUpEvent>()
+    private val _uiEvent = Channel<AccountsEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onUiClickEvent(accountsUiEvent: AccountsUiEvent) {
@@ -33,9 +33,9 @@ class SignInVM @Inject constructor(
                     val doesThisEmailAccountExists =
                         accountsRepo.doesThisEmailExistsInLocalDB(accountsUiEvent.emailAddress)
                     if (doesThisEmailAccountExists && currentSessionRepo.hasActiveSession()) {
-                        return@launch sendUIEvent(StartUpEvent.MailAlreadyExists)
+                        return@launch sendUIEvent(AccountsEvent.MailAlreadyExists)
                     }
-                    sendUIEvent(StartUpEvent.FetchingTokenAndID)
+                    sendUIEvent(AccountsEvent.FetchingTokenAndID)
                     val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
                         body = AccountInfo(
                             address = accountsUiEvent.emailAddress,
@@ -44,12 +44,12 @@ class SignInVM @Inject constructor(
                     )
                     when (rawRequestedEmailTokenAndID.code()) {
                         401 -> {
-                            sendUIEvent(StartUpEvent.HttpResponse.Invalid401)
+                            sendUIEvent(AccountsEvent.HttpResponse.Invalid401)
                             return@launch
                         }
                     }
                     val requestedEmailTokenAndIDBody = rawRequestedEmailTokenAndID.body()!!
-                    sendUIEvent(StartUpEvent.FetchingMailAccountData)
+                    sendUIEvent(AccountsEvent.FetchingMailAccountData)
                     val accountData = mailRepository.getExistingMailAccountData(
                         requestedEmailTokenAndIDBody.id, requestedEmailTokenAndIDBody.token
                     ).body()!!
@@ -62,7 +62,7 @@ class SignInVM @Inject constructor(
                         accountCreatedAt = accountData.createdAt,
                     )
 
-                    sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
+                    sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
                     if (!doesThisEmailAccountExists) {
                         accountsRepo.addANewAccount(newData)
                     }
@@ -78,16 +78,16 @@ class SignInVM @Inject constructor(
                     } else {
                         currentSessionRepo.addANewCurrentSession(currentSession)
                     }
-                    sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+                    sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 
-            is AccountsUiEvent.OpenMail -> sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+            is AccountsUiEvent.OpenMail -> sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
             else -> Unit
         }
     }
 
-    private fun sendUIEvent(uiEvent: StartUpEvent) {
+    private fun sendUIEvent(uiEvent: AccountsEvent) {
         viewModelScope.launch {
             _uiEvent.send(uiEvent)
         }

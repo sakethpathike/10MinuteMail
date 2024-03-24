@@ -16,7 +16,7 @@ import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
 import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
 import sakethh.tenmin.mail.data.local.repo.inbox.InboxRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
-import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
 import javax.inject.Inject
 
@@ -39,7 +39,7 @@ class AccountVM @Inject constructor(
     )
     val currentSessionData = _currentSessionData.asStateFlow()
 
-    private val _uiEvent = Channel<StartUpEvent>()
+    private val _uiEvent = Channel<AccountsEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _allAccountsExcludingCurrentSessionData = MutableStateFlow(emptyList<Accounts>())
@@ -74,12 +74,16 @@ class AccountVM @Inject constructor(
                         accountsRepo.updateAccountStatus(
                             currentSession.accountId, isDeletedFromTheCloud = true
                         )
+                        currentSessionRepo.updateAccountStatus(
+                            currentSession.accountId, isDeletedFromTheCloud = true
+                        )
+                        sendUIEvent(AccountsEvent.RelaunchTheApp)
                     }
                     if (event.deleteAccountLocally) {
-                        sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.STARTUP.name))
                         inboxRepo.deleteThisAccountMails(currentSession.accountId)
                         accountsRepo.deleteAnAccount(currentSession.accountId)
                         currentSessionRepo.deleteCurrentSession(currentSession)
+                        sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.STARTUP.name))
                     }
                 }
             }
@@ -89,13 +93,14 @@ class AccountVM @Inject constructor(
                 viewModelScope.launch {
                     val currentSession = currentSessionData.value
                     currentSessionRepo.deleteCurrentSession(currentSession)
+                    sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.STARTUP.name))
                 }
             }
 
             is AccountsUiEvent.AddANewEmailAccount -> {
                 StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = true
                 sendUIEvent(
-                    StartUpEvent.Navigate(
+                    AccountsEvent.Navigate(
                         navigationRoute = NavigationRoutes.STARTUP.name
                     )
                 )
@@ -113,7 +118,7 @@ class AccountVM @Inject constructor(
                         )
                     )
                 }.invokeOnCompletion {
-                    sendUIEvent(StartUpEvent.RelaunchTheApp)
+                    sendUIEvent(AccountsEvent.RelaunchTheApp)
                 }
             }
 
@@ -121,7 +126,7 @@ class AccountVM @Inject constructor(
         }
     }
 
-    private fun sendUIEvent(event: StartUpEvent) {
+    private fun sendUIEvent(event: AccountsEvent) {
         viewModelScope.launch {
             _uiEvent.send(event)
         }

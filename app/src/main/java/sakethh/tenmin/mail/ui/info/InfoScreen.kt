@@ -71,7 +71,7 @@ fun InfoScreen(navController: NavController) {
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("mail.gw")
                     }
-                    append(" public API to manage the emails and accounts.\n\nAny emails you receive and accounts you create with the addresses are ")
+                    append(" public API to manage the emails and accounts.\n\nAny emails you receive will be ")
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("automatically deleted after 10 minutes")
                     }

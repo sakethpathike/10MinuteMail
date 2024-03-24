@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import sakethh.tenmin.mail.MainActivity
-import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.components.DeleteAccountDialogBox
 import sakethh.tenmin.mail.ui.accounts.components.SignOutDialogBox
 import sakethh.tenmin.mail.ui.accounts.viewmodels.AccountVM
@@ -67,8 +67,8 @@ fun AccountsScreen(
     LaunchedEffect(key1 = true) {
         accountVM.uiEvent.collect {
             when (it) {
-                is StartUpEvent.Navigate -> mainNavController.navigate(it.navigationRoute)
-                is StartUpEvent.RelaunchTheApp -> {
+                is AccountsEvent.Navigate -> mainNavController.navigate(it.navigationRoute)
+                is AccountsEvent.RelaunchTheApp -> {
                     val intent = Intent(context, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)

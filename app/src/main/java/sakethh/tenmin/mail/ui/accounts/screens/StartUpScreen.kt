@@ -47,7 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.channels.consumeEach
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.StartUpVM
 import sakethh.tenmin.mail.ui.common.AccountItem
 
@@ -63,14 +63,14 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
     LaunchedEffect(key1 = true) {
         startUpVM.uiEvent.consumeEach {
             when (it) {
-                is StartUpEvent.CheckingIfAnySessionAlreadyExists -> checkingForActiveSession.value =
+                is AccountsEvent.CheckingIfAnySessionAlreadyExists -> checkingForActiveSession.value =
                     true
 
-                is StartUpEvent.Navigate -> navController.navigate(it.navigationRoute) {
+                is AccountsEvent.Navigate -> navController.navigate(it.navigationRoute) {
                     popUpTo(0)
                 }
 
-                is StartUpEvent.None -> checkingForActiveSession.value = false
+                is AccountsEvent.None -> checkingForActiveSession.value = false
                 else -> Unit
             }
         }
@@ -91,7 +91,8 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                             .padding(start = 25.dp, end = 25.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        StartUpComponent(uiEvent = startUpVM.uiEventAsFlow.collectAsState(initial = StartUpEvent.None),
+                        StartUpComponent(
+                            uiEvent = startUpVM.uiEventAsFlow.collectAsState(initial = AccountsEvent.None),
                             navController = navController,
                             onGenerateANewAccountClick = {
                                 startUpVM.onUiClickEvent(AccountsUiEvent.GenerateANewTemporaryMailAccount)
@@ -186,7 +187,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
 
 @Composable
 private fun StartUpComponent(
-    uiEvent: State<StartUpEvent>,
+    uiEvent: State<AccountsEvent>,
     navController: NavController,
     onGenerateANewAccountClick: () -> Unit
 ) {
@@ -216,7 +217,7 @@ private fun StartUpComponent(
 
             }, style = MaterialTheme.typography.titleMedium, fontSize = 16.sp
         )
-        if (uiEvent.value == StartUpEvent.None || uiEvent.value == StartUpEvent.HttpResponse.Invalid401) {
+        if (uiEvent.value == AccountsEvent.None || uiEvent.value == AccountsEvent.HttpResponse.Invalid401) {
             Button(modifier = Modifier.fillMaxWidth(), onClick = {
                 onGenerateANewAccountClick()
             }) {
@@ -233,8 +234,8 @@ private fun StartUpComponent(
                 )
             }
         }
-        if (uiEvent.value != StartUpEvent.None) {
-            if (uiEvent.value != StartUpEvent.HttpResponse.Invalid401) {
+        if (uiEvent.value != AccountsEvent.None) {
+            if (uiEvent.value != AccountsEvent.HttpResponse.Invalid401) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
             }
             Text(

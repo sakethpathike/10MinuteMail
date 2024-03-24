@@ -16,7 +16,7 @@ import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
 import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
-import sakethh.tenmin.mail.ui.accounts.StartUpEvent
+import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
 import java.util.UUID
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class StartUpVM @Inject constructor(
     private val accountsRepo: AccountsRepo
 ) :
     ViewModel() {
-    private val _uiEvent = Channel<StartUpEvent>()
+    private val _uiEvent = Channel<AccountsEvent>()
     val uiEvent = _uiEvent
     val uiEventAsFlow = _uiEvent.receiveAsFlow()
 
@@ -42,12 +42,12 @@ class StartUpVM @Inject constructor(
     init {
         viewModelScope.launch {
             if (!isNavigatingFromAccountsScreenForANewAccountCreation) {
-                sendUIEvent(StartUpEvent.CheckingIfAnySessionAlreadyExists)
+                sendUIEvent(AccountsEvent.CheckingIfAnySessionAlreadyExists)
             }
             if (!isNavigatingFromAccountsScreenForANewAccountCreation && currentSessionRepo.hasActiveSession()) {
-                return@launch sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+                return@launch sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
             }
-            sendUIEvent(StartUpEvent.None)
+            sendUIEvent(AccountsEvent.None)
         }
         viewModelScope.launch {
             accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
@@ -60,22 +60,22 @@ class StartUpVM @Inject constructor(
         when (accountsUiEvent) {
             is AccountsUiEvent.GenerateANewTemporaryMailAccount -> {
                 viewModelScope.launch {
-                    sendUIEvent(StartUpEvent.Domains.FetchingDomains)
+                    sendUIEvent(AccountsEvent.Domains.FetchingDomains)
                     val rawDomainsData = mailRepository.getDomains()
                     if (rawDomainsData.code() != 200) {
-                        sendUIEvent(StartUpEvent.Domains.FetchingDomains)
+                        sendUIEvent(AccountsEvent.Domains.FetchingDomains)
                         return@launch
                     }
                     val domainsData = rawDomainsData.body()!!
-                    sendUIEvent(StartUpEvent.GeneratingMailAddressAndPassword)
+                    sendUIEvent(AccountsEvent.GeneratingMailAddressAndPassword)
                     val newAccountData = AccountInfo(
                         address = UUID.randomUUID().toString().replace("-", "")
                             .plus("@${domainsData.domains.random().domain}"),
                         password = UUID.randomUUID().toString().replace("-", "")
                     )
-                    sendUIEvent(StartUpEvent.CreatingANewAccount)
+                    sendUIEvent(AccountsEvent.CreatingANewAccount)
                     mailRepository.createANewAccount(newAccountData)
-                    sendUIEvent(StartUpEvent.FetchingTokenAndID)
+                    sendUIEvent(AccountsEvent.FetchingTokenAndID)
                     val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
                         body = AccountInfo(
                             address = newAccountData.address,
@@ -84,12 +84,12 @@ class StartUpVM @Inject constructor(
                     )
                     when (rawRequestedEmailTokenAndID.code()) {
                         401 -> {
-                            sendUIEvent(StartUpEvent.HttpResponse.Invalid401)
+                            sendUIEvent(AccountsEvent.HttpResponse.Invalid401)
                             return@launch
                         }
                     }
                     val requestedEmailTokenAndIDBody = rawRequestedEmailTokenAndID.body()
-                    sendUIEvent(StartUpEvent.FetchingMailAccountData)
+                    sendUIEvent(AccountsEvent.FetchingMailAccountData)
                     val accountData = mailRepository.getExistingMailAccountData(
                         requestedEmailTokenAndIDBody?.id ?: "0",
                         requestedEmailTokenAndIDBody?.token ?: ""
@@ -102,7 +102,7 @@ class StartUpVM @Inject constructor(
                         accountToken = requestedEmailTokenAndIDBody?.token ?: "0",
                         accountCreatedAt = accountData.createdAt
                     )
-                    sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
+                    sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
                     accountsRepo.addANewAccount(newData)
                     val currentSession = CurrentSession(
                         accountAddress = newData.accountAddress,
@@ -116,7 +116,7 @@ class StartUpVM @Inject constructor(
                     } else {
                         currentSessionRepo.addANewCurrentSession(currentSession)
                     }
-                    sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+                    sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 
@@ -131,13 +131,13 @@ class StartUpVM @Inject constructor(
                         isDeletedFromTheCloud = accountsUiEvent.account.isDeletedFromTheCloud
                     )
                     if (currentSessionRepo.hasActiveSession()) {
-                        sendUIEvent(StartUpEvent.UpdatingLocalDatabase)
+                        sendUIEvent(AccountsEvent.UpdatingLocalDatabase)
                         currentSessionRepo.updateCurrentSession(currentSession)
                     } else {
-                        sendUIEvent(StartUpEvent.AddingDataToLocalDatabase)
+                        sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
                         currentSessionRepo.addANewCurrentSession(currentSession)
                     }
-                    sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.HOME.name))
+                    sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 
@@ -145,7 +145,7 @@ class StartUpVM @Inject constructor(
         }
     }
 
-    private fun sendUIEvent(uiEvent: StartUpEvent) {
+    private fun sendUIEvent(uiEvent: AccountsEvent) {
         viewModelScope.launch {
             _uiEvent.send(uiEvent)
         }
