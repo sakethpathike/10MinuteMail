@@ -3,12 +3,14 @@ package sakethh.tenmin.mail.ui.settings
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SystemUpdateAlt
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM.Settings.shouldAutomaticallyRetrieveMails
 import sakethh.tenmin.mail.ui.settings.model.SettingsComponentState
 
 class SettingsScreenVM : ViewModel() {
@@ -30,9 +32,22 @@ class SettingsScreenVM : ViewModel() {
         val didServerTimeOutErrorOccurred = mutableStateOf(false)
         val savedAppCode = mutableIntStateOf(APP_VERSION_CODE - 1)
         val autoRefreshMailsDurationSeconds = mutableIntStateOf(0)
+        val shouldAutomaticallyRetrieveMails = mutableStateOf(true)
     }
 
     val generalSection = listOf(
+        SettingsComponentState(
+            title = "Auto-Refresh Mails",
+            doesDescriptionExists = Settings.showDescriptionForSettingsState.value,
+            description = "If enabled, emails will refresh automatically based on the duration you specify below. If disabled, you'll need to refresh manually to view the latest emails.",
+            isSwitchNeeded = true,
+            isSwitchEnabled = shouldAutomaticallyRetrieveMails,
+            onSwitchStateChange = {
+                shouldAutomaticallyRetrieveMails.value = it
+            },
+            isIconNeeded = mutableStateOf(true),
+            icon = Icons.Default.Refresh
+        ),
         SettingsComponentState(title = "Use in-app browser",
             doesDescriptionExists = Settings.showDescriptionForSettingsState.value,
             description = "If this is enabled, links will be opened within the app; if this setting is not enabled, your default browser will open every time you click on a link when using this app.",
@@ -41,6 +56,7 @@ class SettingsScreenVM : ViewModel() {
             isIconNeeded = mutableStateOf(true),
             icon = Icons.Default.OpenInBrowser,
             onSwitchStateChange = {
+                Settings.isInAppWebTabEnabled.value = it
                 viewModelScope.launch {
 
                 }
@@ -53,6 +69,7 @@ class SettingsScreenVM : ViewModel() {
             isSwitchNeeded = true,
             isSwitchEnabled = Settings.isAutoCheckUpdatesEnabled,
             onSwitchStateChange = {
+                Settings.isAutoCheckUpdatesEnabled.value = it
                 viewModelScope.launch {
 
                 }
@@ -65,6 +82,7 @@ class SettingsScreenVM : ViewModel() {
             icon = Icons.AutoMirrored.Default.ShortText,
             isSwitchEnabled = Settings.showDescriptionForSettingsState,
             onSwitchStateChange = {
+                Settings.showDescriptionForSettingsState.value = it
                 viewModelScope.launch {
 
                 }
