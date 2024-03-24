@@ -55,15 +55,18 @@ class InboxVM @Inject constructor(
         viewModelScope.launch {
             currentSessionRepo.getCurrentSession()?.isDeletedFromTheCloud?.let {
                 if (!it) {
-                    loadMailsFromTheCloud()
+                    loadMailsFromTheCloud(isRefreshing = false, {})
                 }
             }
         }
     }
 
-    private fun loadMailsFromTheCloud(): Any = if (loadedPreviouslyRequestedMailsPage) {
+    fun loadMailsFromTheCloud(isRefreshing: Boolean, onLoadingComplete: () -> Unit): Any =
+        if (loadedPreviouslyRequestedMailsPage) {
         loadedPreviouslyRequestedMailsPage = false
-        ++currentPageNo
+            if (!isRefreshing) {
+                ++currentPageNo
+            }
         viewModelScope.launch {
             val token = currentSessionRepo.getCurrentSession()?.accountToken
             token?.let { nonNullToken ->
@@ -98,6 +101,7 @@ class InboxVM @Inject constructor(
                 })
             }
         }.invokeOnCompletion {
+            onLoadingComplete()
             loadedPreviouslyRequestedMailsPage = true
         }
     } else {

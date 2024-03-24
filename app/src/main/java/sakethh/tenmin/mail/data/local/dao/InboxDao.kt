@@ -9,7 +9,7 @@ import sakethh.tenmin.mail.data.local.model.InboxMail
 
 @Dao
 interface InboxDao {
-    @Query("SELECT * FROM inboxMail WHERE accountId=:accountId")
+    @Query("SELECT * FROM inboxMail WHERE accountId=:accountId ORDER BY id DESC")
     fun getAllMailsForCurrentSession(accountId: String): Flow<List<InboxMail>>
 
     @Insert
