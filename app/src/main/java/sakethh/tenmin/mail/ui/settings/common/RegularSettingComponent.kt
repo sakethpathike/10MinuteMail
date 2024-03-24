@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +43,7 @@ fun SettingsComponent(
         .animateContentSize(), verticalAlignment = Alignment.CenterVertically) {
         if (settingsComponentState.isIconNeeded.value && settingsComponentState.icon != null) {
             Spacer(modifier = Modifier.width(10.dp))
-            FilledIconButton(
+            FilledTonalIconButton(
                 onClick = { settingsComponentState.onSwitchStateChange(!settingsComponentState.isSwitchEnabled.value) }) {
                 Icon(imageVector = settingsComponentState.icon, contentDescription = null)
             }

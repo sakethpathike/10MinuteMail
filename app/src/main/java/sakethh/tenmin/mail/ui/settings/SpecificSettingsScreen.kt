@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,7 +41,7 @@ fun SpecificSettingsScreen(
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "navigate to previous screen"
+                        contentDescription = "Icon for navigating to previous screen"
                     )
                 }
             }, scrollBehavior = topAppBarScrollState, title = {
@@ -62,11 +63,11 @@ fun SpecificSettingsScreen(
         ) {
             when (SettingsScreenVM.settingsScreenType) {
                 SettingsScreenType.THEME -> {
-                    themeScreen()
+                    themeSection()
                 }
 
                 SettingsScreenType.GENERAL -> {
-
+                    generalSection(settingsScreenVM.generalSection)
                 }
 
                 SettingsScreenType.DATA -> {
@@ -81,8 +82,25 @@ fun SpecificSettingsScreen(
     }
 }
 
+private fun LazyListScope.generalSection(generalSection: List<SettingsComponentState>) {
+    items(generalSection) {
+        SettingsComponent(
+            settingsComponentState = SettingsComponentState(
+                title = it.title,
+                doesDescriptionExists = it.doesDescriptionExists,
+                description = it.description,
+                isSwitchNeeded = it.isSwitchNeeded,
+                isSwitchEnabled = it.isSwitchEnabled,
+                onSwitchStateChange = it.onSwitchStateChange,
+                isIconNeeded = it.isIconNeeded,
+                icon = it.icon
+            )
+        )
+    }
+}
 
-private fun LazyListScope.themeScreen() {
+
+private fun LazyListScope.themeSection() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value) {
         item(key = "Follow System Theme") {
             SettingsComponent(
