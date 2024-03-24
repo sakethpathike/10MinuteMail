@@ -36,6 +36,7 @@ import sakethh.tenmin.mail.ui.accounts.screens.AccountsScreen
 import sakethh.tenmin.mail.ui.inbox.InboxScreen
 import sakethh.tenmin.mail.ui.info.InfoScreen
 import sakethh.tenmin.mail.ui.settings.SettingsScreen
+import sakethh.tenmin.mail.ui.settings.SpecificSettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,6 +120,9 @@ fun HomeScreen(mainNavController: NavController) {
                 }
                 composable(NavigationRoutes.SETTINGS.name) {
                     SettingsScreen(navController)
+                }
+                composable(NavigationRoutes.SPECIFIC_SETTINGS.name) {
+                    SpecificSettingsScreen(navController)
                 }
             }
         }

@@ -26,6 +26,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import sakethh.tenmin.mail.NavigationRoutes
+import sakethh.tenmin.mail.ui.settings.common.SettingsSectionComposable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +61,8 @@ fun SettingsScreen(navController: NavController) {
             item(key = "themeRow") {
                 SettingsSectionComposable(
                     onClick = {
+                        SettingsScreenVM.settingsScreenType = SettingsScreenType.THEME
+                        navController.navigate(NavigationRoutes.SPECIFIC_SETTINGS.name)
                     },
                     sectionTitle = "Theme",
                     sectionIcon = Icons.Default.ColorLens
@@ -67,6 +71,8 @@ fun SettingsScreen(navController: NavController) {
             item(key = "generalRow") {
                 SettingsSectionComposable(
                     onClick = {
+                        SettingsScreenVM.settingsScreenType = SettingsScreenType.GENERAL
+                        navController.navigate(NavigationRoutes.SPECIFIC_SETTINGS.name)
                     },
                     sectionTitle = "General",
                     sectionIcon = Icons.Default.SettingsInputSvideo
@@ -75,6 +81,8 @@ fun SettingsScreen(navController: NavController) {
             item(key = "dataRow") {
                 SettingsSectionComposable(
                     onClick = {
+                        SettingsScreenVM.settingsScreenType = SettingsScreenType.DATA
+                        navController.navigate(NavigationRoutes.SPECIFIC_SETTINGS.name)
                     },
                     sectionTitle = "Data",
                     sectionIcon = Icons.Default.Storage
@@ -83,6 +91,8 @@ fun SettingsScreen(navController: NavController) {
             item(key = "privacyRow") {
                 SettingsSectionComposable(
                     onClick = {
+                        SettingsScreenVM.settingsScreenType = SettingsScreenType.PRIVACY
+                        navController.navigate(NavigationRoutes.SPECIFIC_SETTINGS.name)
                     },
                     sectionTitle = "Privacy",
                     sectionIcon = Icons.Default.PrivacyTip

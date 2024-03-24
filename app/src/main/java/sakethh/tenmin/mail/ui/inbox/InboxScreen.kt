@@ -74,7 +74,7 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier
                     )
-                    IconButton(modifier = Modifier.padding(end = 10.dp), onClick = {
+                    IconButton(onClick = {
                         isCurrentSessionMailExpanded.value = !isCurrentSessionMailExpanded.value
                     }) {
                         Icon(

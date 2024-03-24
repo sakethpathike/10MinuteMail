@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.settings
+package sakethh.tenmin.mail.ui.settings.common
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
