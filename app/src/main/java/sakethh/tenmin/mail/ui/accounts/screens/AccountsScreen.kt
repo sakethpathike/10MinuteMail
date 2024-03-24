@@ -153,7 +153,7 @@ fun AccountsScreen(
                         .padding(start = 15.dp, end = 15.dp)
                 ) {
                     Text(
-                        text = "Delete account permanently",
+                        text = "Delete account",
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1
                     )
@@ -193,6 +193,6 @@ fun AccountsScreen(
                 )
             )
         },
-        currentSessionMailAddress = currentSessionData.accountAddress
+        currentSession = currentSessionData
     )
 }

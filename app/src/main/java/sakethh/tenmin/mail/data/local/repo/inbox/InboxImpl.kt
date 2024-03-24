@@ -24,4 +24,8 @@ class InboxImpl(private val inboxDao: InboxDao) : InboxRepo {
     override suspend fun deleteAMail(inboxMail: InboxMail) {
         inboxDao.deleteAMail(inboxMail)
     }
+
+    override suspend fun deleteThisAccountMails(accountId: String) {
+        inboxDao.deleteThisAccountMails(accountId)
+    }
 }

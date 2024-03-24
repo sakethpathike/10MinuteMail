@@ -1,5 +1,7 @@
 package sakethh.tenmin.mail.ui.accounts.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CurrentSessionItem(emailAddress: String, emailPassword: String) {
     val isPasswordHidden = rememberSaveable {
@@ -52,7 +55,8 @@ fun CurrentSessionItem(emailAddress: String, emailPassword: String) {
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier
                         .padding(start = 20.dp, top = 20.dp, bottom = 20.dp)
-                        .fillMaxWidth(0.65f),
+                        .fillMaxWidth(0.65f)
+                        .basicMarquee(),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )

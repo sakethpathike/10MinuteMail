@@ -3,8 +3,6 @@ package sakethh.tenmin.mail.ui.accounts.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +14,7 @@ import sakethh.tenmin.mail.data.local.model.Accounts
 import sakethh.tenmin.mail.data.local.model.CurrentSession
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
 import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
+import sakethh.tenmin.mail.data.local.repo.inbox.InboxRepo
 import sakethh.tenmin.mail.data.remote.api.MailRepository
 import sakethh.tenmin.mail.ui.accounts.StartUpEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
@@ -25,7 +24,8 @@ import javax.inject.Inject
 class AccountVM @Inject constructor(
     private val currentSessionRepo: CurrentSessionRepo,
     private val mailRepository: MailRepository,
-    private val accountsRepo: AccountsRepo
+    private val accountsRepo: AccountsRepo,
+    private val inboxRepo: InboxRepo
 ) :
     ViewModel() {
 
@@ -63,19 +63,34 @@ class AccountVM @Inject constructor(
 
     fun onUIEvent(event: AccountsUiEvent) {
         when (event) {
-            is AccountsUiEvent.DeleteCurrentSessionAccountPermanently -> deleteCurrentSessionWithAnAction { accountId, accountToken ->
+            is AccountsUiEvent.DeleteCurrentSessionAccountPermanently -> {
+                StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
+                val currentSession = currentSessionData.value
                 viewModelScope.launch {
                     if (event.deleteAccountFromCloud) {
-                        mailRepository.deleteAnAccount(accountId, accountToken)
-                        accountsRepo.updateAccountStatus(accountId, isDeletedFromTheCloud = true)
+                        mailRepository.deleteAnAccount(
+                            currentSession.accountId, currentSession.accountToken
+                        )
+                        accountsRepo.updateAccountStatus(
+                            currentSession.accountId, isDeletedFromTheCloud = true
+                        )
                     }
                     if (event.deleteAccountLocally) {
-                        accountsRepo.deleteAnAccount(accountId)
+                        sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.STARTUP.name))
+                        inboxRepo.deleteThisAccountMails(currentSession.accountId)
+                        accountsRepo.deleteAnAccount(currentSession.accountId)
+                        currentSessionRepo.deleteCurrentSession(currentSession)
                     }
                 }
             }
 
-            is AccountsUiEvent.SignOut -> deleteCurrentSessionWithAnAction { _, _ -> }
+            is AccountsUiEvent.SignOut -> {
+                StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
+                viewModelScope.launch {
+                    val currentSession = currentSessionData.value
+                    currentSessionRepo.deleteCurrentSession(currentSession)
+                }
+            }
 
             is AccountsUiEvent.AddANewEmailAccount -> {
                 StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = true
@@ -103,23 +118,6 @@ class AccountVM @Inject constructor(
             }
 
             else -> Unit
-        }
-    }
-
-    private fun deleteCurrentSessionWithAnAction(onDeleteAction: (accountId: String, accountToken: String) -> Unit) {
-        val currentSession = currentSessionData.value
-        viewModelScope.launch {
-            awaitAll(async {
-                onDeleteAction(
-                    currentSession.accountId,
-                    currentSession.accountToken
-                )
-            }, async {
-                currentSessionRepo.deleteCurrentSession(currentSession)
-            }, async {
-                StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
-                sendUIEvent(StartUpEvent.Navigate(NavigationRoutes.STARTUP.name))
-            })
         }
     }
 

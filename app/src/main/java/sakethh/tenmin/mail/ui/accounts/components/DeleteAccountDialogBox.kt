@@ -24,12 +24,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import sakethh.tenmin.mail.data.local.model.CurrentSession
 
 @Composable
 fun DeleteAccountDialogBox(
     isVisible: MutableState<Boolean>,
     onDeleteAccountClick: (deleteAccountLocally: Boolean, deleteAccountFromCloud: Boolean) -> Unit,
-    currentSessionMailAddress: String
+    currentSession: CurrentSession
 ) {
     if (isVisible.value) {
         val deleteAccountLocally = rememberSaveable {
@@ -47,17 +48,18 @@ fun DeleteAccountDialogBox(
                 }
             },
             confirmButton = {
-                if (deleteAccountLocally.value || deleteAccountFromCloud.value) {
+                if (deleteAccountLocally.value || deleteAccountFromCloud.value || currentSession.isDeletedFromTheCloud) {
                     Button(colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
                     ), modifier = Modifier.fillMaxWidth(), onClick = {
                         onDeleteAccountClick(
-                            deleteAccountLocally.value, deleteAccountFromCloud.value
+                            if (!currentSession.isDeletedFromTheCloud) deleteAccountLocally.value else true,
+                            if (!currentSession.isDeletedFromTheCloud) deleteAccountFromCloud.value else false
                         )
                     }) {
                         Text(
-                            text = "Delete account permanently",
+                            text = "Delete account ".plus(if (deleteAccountLocally.value && !deleteAccountFromCloud.value) "Locally" else if (!deleteAccountLocally.value && deleteAccountFromCloud.value) "from cloud" else "permanently"),
                             style = MaterialTheme.typography.titleSmall
                         )
                     }
@@ -65,7 +67,7 @@ fun DeleteAccountDialogBox(
             },
             title = {
                 Text(
-                    text = "Confirm Account Deletion: Locally, in the Cloud, or Both?",
+                    text = if (currentSession.isDeletedFromTheCloud) "Are you sure you want to delete the account?" else "Confirm Account Deletion: Locally, in the Cloud, or Both?",
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = 16.sp
                 )
@@ -76,49 +78,56 @@ fun DeleteAccountDialogBox(
                         Text(text = buildAnnotatedString {
                             append("You're about to delete ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                append(currentSessionMailAddress)
+                                append(currentSession.accountAddress)
                             }
                             append(".")
                         }, style = MaterialTheme.typography.titleSmall)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    deleteAccountLocally.value = !deleteAccountLocally.value
-                                }, verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(checked = deleteAccountLocally.value, onCheckedChange = {
-                                deleteAccountLocally.value = it
-                            })
+                        if (!currentSession.isDeletedFromTheCloud) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        deleteAccountLocally.value = !deleteAccountLocally.value
+                                    }, verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(checked = deleteAccountLocally.value, onCheckedChange = {
+                                    deleteAccountLocally.value = it
+                                })
+                                Text(
+                                    text = "Delete account locally",
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+                            if (deleteAccountLocally.value) {
+                                Text(
+                                    text = "After deletion, the credentials for this email address will be removed from your device. To reuse this account, you'll need to enter your email address and password again.",
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        deleteAccountFromCloud.value = !deleteAccountFromCloud.value
+                                    }, verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(checked = deleteAccountFromCloud.value, onCheckedChange = {
+                                    deleteAccountFromCloud.value = it
+                                })
+                                Text(
+                                    text = "Delete Account from Cloud",
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+                            if (deleteAccountFromCloud.value) {
+                                Text(
+                                    text = "After deletion, the credentials for this email address will be removed from the cloud. However, they will still remain on your device, and a label will be added in the Inbox indicating that this email doesn't exist in the cloud.",
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+                        } else {
                             Text(
-                                text = "Delete account locally",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        }
-                        if (deleteAccountLocally.value) {
-                            Text(
-                                text = "After deletion, the credentials for this email address will be removed from your device. To reuse this account, you'll need to enter your email address and password again.",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    deleteAccountFromCloud.value = !deleteAccountFromCloud.value
-                                }, verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(checked = deleteAccountFromCloud.value, onCheckedChange = {
-                                deleteAccountFromCloud.value = it
-                            })
-                            Text(
-                                text = "Delete Account from Cloud",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        }
-                        if (deleteAccountFromCloud.value) {
-                            Text(
-                                text = "After deletion, the credentials for this email address will be removed from the cloud. However, they will still remain on your device, and a label will be added in the Inbox indicating that this email doesn't exist in the cloud.",
+                                text = "\nYou won't be able to log back in with the same credentials because the email has already been deleted from the cloud.",
                                 style = MaterialTheme.typography.titleSmall
                             )
                         }

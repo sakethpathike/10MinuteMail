@@ -21,6 +21,9 @@ interface InboxDao {
     @Delete
     suspend fun deleteAMail(inboxMail: InboxMail)
 
+    @Query("DELETE FROM inboxMail WHERE accountId = :accountId")
+    suspend fun deleteThisAccountMails(accountId: String)
+
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM inboxMail WHERE mailId = :mailId")
 
     suspend fun doesThisMailExists(mailId: String): Boolean

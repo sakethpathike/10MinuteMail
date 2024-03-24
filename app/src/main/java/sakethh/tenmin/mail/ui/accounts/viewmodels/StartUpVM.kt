@@ -127,7 +127,8 @@ class StartUpVM @Inject constructor(
                         accountPassword = accountsUiEvent.account.accountPassword,
                         accountId = accountsUiEvent.account.accountId,
                         accountToken = accountsUiEvent.account.accountToken,
-                        accountCreatedAt = accountsUiEvent.account.accountCreatedAt
+                        accountCreatedAt = accountsUiEvent.account.accountCreatedAt,
+                        isDeletedFromTheCloud = accountsUiEvent.account.isDeletedFromTheCloud
                     )
                     if (currentSessionRepo.hasActiveSession()) {
                         sendUIEvent(StartUpEvent.UpdatingLocalDatabase)

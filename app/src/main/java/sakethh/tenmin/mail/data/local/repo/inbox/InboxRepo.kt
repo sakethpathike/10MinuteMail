@@ -12,4 +12,5 @@ interface InboxRepo {
     suspend fun doesThisMailExists(mailId: String): Boolean
 
     suspend fun deleteAMail(inboxMail: InboxMail)
+    suspend fun deleteThisAccountMails(accountId: String)
 }
