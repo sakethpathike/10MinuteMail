@@ -1,6 +1,10 @@
 package sakethh.tenmin.mail.ui.settings
 
 import android.os.Build
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -24,13 +30,18 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.ui.settings.common.SettingsComponent
 import sakethh.tenmin.mail.ui.settings.common.timePicker.AutoRefreshMailsIntervalPicker
 import sakethh.tenmin.mail.ui.settings.common.timePicker.AutoRefreshMailsIntervalPickerState
@@ -99,6 +111,8 @@ fun SpecificSettingsScreen(
             }
         }
     }
+    val btmSheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
     if (isBtmTimePickerSheetVisible.value) {
         val intPickerState = remember {
             AutoRefreshMailsIntervalPickerState()
@@ -108,7 +122,8 @@ fun SpecificSettingsScreen(
         }
         val intPickerList = (5..30).filter { it % 5 == 0 }.toList()
         val unitsOfTimePickerList = listOf("Seconds", "Minutes")
-        ModalBottomSheet(onDismissRequest = { isBtmTimePickerSheetVisible.value = false }) {
+        ModalBottomSheet(sheetState = btmSheetState,
+            onDismissRequest = { isBtmTimePickerSheetVisible.value = false }) {
             Text(
                 text = "Select Auto-Refresh Interval",
                 style = MaterialTheme.typography.titleSmall,
@@ -130,20 +145,98 @@ fun SpecificSettingsScreen(
             }
             Text(modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(20.dp)
+                .animateContentSize(),
                 style = MaterialTheme.typography.titleSmall,
                 text = buildAnnotatedString {
                     append("While the app is running, ")
                     withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                        append("new emails will be fetched automatically every ${intPickerList[intPickerState.firstVisibleIndexItem.intValue]} ${unitsOfTimePickerList[unitsOfAutoRefreshMailsIntervalPickerState.firstVisibleIndexItem.intValue]}")
+                        append("new emails will be fetched automatically every ")
                     }
-                    append(".")
-                })
+                    appendInlineContent("intInterval")
+                    appendInlineContent("unitInterval")
+                    appendInlineContent("dot")
+                }, inlineContent = mapOf(
+                    Pair("intInterval", InlineTextContent(
+                        Placeholder(
+                            when (remember(intPickerList[intPickerState.firstVisibleIndexItem.intValue]) {
+                                mutableIntStateOf(intPickerList[intPickerState.firstVisibleIndexItem.intValue])
+                            }.intValue) {
+                                5 -> 12.sp
+                                10, 15 -> 16.sp
+                                else -> 20.sp
+                            }, 16.sp, PlaceholderVerticalAlign.TextCenter
+                        )
+                    ) {
+                        AnimatedContent(targetState = intPickerList[intPickerState.firstVisibleIndexItem.intValue],
+                            label = "",
+                            transitionSpec = {
+                                ContentTransform(
+                                    targetContentEnter = slideIntoContainer(
+                                        AnimatedContentTransitionScope.SlideDirection.Up
+                                    ), initialContentExit = slideOutOfContainer(
+                                        AnimatedContentTransitionScope.SlideDirection.Up
+                                    )
+                                )
+                            }) {
+                            Text(
+                                text = it.toString().plus(" "),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }),
+                    Pair("unitInterval", InlineTextContent(
+                        Placeholder(
+                            if (remember(unitsOfTimePickerList[unitsOfAutoRefreshMailsIntervalPickerState.firstVisibleIndexItem.intValue]) {
+                                    mutableStateOf(unitsOfTimePickerList[unitsOfAutoRefreshMailsIntervalPickerState.firstVisibleIndexItem.intValue])
+                                }.value == "Seconds") 61.sp else 57.sp,
+                            16.sp,
+                            PlaceholderVerticalAlign.TextCenter
+                        )
+                    ) {
+                        AnimatedContent(targetState = unitsOfTimePickerList[unitsOfAutoRefreshMailsIntervalPickerState.firstVisibleIndexItem.intValue],
+                            label = "",
+                            transitionSpec = {
+                                ContentTransform(
+                                    targetContentEnter = slideIntoContainer(
+                                        AnimatedContentTransitionScope.SlideDirection.Up
+                                    ), initialContentExit = slideOutOfContainer(
+                                        AnimatedContentTransitionScope.SlideDirection.Up
+                                    )
+                                )
+                            }) { unit ->
+                            Text(
+                                text = unit,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }),
+                    Pair("dot", InlineTextContent(
+                        Placeholder(
+                            16.sp, 16.sp, PlaceholderVerticalAlign.TextCenter
+                        )
+                    ) {
+                        Text(
+                            text = ".",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }),
+                )
+            )
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 20.dp, end = 20.dp)
-                    .navigationBarsPadding(), onClick = { }) {
+                    .navigationBarsPadding(), onClick = {
+                    coroutineScope.launch {
+                        btmSheetState.hide()
+                    }.invokeOnCompletion {
+                        isBtmTimePickerSheetVisible.value = false
+                    }
+                }) {
                 Text(
                     text = "Ok",
                     style = MaterialTheme.typography.titleSmall
