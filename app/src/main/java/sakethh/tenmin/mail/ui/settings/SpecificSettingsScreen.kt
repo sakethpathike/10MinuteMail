@@ -328,3 +328,7 @@ private fun LazyListScope.themeSection() {
         }
     }
 }
+
+private fun LazyListScope.privacySection() {
+
+}
