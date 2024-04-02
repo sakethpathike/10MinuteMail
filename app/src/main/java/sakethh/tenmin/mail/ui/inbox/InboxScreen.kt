@@ -1,6 +1,10 @@
 package sakethh.tenmin.mail.ui.inbox
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +61,10 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                 pullRefreshState.endRefresh()
             })
         }
+    }
+    val sampleMails = inboxVM.sampleMails.collectAsState(initial = emptyList()).value
+    val draggedLeft = remember {
+        mutableStateOf(false)
     }
     Box(modifier = Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -102,13 +111,30 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                     AccountDeletedFromTheCloudCard(inInboxScreen = true)
                 }
             }
-            items(inboxMails) {
-                MailItem(
-                    intro = it.intro,
-                    createdAt = it.createdAt,
-                    subject = it.subject,
-                    fromName = it.from.name
-                )
+            items(items = sampleMails, key = {
+                it.id
+            }) {
+                AnimatedContent(transitionSpec = {
+                    ContentTransform(
+                        targetContentEnter = slideInHorizontally(),
+                        initialContentExit = slideOutHorizontally()
+                    )
+                }, targetState = it, label = "") {
+                    MailItem(
+                        intro = it.intro,
+                        createdAt = it.createdAt,
+                        subject = it.subject,
+                        fromName = it.from.name,
+                        onDragRight = {
+                            draggedLeft.value = false
+                            inboxVM.sampleList.remove(it)
+                        },
+                        onDragLeft = {
+                            draggedLeft.value = true
+                            inboxVM.sampleList.remove(it)
+                        },
+                    )
+                }
             }
         }
         PullToRefreshContainer(

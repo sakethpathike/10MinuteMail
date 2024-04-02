@@ -1,7 +1,6 @@
 package sakethh.tenmin.mail.ui.common
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -18,13 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,7 +42,14 @@ import kotlin.math.roundToInt
 
 @SuppressLint("AutoboxingStateValueProperty", "AutoboxingStateCreation")
 @Composable
-fun MailItem(intro: String, createdAt: String, subject: String, fromName: String) {
+fun MailItem(
+    intro: String,
+    createdAt: String,
+    subject: String,
+    fromName: String,
+    onDragRight: () -> Unit,
+    onDragLeft: () -> Unit
+) {
     val isChecked = remember {
         mutableStateOf(false)
     }
@@ -61,12 +65,6 @@ fun MailItem(intro: String, createdAt: String, subject: String, fromName: String
     val draggingTowardsRight = remember {
         mutableStateOf(false)
     }
-    LaunchedEffect(key1 = isDragging.value) {
-        if (!isDragging.value) {
-            itemOffSetX.value = 0f
-        }
-    }
-    val activity = LocalContext.current as Activity
     Box(
         modifier = Modifier
             .background(if (draggingTowardsRight.value) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer)
@@ -80,10 +78,14 @@ fun MailItem(intro: String, createdAt: String, subject: String, fromName: String
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    imageVector = Icons.Default.DeleteForever,
+                    imageVector = Icons.Default.Delete,
                     contentDescription = "Delete Forever"
                 )
-                Text(text = "Delete", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = "Move to\nTrash",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
         } else {
             Column(
@@ -96,7 +98,11 @@ fun MailItem(intro: String, createdAt: String, subject: String, fromName: String
                 Icon(
                     imageVector = Icons.Default.Archive, contentDescription = "Archive"
                 )
-                Text(text = "Archive", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = "Move to\nArchive",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
         }
         Row(
@@ -114,20 +120,27 @@ fun MailItem(intro: String, createdAt: String, subject: String, fromName: String
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures(onHorizontalDrag = { change, dragAmount ->
                         change.consume()
-                        isDragging.value = true
                         itemOffSetX.value += dragAmount
                         draggingTowardsRight.value = itemOffSetX.value < 0
-                        if (itemOffSetX.value / totalWidth.value >= 0.5) {
-
-                        }
-                        if (itemOffSetX.value / totalWidth.value <= -0.5) {
-
-                        }
                     }, onDragStart = {
                         isDragging.value = true
                     }, onDragEnd = {
+                        if (itemOffSetX.value / totalWidth.value >= 0.5) {
+                            onDragRight()
+                        } else if (itemOffSetX.value / totalWidth.value <= -0.5) {
+                            onDragLeft()
+                        } else {
+                            itemOffSetX.value = 0f
+                        }
                         isDragging.value = false
                     }, onDragCancel = {
+                        if (itemOffSetX.value / totalWidth.value >= 0.5) {
+                            onDragRight()
+                        } else if (itemOffSetX.value / totalWidth.value <= -0.5) {
+                            onDragLeft()
+                        } else {
+                            itemOffSetX.value = 0f
+                        }
                         isDragging.value = false
                     })
                 }
