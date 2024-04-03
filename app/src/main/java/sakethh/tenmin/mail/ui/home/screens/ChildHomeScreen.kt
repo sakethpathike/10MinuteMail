@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.inbox
+package sakethh.tenmin.mail.ui.home.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
@@ -39,17 +39,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.components.AccountDeletedFromTheCloudCard
 import sakethh.tenmin.mail.ui.common.MailItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
-    val currentSessionData = inboxVM.currentSessionData.collectAsState().value
+fun ChildHomeScreen(
+    childHomeScreenVM: ChildHomeScreenVM = hiltViewModel(), childHomeScreenType: NavigationRoutes
+) {
+    val currentSessionData = childHomeScreenVM.currentSessionData.collectAsState().value
     val isCurrentSessionMailExpanded = rememberSaveable {
         mutableStateOf(false)
     }
-    val inboxMails = inboxVM.mails.collectAsState().value
+    val currentSessionStarred = childHomeScreenVM.currentSessionStarred.collectAsState().value
+    val currentSessionInbox = childHomeScreenVM.currentSessionInbox.collectAsState().value
+    val currentSessionArchive = childHomeScreenVM.currentSessionArchive.collectAsState().value
+    val currentSessionTrash = childHomeScreenVM.currentSessionTrash.collectAsState().value
     val pullRefreshState = rememberPullToRefreshState()
     LaunchedEffect(key1 = pullRefreshState.isRefreshing) {
         if (currentSessionData.isDeletedFromTheCloud) {
@@ -57,12 +63,11 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
             return@LaunchedEffect
         }
         if (pullRefreshState.isRefreshing) {
-            inboxVM.loadMailsFromTheCloud(isRefreshing = true, onLoadingComplete = {
+            childHomeScreenVM.loadMailsFromTheCloud(isRefreshing = true, onLoadingComplete = {
                 pullRefreshState.endRefresh()
             })
         }
     }
-    val sampleMails = inboxVM.sampleMails.collectAsState(initial = emptyList()).value
     val draggedLeft = remember {
         mutableStateOf(false)
     }
@@ -79,7 +84,10 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        text = "Inbox",
+                        text = childHomeScreenType.name.replace("_", " ").split(" ").joinToString {
+                            it.substring(0, 1).toUpperCase()
+                                .plus(it.substring(1, it.length).toLowerCase())
+                        }.replace(",", ""),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier
                     )
@@ -111,7 +119,14 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                     AccountDeletedFromTheCloudCard(inInboxScreen = true)
                 }
             }
-            items(items = sampleMails, key = {
+            items(
+                items = when (childHomeScreenType) {
+                    NavigationRoutes.INBOX -> currentSessionInbox
+                    NavigationRoutes.STARRED -> currentSessionStarred
+                    NavigationRoutes.ARCHIVE -> currentSessionArchive
+                    NavigationRoutes.TRASH -> currentSessionTrash
+                    else -> emptyList()
+                }, key = {
                 it.id
             }) {
                 AnimatedContent(transitionSpec = {
@@ -127,12 +142,16 @@ fun InboxScreen(inboxVM: InboxVM = hiltViewModel()) {
                         fromName = it.from.name,
                         onDragRight = {
                             draggedLeft.value = false
-                            inboxVM.sampleList.remove(it)
+                            childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.MoveToArchive(it.mailId))
                         },
                         onDragLeft = {
                             draggedLeft.value = true
-                            inboxVM.sampleList.remove(it)
-                        },
+                            childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.MoveToTrash(it.mailId))
+                        }, isStarred = rememberSaveable(it.isStarred) {
+                            mutableStateOf(it.isStarred)
+                        }, onStarClick = {
+                            childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.OnStarIconClick(it.mailId))
+                        }
                     )
                 }
             }

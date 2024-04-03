@@ -18,11 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,7 +51,9 @@ fun MailItem(
     subject: String,
     fromName: String,
     onDragRight: () -> Unit,
-    onDragLeft: () -> Unit
+    onDragLeft: () -> Unit,
+    isStarred: MutableState<Boolean>,
+    onStarClick: () -> Unit
 ) {
     val isChecked = remember {
         mutableStateOf(false)
@@ -218,10 +223,12 @@ fun MailItem(
                             )
                         )
                     }
-                    Icon(
-                        imageVector = Icons.Outlined.StarOutline,
-                        contentDescription = "Star State Icon"
-                    )
+                    IconButton(onClick = { onStarClick() }) {
+                        Icon(
+                            imageVector = if (isStarred.value) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                            contentDescription = "Star State Icon"
+                        )
+                    }
                 }
             }
         }

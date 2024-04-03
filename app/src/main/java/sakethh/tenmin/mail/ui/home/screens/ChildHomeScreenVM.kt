@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.inbox
+package sakethh.tenmin.mail.ui.home.screens
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -22,18 +22,28 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class InboxVM @Inject constructor(
+class ChildHomeScreenVM @Inject constructor(
     private val remoteMailRepository: RemoteMailRepository,
     private val localMailRepo: LocalMailRepo,
     private val accountsRepo: AccountsRepo
 ) : ViewModel() {
 
-    private val _mails = MutableStateFlow(emptyList<LocalMail>())
-    val mails = _mails.asStateFlow()
+    private val _currentSessionInbox = MutableStateFlow(emptyList<LocalMail>())
+    val currentSessionInbox = _currentSessionInbox.asStateFlow()
+
+    private val _currentSessionStarred = MutableStateFlow(emptyList<LocalMail>())
+    val currentSessionStarred = _currentSessionStarred.asStateFlow()
+
+    private val _currentSessionArchive = MutableStateFlow(emptyList<LocalMail>())
+    val currentSessionArchive = _currentSessionArchive.asStateFlow()
+
+    private val _currentSessionTrash = MutableStateFlow(emptyList<LocalMail>())
+    val currentSessionTrash = _currentSessionTrash.asStateFlow()
+
     val sampleList = mutableStateListOf(
         LocalMail(
             id = 1,
-            accountId = "abc123",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-27T08:15:00+00:00",
             from = From(name = "John Doe", address = "john.doe@example.com"),
             hasAttachments = true,
@@ -46,7 +56,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 2,
-            accountId = "xyz456",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-26T09:20:00+00:00",
             from = From(name = "Jane Smith", address = "jane.smith@example.com"),
             hasAttachments = false,
@@ -59,7 +69,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 3,
-            accountId = "def789",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-25T10:00:00+00:00",
             from = From(name = "David Brown", address = "david.brown@example.com"),
             hasAttachments = true,
@@ -72,7 +82,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 4,
-            accountId = "uvw321",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-24T14:45:00+00:00",
             from = From(name = "Emily Green", address = "emily.green@example.com"),
             hasAttachments = false,
@@ -85,7 +95,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 5,
-            accountId = "mno987",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-23T13:00:00+00:00",
             from = From(name = "Michael Johnson", address = "michael.johnson@example.com"),
             hasAttachments = true,
@@ -98,7 +108,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 6,
-            accountId = "rst654",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-22T11:30:00+00:00",
             from = From(name = "Sophia Lee", address = "sophia.lee@example.com"),
             hasAttachments = false,
@@ -111,7 +121,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 7,
-            accountId = "pqr987",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-21T09:00:00+00:00",
             from = From(name = "William Taylor", address = "william.taylor@example.com"),
             hasAttachments = true,
@@ -124,7 +134,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 8,
-            accountId = "ghi456",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-20T14:00:00+00:00",
             from = From(name = "Olivia Martinez", address = "olivia.martinez@example.com"),
             hasAttachments = false,
@@ -137,7 +147,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 9,
-            accountId = "jkl012",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-19T12:30:00+00:00",
             from = From(name = "Daniel Wilson", address = "daniel.wilson@example.com"),
             hasAttachments = true,
@@ -150,7 +160,7 @@ class InboxVM @Inject constructor(
             rawMail = "..."
         ), LocalMail(
             id = 10,
-            accountId = "stu345",
+            accountId = "660d3f9a1512a84c9a6c52f5",
             createdAt = "2024-03-18T15:00:00+00:00",
             from = From(name = "Isabella Adams", address = "isabella.adams@example.com"),
             hasAttachments = false,
@@ -180,13 +190,43 @@ class InboxVM @Inject constructor(
 
     init {
         viewModelScope.launch {
+            // localMailRepo.addAMultipleMails(sampleMails.value.toList())
+        }
+        viewModelScope.launch {
             accountsRepo.getCurrentSessionAsAFlow().collect { currentSession ->
                 if (currentSession != null) {
                     _currentSessionData.emit(currentSession)
                 }
-                currentSession?.let { accountData ->
-                    localMailRepo.getAllMailsForCurrentSession(accountData.accountId).collect {
-                        _mails.emit(it)
+                this.launch {
+                    currentSession?.let { accountData ->
+                        localMailRepo.getInboxMailsForCurrentSession(accountData.accountId)
+                            .collect {
+                                _currentSessionInbox.emit(it)
+                            }
+                    }
+                }
+                this.launch {
+                    currentSession?.let { accountData ->
+                        localMailRepo.getStarredMailsForCurrentSession(accountData.accountId)
+                            .collect {
+                                _currentSessionStarred.emit(it)
+                            }
+                    }
+                }
+                this.launch {
+                    currentSession?.let { accountData ->
+                        localMailRepo.getTrashedMailsForCurrentSession(accountData.accountId)
+                            .collect {
+                                _currentSessionTrash.emit(it)
+                            }
+                    }
+                }
+                this.launch {
+                    currentSession?.let { accountData ->
+                        localMailRepo.getArchivedMailsForCurrentSession(accountData.accountId)
+                            .collect {
+                                _currentSessionArchive.emit(it)
+                            }
                     }
                 }
             }
@@ -194,13 +234,46 @@ class InboxVM @Inject constructor(
         viewModelScope.launch {
             accountsRepo.getCurrentSession()?.isDeletedFromTheCloud?.let {
                 if (!it) {
-                    loadMailsFromTheCloud(isRefreshing = false, {})
+                    // loadMailsFromTheCloud(isRefreshing = false, {})
                 }
             }
         }
     }
 
-    fun loadMailsFromTheCloud(isRefreshing: Boolean, onLoadingComplete: () -> Unit): Any =
+    fun onUiEvent(childHomeScreenEvent: ChildHomeScreenEvent) {
+        when (childHomeScreenEvent) {
+            is ChildHomeScreenEvent.MoveToArchive -> {
+                viewModelScope.launch {
+                    localMailRepo.moveAMailToArchive(childHomeScreenEvent.mailId)
+                }
+            }
+
+            is ChildHomeScreenEvent.MoveToTrash -> {
+                viewModelScope.launch {
+                    localMailRepo.moveAMailToTrash(childHomeScreenEvent.mailId)
+                }
+            }
+
+            is ChildHomeScreenEvent.OnStarIconClick -> {
+                viewModelScope.launch {
+                    if (localMailRepo.isMarkedAsStar(childHomeScreenEvent.mailId)) {
+                        localMailRepo.unMarkAStarredMail(childHomeScreenEvent.mailId)
+                    } else {
+                        localMailRepo.markAMailStarred(childHomeScreenEvent.mailId)
+
+                    }
+                }
+            }
+
+            is ChildHomeScreenEvent.DeletePermanently -> {
+                viewModelScope.launch {
+                    localMailRepo.deleteAMail(childHomeScreenEvent.mailId)
+                }
+            }
+        }
+    }
+
+    fun loadMailsFromTheCloud(isRefreshing: Boolean, onLoadingComplete: () -> Unit) {
         if (loadedPreviouslyRequestedMailsPage) {
             loadedPreviouslyRequestedMailsPage = false
             if (!isRefreshing) {
@@ -218,8 +291,7 @@ class InboxVM @Inject constructor(
                     localMailRepo.addAMultipleMails(filteredMails.map { mailData ->
                         val rawMail = withContext(Dispatchers.Default) {
                             OkHttpClient().newCall(
-                                Request.Builder()
-                                    .url("https://api.mail.gw${mailData.downloadUrl}")
+                                Request.Builder().url("https://api.mail.gw${mailData.downloadUrl}")
                                     .addHeader("Authorization", "Bearer ".plus(nonNullToken)).get()
                                     .build()
                             ).execute()
@@ -243,8 +315,7 @@ class InboxVM @Inject constructor(
                 onLoadingComplete()
                 loadedPreviouslyRequestedMailsPage = true
             }
-        } else {
-            Unit
         }
+    }
 }
 

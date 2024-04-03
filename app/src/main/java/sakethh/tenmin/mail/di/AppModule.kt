@@ -47,7 +47,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAccountsRepository(db: LocalDatabase): AccountsRepo {
-        return AccountsImpl(db.accountsDao)
+        return AccountsImpl(db.localAccountsDao)
     }
 
     @Provides
@@ -59,7 +59,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideInboxRepo(db: LocalDatabase): LocalMailRepo {
-        return sakethh.tenmin.mail.data.local.repo.mail.LocalMailImpl(db.inboxDao)
+        return sakethh.tenmin.mail.data.local.repo.mail.LocalMailImpl(db.localMailDao)
     }
 
 

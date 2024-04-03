@@ -9,7 +9,7 @@ import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 
 
 @Dao
-interface AccountsDao {
+interface LocalAccountsDao {
     @Query("SELECT * FROM localMailAccount")
     fun getAllAccountsAsAFlow(): Flow<List<LocalMailAccount>>
 

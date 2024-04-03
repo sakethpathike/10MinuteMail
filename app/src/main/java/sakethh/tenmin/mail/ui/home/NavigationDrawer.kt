@@ -106,13 +106,13 @@ fun NavigationDrawer(
                 itemName = "All Archives",
                 selectedIcon = Icons.Filled.Archive,
                 nonSelectedIcon = Icons.Outlined.Archive,
-                navigationRoute = NavigationRoutes.ARCHIVE.name
+                navigationRoute = NavigationRoutes.ALL_ARCHIVES.name
             ),
             NavigationDrawerModel(
                 itemName = "All Trashed",
                 selectedIcon = Icons.Filled.Delete,
                 nonSelectedIcon = Icons.Outlined.Delete,
-                navigationRoute = NavigationRoutes.TRASH.name
+                navigationRoute = NavigationRoutes.ALL_TRASHED.name
             ),
         )
     }
@@ -162,7 +162,15 @@ fun NavigationDrawer(
                         }, selected = selectedItem.value == it.itemName, onClick = {
                             selectedItem.value = it.itemName
                             coroutineScope.launch {
-                                awaitAll(async { navController.navigate(it.navigationRoute) },
+                                awaitAll(
+                                    async {
+                                        navController.navigate(it.navigationRoute) {
+                                            launchSingleTop = true
+                                            popUpTo(0) {
+                                                inclusive = true
+                                            }
+                                        }
+                                    },
                                     async {
                                         modalNavigationBarState.animateTo(
                                             DrawerValue.Closed, tween(300)
@@ -258,7 +266,8 @@ fun NavigationDrawer(
                     }, selected = selectedItem.value == "Info", onClick = {
                         selectedItem.value = "Info"
                         coroutineScope.launch {
-                            awaitAll(async { navController.navigate(NavigationRoutes.ABOUT.name) },
+                            awaitAll(
+                                async { navController.navigate(NavigationRoutes.INFO.name) },
                                 async {
                                     modalNavigationBarState.animateTo(
                                         DrawerValue.Closed, tween(300)

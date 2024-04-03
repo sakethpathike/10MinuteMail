@@ -20,6 +20,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -33,7 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsScreen
-import sakethh.tenmin.mail.ui.inbox.InboxScreen
+import sakethh.tenmin.mail.ui.home.screens.ChildHomeScreen
 import sakethh.tenmin.mail.ui.info.InfoScreen
 import sakethh.tenmin.mail.ui.settings.SettingsScreen
 import sakethh.tenmin.mail.ui.settings.SpecificSettingsScreen
@@ -46,12 +47,20 @@ fun HomeScreen(mainNavController: NavController) {
     val modalNavigationBarState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination
+    val nonHomeScreens = remember {
+        listOf(
+            NavigationRoutes.INFO.name,
+            NavigationRoutes.SETTINGS.name,
+            NavigationRoutes.ACCOUNTS.name,
+            NavigationRoutes.SPECIFIC_SETTINGS.name
+        )
+    }
     NavigationDrawer(navController, modalNavigationBarState = modalNavigationBarState) {
         Scaffold(modifier = Modifier
             .padding(top = 8.dp)
             .nestedScroll(topAppBarState.nestedScrollConnection), topBar = {
             Box(modifier = Modifier.animateContentSize()) {
-                if (currentRoute?.route == NavigationRoutes.INBOX.name) {
+                if (!nonHomeScreens.contains(currentRoute?.route)) {
                     TopAppBar(colors = TopAppBarDefaults.topAppBarColors(scrolledContainerColor = MaterialTheme.colorScheme.surface),
                         scrollBehavior = topAppBarState,
                         title = {
@@ -107,9 +116,30 @@ fun HomeScreen(mainNavController: NavController) {
                 modifier = Modifier.padding(it)
             ) {
                 composable(NavigationRoutes.INBOX.name) {
-                    InboxScreen()
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.INBOX)
                 }
-                composable(NavigationRoutes.ABOUT.name) {
+                composable(NavigationRoutes.STARRED.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.STARRED)
+                }
+                composable(NavigationRoutes.ARCHIVE.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ARCHIVE)
+                }
+                composable(NavigationRoutes.TRASH.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.TRASH)
+                }
+                composable(NavigationRoutes.ALL_STARRED.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_STARRED)
+                }
+                composable(NavigationRoutes.ALL_INBOXES.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_INBOXES)
+                }
+                composable(NavigationRoutes.ALL_ARCHIVES.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_ARCHIVES)
+                }
+                composable(NavigationRoutes.ALL_TRASHED.name) {
+                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_TRASHED)
+                }
+                composable(NavigationRoutes.INFO.name) {
                     InfoScreen(navController)
                 }
                 composable(NavigationRoutes.ACCOUNTS.name) {

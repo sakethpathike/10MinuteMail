@@ -1,58 +1,58 @@
 package sakethh.tenmin.mail.data.local.repo.accounts
 
 import kotlinx.coroutines.flow.Flow
-import sakethh.tenmin.mail.data.local.dao.AccountsDao
+import sakethh.tenmin.mail.data.local.dao.LocalAccountsDao
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 
-class AccountsImpl(private val accountsDao: AccountsDao) : AccountsRepo {
+class AccountsImpl(private val localAccountsDao: LocalAccountsDao) : AccountsRepo {
     override fun getAllAccountsAsAFlow(): Flow<List<LocalMailAccount>> {
-        return accountsDao.getAllAccountsAsAFlow()
+        return localAccountsDao.getAllAccountsAsAFlow()
     }
 
     override suspend fun getCurrentSession(): LocalMailAccount? {
-        return accountsDao.getCurrentSession()
+        return localAccountsDao.getCurrentSession()
     }
 
     override suspend fun getAllAccountsExcludingCurrentSession(): Flow<List<LocalMailAccount>> {
-        return accountsDao.getAllAccountsExcludingCurrentSession()
+        return localAccountsDao.getAllAccountsExcludingCurrentSession()
     }
 
     override suspend fun doesThisEmailAccountExistsInLocalDB(emailAddress: String): Boolean {
-        return accountsDao.doesThisEmailAccountExistsInLocalDB(emailAddress)
+        return localAccountsDao.doesThisEmailAccountExistsInLocalDB(emailAddress)
     }
 
     override fun getCurrentSessionAsAFlow(): Flow<LocalMailAccount?> {
-        return accountsDao.getCurrentSessionAsAFlow()
+        return localAccountsDao.getCurrentSessionAsAFlow()
     }
 
     override suspend fun hasAnActiveSession(): Boolean {
-        return accountsDao.hasAnActiveSession()
+        return localAccountsDao.hasAnActiveSession()
     }
 
     override suspend fun addANewAccount(account: LocalMailAccount) {
-        accountsDao.resetCurrentSessionData()
-        accountsDao.addANewAccount(account)
+        localAccountsDao.resetCurrentSessionData()
+        localAccountsDao.addANewAccount(account)
     }
 
     override suspend fun deleteAnAccount(account: LocalMailAccount) {
-        accountsDao.deleteAnAccount(account)
+        localAccountsDao.deleteAnAccount(account)
     }
 
     override suspend fun deleteAnAccount(accountId: String) {
-        accountsDao.deleteAnAccount(accountId)
+        localAccountsDao.deleteAnAccount(accountId)
     }
 
     override suspend fun updateAccountStatus(accountId: String, isDeletedFromTheCloud: Boolean) {
-        accountsDao.updateStateIfDeletedOnCloud(accountId, isDeletedFromTheCloud)
+        localAccountsDao.updateStateIfDeletedOnCloud(accountId, isDeletedFromTheCloud)
     }
 
     override suspend fun resetCurrentSessionData() {
-        accountsDao.resetCurrentSessionData()
+        localAccountsDao.resetCurrentSessionData()
     }
 
     override suspend fun initANewCurrentSession(accountId: String) {
-        accountsDao.resetCurrentSessionData()
-        accountsDao.initANewCurrentSession(accountId)
+        localAccountsDao.resetCurrentSessionData()
+        localAccountsDao.initANewCurrentSession(accountId)
     }
 
 }
