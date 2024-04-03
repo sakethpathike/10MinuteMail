@@ -2,8 +2,8 @@ package sakethh.tenmin.mail.ui.home.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Abc
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -131,7 +136,7 @@ fun ChildHomeScreen(
             }) {
                 AnimatedContent(transitionSpec = {
                     ContentTransform(
-                        targetContentEnter = slideInHorizontally(),
+                        targetContentEnter = EnterTransition.None,
                         initialContentExit = slideOutHorizontally()
                     )
                 }, targetState = it, label = "") {
@@ -151,7 +156,50 @@ fun ChildHomeScreen(
                             mutableStateOf(it.isStarred)
                         }, onStarClick = {
                             childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.OnStarIconClick(it.mailId))
-                        }
+                        },
+                        draggedLeftColor = when (childHomeScreenType.name) {
+                            NavigationRoutes.INBOX.name -> MaterialTheme.colorScheme.primaryContainer
+                            NavigationRoutes.STARRED.name -> MaterialTheme.colorScheme.outlineVariant
+                            NavigationRoutes.ARCHIVE.name -> MaterialTheme.colorScheme.outlineVariant
+                            NavigationRoutes.TRASH.name -> MaterialTheme.colorScheme.errorContainer
+                            else -> Color.Transparent
+                        },
+                        draggedRightColor = when (childHomeScreenType.name) {
+                            NavigationRoutes.INBOX.name -> MaterialTheme.colorScheme.errorContainer
+                            NavigationRoutes.STARRED.name -> MaterialTheme.colorScheme.outlineVariant
+                            NavigationRoutes.ARCHIVE.name -> MaterialTheme.colorScheme.outlineVariant
+                            NavigationRoutes.TRASH.name -> MaterialTheme.colorScheme.errorContainer
+                            else -> Color.Transparent
+                        },
+                        draggedRightIcon = when (childHomeScreenType.name) {
+                            NavigationRoutes.INBOX.name -> Icons.Default.Delete
+                            NavigationRoutes.STARRED.name -> Icons.Default.StarBorder
+                            NavigationRoutes.ARCHIVE.name -> Icons.Default.Delete
+                            NavigationRoutes.TRASH.name -> Icons.Default.Delete
+                            else -> Icons.Default.Abc
+                        },
+                        draggedRightText = when (childHomeScreenType.name) {
+                            NavigationRoutes.INBOX.name -> "Move to\nTrash"
+                            NavigationRoutes.STARRED.name -> "Remove from\nStarred"
+                            NavigationRoutes.ARCHIVE.name -> "Remove from\nArchive"
+                            NavigationRoutes.TRASH.name -> "Delete\npermanently"
+                            else -> ""
+                        },
+                        draggedLeftIcon = when (childHomeScreenType.name) {
+                            NavigationRoutes.INBOX.name -> Icons.Default.Archive
+                            NavigationRoutes.STARRED.name -> Icons.Default.StarBorder
+                            NavigationRoutes.ARCHIVE.name -> Icons.Default.Delete
+                            NavigationRoutes.TRASH.name -> Icons.Default.Delete
+                            else -> Icons.Default.Abc
+
+                        },
+                        draggedLeftText = when (childHomeScreenType.name) {
+                            NavigationRoutes.INBOX.name -> "Move to\nArchive"
+                            NavigationRoutes.STARRED.name -> "Remove from\nStarred"
+                            NavigationRoutes.ARCHIVE.name -> "Remove from\nArchive"
+                            NavigationRoutes.TRASH.name -> "Delete\npermanently"
+                            else -> ""
+                        },
                     )
                 }
             }

@@ -16,12 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +52,13 @@ fun MailItem(
     onDragRight: () -> Unit,
     onDragLeft: () -> Unit,
     isStarred: MutableState<Boolean>,
-    onStarClick: () -> Unit
+    onStarClick: () -> Unit,
+    draggedLeftColor: Color,
+    draggedRightColor: Color,
+    draggedRightIcon: ImageVector,
+    draggedRightText: String,
+    draggedLeftIcon: ImageVector,
+    draggedLeftText: String,
 ) {
     val isChecked = remember {
         mutableStateOf(false)
@@ -72,44 +77,30 @@ fun MailItem(
     }
     Box(
         modifier = Modifier
-            .background(if (draggingTowardsRight.value) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer)
+            .background(if (draggingTowardsRight.value) draggedRightColor else draggedLeftColor)
     ) {
-        if (draggingTowardsRight.value) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 15.dp),
+                    .align(if (draggingTowardsRight.value) Alignment.CenterEnd else Alignment.CenterStart)
+                    .then(
+                        if (draggingTowardsRight.value) Modifier.padding(end = 15.dp) else Modifier.padding(
+                            start = 15.dp
+                        )
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Forever"
+                    imageVector = if (!draggingTowardsRight.value) draggedLeftIcon else draggedRightIcon,
+                    contentDescription = if (!draggingTowardsRight.value) draggedLeftIcon.name else draggedRightIcon.name + " Icon"
                 )
                 Text(
-                    text = "Move to\nTrash",
+                    text = if (!draggingTowardsRight.value) draggedLeftText else draggedRightText,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleSmall
                 )
             }
-        } else {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 15.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Archive, contentDescription = "Archive"
-                )
-                Text(
-                    text = "Move to\nArchive",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-        }
+
         Row(
             modifier = Modifier
                 .clickable {
@@ -223,12 +214,13 @@ fun MailItem(
                             )
                         )
                     }
-                    IconButton(onClick = { onStarClick() }) {
-                        Icon(
-                            imageVector = if (isStarred.value) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                            contentDescription = "Star State Icon"
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier.clickable {
+                            onStarClick()
+                        },
+                        imageVector = if (isStarred.value) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                        contentDescription = "Star State Icon"
+                    )
                 }
             }
         }
