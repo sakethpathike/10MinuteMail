@@ -10,11 +10,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.data.local.model.Accounts
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
-import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
-import sakethh.tenmin.mail.data.remote.api.MailRepository
+import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
@@ -23,8 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartUpVM @Inject constructor(
-    private val currentSessionRepo: CurrentSessionRepo,
-    private val mailRepository: MailRepository,
+    private val remoteMailRepository: RemoteMailRepository,
     private val accountsRepo: AccountsRepo
 ) :
     ViewModel() {
@@ -32,8 +29,8 @@ class StartUpVM @Inject constructor(
     val uiEvent = _uiEvent
     val uiEventAsFlow = _uiEvent.receiveAsFlow()
 
-    private val _existingAccountsData = MutableStateFlow(emptyList<Accounts>())
-    val existingAccountsData = _existingAccountsData.asStateFlow()
+    private val _existingLocalMailAccountData = MutableStateFlow(emptyList<LocalMailAccount>())
+    val existingAccountsData = _existingLocalMailAccountData.asStateFlow()
 
     companion object {
         var isNavigatingFromAccountsScreenForANewAccountCreation = false
@@ -44,14 +41,14 @@ class StartUpVM @Inject constructor(
             if (!isNavigatingFromAccountsScreenForANewAccountCreation) {
                 sendUIEvent(AccountsEvent.CheckingIfAnySessionAlreadyExists)
             }
-            if (!isNavigatingFromAccountsScreenForANewAccountCreation && currentSessionRepo.hasActiveSession()) {
+            if (!isNavigatingFromAccountsScreenForANewAccountCreation && accountsRepo.hasAnActiveSession()) {
                 return@launch sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
             }
             sendUIEvent(AccountsEvent.None)
         }
         viewModelScope.launch {
             accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
-                _existingAccountsData.emit(it)
+                _existingLocalMailAccountData.emit(it)
             }
         }
     }
@@ -61,7 +58,7 @@ class StartUpVM @Inject constructor(
             is AccountsUiEvent.GenerateANewTemporaryMailAccount -> {
                 viewModelScope.launch {
                     sendUIEvent(AccountsEvent.Domains.FetchingDomains)
-                    val rawDomainsData = mailRepository.getDomains()
+                    val rawDomainsData = remoteMailRepository.getDomains()
                     if (rawDomainsData.code() != 200) {
                         sendUIEvent(AccountsEvent.Domains.FetchingDomains)
                         return@launch
@@ -74,9 +71,9 @@ class StartUpVM @Inject constructor(
                         password = UUID.randomUUID().toString().replace("-", "")
                     )
                     sendUIEvent(AccountsEvent.CreatingANewAccount)
-                    mailRepository.createANewAccount(newAccountData)
+                    remoteMailRepository.createANewAccount(newAccountData)
                     sendUIEvent(AccountsEvent.FetchingTokenAndID)
-                    val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
+                    val rawRequestedEmailTokenAndID = remoteMailRepository.getTokenAndID(
                         body = AccountInfo(
                             address = newAccountData.address,
                             password = newAccountData.password
@@ -90,53 +87,28 @@ class StartUpVM @Inject constructor(
                     }
                     val requestedEmailTokenAndIDBody = rawRequestedEmailTokenAndID.body()
                     sendUIEvent(AccountsEvent.FetchingMailAccountData)
-                    val accountData = mailRepository.getExistingMailAccountData(
+                    val accountData = remoteMailRepository.getExistingMailAccountData(
                         requestedEmailTokenAndIDBody?.id ?: "0",
                         requestedEmailTokenAndIDBody?.token ?: ""
                     ).body()!!
 
-                    val newData = Accounts(
+                    val newData = LocalMailAccount(
                         accountAddress = newAccountData.address,
                         accountPassword = newAccountData.password,
                         accountId = requestedEmailTokenAndIDBody?.id ?: "0",
                         accountToken = requestedEmailTokenAndIDBody?.token ?: "0",
-                        accountCreatedAt = accountData.createdAt
+                        accountCreatedAt = accountData.createdAt,
+                        isACurrentSession = true
                     )
                     sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
                     accountsRepo.addANewAccount(newData)
-                    val currentSession = CurrentSession(
-                        accountAddress = newData.accountAddress,
-                        accountPassword = newData.accountPassword,
-                        accountId = newData.accountId,
-                        accountToken = newData.accountToken,
-                        accountCreatedAt = newData.accountCreatedAt
-                    )
-                    if (currentSessionRepo.hasActiveSession()) {
-                        currentSessionRepo.updateCurrentSession(currentSession)
-                    } else {
-                        currentSessionRepo.addANewCurrentSession(currentSession)
-                    }
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 
-            is AccountsUiEvent.LoginUsingExistingAccount -> {
+            is AccountsUiEvent.LoginUsingALocallyExistingAccount -> {
                 viewModelScope.launch {
-                    val currentSession = CurrentSession(
-                        accountAddress = accountsUiEvent.account.accountAddress,
-                        accountPassword = accountsUiEvent.account.accountPassword,
-                        accountId = accountsUiEvent.account.accountId,
-                        accountToken = accountsUiEvent.account.accountToken,
-                        accountCreatedAt = accountsUiEvent.account.accountCreatedAt,
-                        isDeletedFromTheCloud = accountsUiEvent.account.isDeletedFromTheCloud
-                    )
-                    if (currentSessionRepo.hasActiveSession()) {
-                        sendUIEvent(AccountsEvent.UpdatingLocalDatabase)
-                        currentSessionRepo.updateCurrentSession(currentSession)
-                    } else {
-                        sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
-                        currentSessionRepo.addANewCurrentSession(currentSession)
-                    }
+                    accountsRepo.initANewCurrentSession(accountsUiEvent.account.accountId)
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }

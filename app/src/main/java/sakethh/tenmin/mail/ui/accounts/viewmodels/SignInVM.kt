@@ -7,11 +7,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.data.local.model.Accounts
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
-import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
-import sakethh.tenmin.mail.data.remote.api.MailRepository
+import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
@@ -19,8 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInVM @Inject constructor(
-    private val mailRepository: MailRepository,
-    private val currentSessionRepo: CurrentSessionRepo,
+    private val remoteMailRepository: RemoteMailRepository,
     private val accountsRepo: AccountsRepo
 ) : ViewModel() {
     private val _uiEvent = Channel<AccountsEvent>()
@@ -31,12 +28,12 @@ class SignInVM @Inject constructor(
             is AccountsUiEvent.SignIn -> {
                 viewModelScope.launch {
                     val doesThisEmailAccountExists =
-                        accountsRepo.doesThisEmailExistsInLocalDB(accountsUiEvent.emailAddress)
-                    if (doesThisEmailAccountExists && currentSessionRepo.hasActiveSession()) {
+                        accountsRepo.doesThisEmailAccountExistsInLocalDB(accountsUiEvent.emailAddress)
+                    if (doesThisEmailAccountExists && accountsRepo.hasAnActiveSession()) {
                         return@launch sendUIEvent(AccountsEvent.MailAlreadyExists)
                     }
                     sendUIEvent(AccountsEvent.FetchingTokenAndID)
-                    val rawRequestedEmailTokenAndID = mailRepository.getTokenAndID(
+                    val rawRequestedEmailTokenAndID = remoteMailRepository.getTokenAndID(
                         body = AccountInfo(
                             address = accountsUiEvent.emailAddress,
                             password = accountsUiEvent.emailPassword
@@ -50,11 +47,11 @@ class SignInVM @Inject constructor(
                     }
                     val requestedEmailTokenAndIDBody = rawRequestedEmailTokenAndID.body()!!
                     sendUIEvent(AccountsEvent.FetchingMailAccountData)
-                    val accountData = mailRepository.getExistingMailAccountData(
+                    val accountData = remoteMailRepository.getExistingMailAccountData(
                         requestedEmailTokenAndIDBody.id, requestedEmailTokenAndIDBody.token
                     ).body()!!
 
-                    val newData = Accounts(
+                    val newData = LocalMailAccount(
                         accountAddress = accountsUiEvent.emailAddress,
                         accountPassword = accountsUiEvent.emailPassword,
                         accountId = requestedEmailTokenAndIDBody.id,
@@ -66,18 +63,7 @@ class SignInVM @Inject constructor(
                     if (!doesThisEmailAccountExists) {
                         accountsRepo.addANewAccount(newData)
                     }
-                    val currentSession = CurrentSession(
-                        accountAddress = newData.accountAddress,
-                        accountPassword = newData.accountPassword,
-                        accountId = newData.accountId,
-                        accountToken = newData.accountToken,
-                        accountCreatedAt = newData.accountCreatedAt
-                    )
-                    if (currentSessionRepo.hasActiveSession()) {
-                        currentSessionRepo.updateCurrentSession(currentSession)
-                    } else {
-                        currentSessionRepo.addANewCurrentSession(currentSession)
-                    }
+                    accountsRepo.initANewCurrentSession(newData.accountId)
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }

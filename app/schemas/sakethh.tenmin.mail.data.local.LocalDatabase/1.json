@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dbb36dc7342db0f5837a03ee10a0239a",
+    "identityHash": "9afc6689422c41b7d9fa8895843a2009",
     "entities": [
       {
-        "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, `isDeletedFromTheCloud` INTEGER NOT NULL)",
+        "tableName": "localMailAccount",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, `isDeletedFromTheCloud` INTEGER NOT NULL, `isACurrentSession` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -47,6 +47,12 @@
           {
             "fieldPath": "isDeletedFromTheCloud",
             "columnName": "isDeletedFromTheCloud",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isACurrentSession",
+            "columnName": "isACurrentSession",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -61,64 +67,8 @@
         "foreignKeys": []
       },
       {
-        "tableName": "currentSession",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `accountAddress` TEXT NOT NULL, `accountPassword` TEXT NOT NULL, `accountId` TEXT NOT NULL, `accountToken` TEXT NOT NULL, `accountCreatedAt` TEXT NOT NULL, `isDeletedFromTheCloud` INTEGER NOT NULL, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "accountAddress",
-            "columnName": "accountAddress",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "accountPassword",
-            "columnName": "accountPassword",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "accountId",
-            "columnName": "accountId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "accountToken",
-            "columnName": "accountToken",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "accountCreatedAt",
-            "columnName": "accountCreatedAt",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isDeletedFromTheCloud",
-            "columnName": "isDeletedFromTheCloud",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
-        "tableName": "inboxMail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `from` TEXT NOT NULL, `hasAttachments` INTEGER NOT NULL, `intro` TEXT NOT NULL, `mailId` TEXT NOT NULL, `size` INTEGER NOT NULL, `subject` TEXT NOT NULL, `to` TEXT NOT NULL, `updatedAt` TEXT NOT NULL, `rawMail` TEXT NOT NULL)",
+        "tableName": "localMail",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `from` TEXT NOT NULL, `hasAttachments` INTEGER NOT NULL, `intro` TEXT NOT NULL, `mailId` TEXT NOT NULL, `size` INTEGER NOT NULL, `subject` TEXT NOT NULL, `to` TEXT NOT NULL, `updatedAt` TEXT NOT NULL, `rawMail` TEXT NOT NULL, `isInInbox` INTEGER NOT NULL, `isStarred` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, `isInTrash` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -191,6 +141,30 @@
             "columnName": "rawMail",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "isInInbox",
+            "columnName": "isInInbox",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isStarred",
+            "columnName": "isStarred",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isArchived",
+            "columnName": "isArchived",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isInTrash",
+            "columnName": "isInTrash",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -206,7 +180,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dbb36dc7342db0f5837a03ee10a0239a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9afc6689422c41b7d9fa8895843a2009')"
     ]
   }
 }

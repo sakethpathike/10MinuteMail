@@ -159,7 +159,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
                         if (isAccountsExpanded.value) {
                             AccountItem(it.accountAddress, it.accountId, onAccountClick = {
                                 startUpVM.onUiClickEvent(
-                                    AccountsUiEvent.LoginUsingExistingAccount(
+                                    AccountsUiEvent.LoginUsingALocallyExistingAccount(
                                         it
                                     )
                                 )

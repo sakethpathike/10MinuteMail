@@ -13,13 +13,10 @@ import retrofit2.Retrofit
 import sakethh.tenmin.mail.data.local.LocalDatabase
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsImpl
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
-import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionImpl
-import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
-import sakethh.tenmin.mail.data.local.repo.inbox.InboxImpl
-import sakethh.tenmin.mail.data.local.repo.inbox.InboxRepo
-import sakethh.tenmin.mail.data.remote.api.MailImpl
-import sakethh.tenmin.mail.data.remote.api.MailRepository
+import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
 import sakethh.tenmin.mail.data.remote.api.MailService
+import sakethh.tenmin.mail.data.remote.api.RemoteMailImpl
+import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import javax.inject.Singleton
 
 private val json = Json {
@@ -49,26 +46,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCurrentSessionRepository(db: LocalDatabase): CurrentSessionRepo {
-        return CurrentSessionImpl(db.currentSessionDao)
-    }
-
-    @Provides
-    @Singleton
     fun provideAccountsRepository(db: LocalDatabase): AccountsRepo {
         return AccountsImpl(db.accountsDao)
     }
 
     @Provides
     @Singleton
-    fun provideMailRepository(mailService: MailService): MailRepository {
-        return MailImpl(mailService)
+    fun provideMailRepository(mailService: MailService): RemoteMailRepository {
+        return RemoteMailImpl(mailService)
     }
 
     @Provides
     @Singleton
-    fun provideInboxRepo(db: LocalDatabase): InboxRepo {
-        return InboxImpl(db.inboxDao)
+    fun provideInboxRepo(db: LocalDatabase): LocalMailRepo {
+        return sakethh.tenmin.mail.data.local.repo.mail.LocalMailImpl(db.inboxDao)
     }
 
 

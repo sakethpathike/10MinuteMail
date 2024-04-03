@@ -193,6 +193,6 @@ fun AccountsScreen(
                 )
             )
         },
-        currentSession = currentSessionData
+        localMailAccount = currentSessionData
     )
 }

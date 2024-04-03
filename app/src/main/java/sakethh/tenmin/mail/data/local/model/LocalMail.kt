@@ -8,8 +8,8 @@ import sakethh.tenmin.mail.data.local.model.typeConverters.ToMailTypeConverter
 import sakethh.tenmin.mail.data.remote.api.model.mail.From
 import sakethh.tenmin.mail.data.remote.api.model.mail.To
 
-@Entity(tableName = "inboxMail")
-data class InboxMail(
+@Entity(tableName = "localMail")
+data class LocalMail(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val accountId: String,
     val createdAt: String,
@@ -23,5 +23,9 @@ data class InboxMail(
     @TypeConverters(ToMailTypeConverter::class)
     val to: List<To>,
     val updatedAt: String,
-    val rawMail: String
+    val rawMail: String,
+    val isInInbox: Boolean = true,
+    val isStarred: Boolean = false,
+    val isArchived: Boolean = false,
+    val isInTrash: Boolean = false
 )

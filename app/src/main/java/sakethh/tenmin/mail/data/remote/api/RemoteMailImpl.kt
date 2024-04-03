@@ -7,7 +7,7 @@ import sakethh.tenmin.mail.data.remote.api.model.account.Token
 import sakethh.tenmin.mail.data.remote.api.model.domain.Domain
 import sakethh.tenmin.mail.data.remote.api.model.mail.Mail
 
-class MailImpl(private val mailService: MailService) : MailRepository {
+class RemoteMailImpl(private val mailService: MailService) : RemoteMailRepository {
     override suspend fun getTokenAndID(body: AccountInfo): Response<Token> {
         return mailService.getAccountTokenAndID(body)
     }

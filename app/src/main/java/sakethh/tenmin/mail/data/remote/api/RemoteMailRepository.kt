@@ -7,7 +7,7 @@ import sakethh.tenmin.mail.data.remote.api.model.account.Token
 import sakethh.tenmin.mail.data.remote.api.model.domain.Domain
 import sakethh.tenmin.mail.data.remote.api.model.mail.Mail
 
-interface MailRepository {
+interface RemoteMailRepository {
     suspend fun getTokenAndID(body: AccountInfo): Response<Token>
 
     suspend fun getExistingMailAccountData(id: String, token: String): Response<AccountData>

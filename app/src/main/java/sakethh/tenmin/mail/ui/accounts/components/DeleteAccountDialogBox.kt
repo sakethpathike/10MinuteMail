@@ -24,13 +24,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 
 @Composable
 fun DeleteAccountDialogBox(
     isVisible: MutableState<Boolean>,
     onDeleteAccountClick: (deleteAccountLocally: Boolean, deleteAccountFromCloud: Boolean) -> Unit,
-    currentSession: CurrentSession
+    localMailAccount: LocalMailAccount
 ) {
     if (isVisible.value) {
         val deleteAccountLocally = rememberSaveable {
@@ -48,14 +48,14 @@ fun DeleteAccountDialogBox(
                 }
             },
             confirmButton = {
-                if (deleteAccountLocally.value || deleteAccountFromCloud.value || currentSession.isDeletedFromTheCloud) {
+                if (deleteAccountLocally.value || deleteAccountFromCloud.value || localMailAccount.isDeletedFromTheCloud) {
                     Button(colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
                     ), modifier = Modifier.fillMaxWidth(), onClick = {
                         onDeleteAccountClick(
-                            if (!currentSession.isDeletedFromTheCloud) deleteAccountLocally.value else true,
-                            if (!currentSession.isDeletedFromTheCloud) deleteAccountFromCloud.value else false
+                            if (!localMailAccount.isDeletedFromTheCloud) deleteAccountLocally.value else true,
+                            if (!localMailAccount.isDeletedFromTheCloud) deleteAccountFromCloud.value else false
                         )
                     }) {
                         Text(
@@ -67,7 +67,7 @@ fun DeleteAccountDialogBox(
             },
             title = {
                 Text(
-                    text = if (currentSession.isDeletedFromTheCloud) "Are you sure you want to delete the account?" else "Confirm Account Deletion: Locally, in the Cloud, or Both?",
+                    text = if (localMailAccount.isDeletedFromTheCloud) "Are you sure you want to delete the account?" else "Confirm Account Deletion: Locally, in the Cloud, or Both?",
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = 16.sp
                 )
@@ -78,11 +78,11 @@ fun DeleteAccountDialogBox(
                         Text(text = buildAnnotatedString {
                             append("You're about to delete ")
                             withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                append(currentSession.accountAddress)
+                                append(localMailAccount.accountAddress)
                             }
                             append(".")
                         }, style = MaterialTheme.typography.titleSmall)
-                        if (!currentSession.isDeletedFromTheCloud) {
+                        if (!localMailAccount.isDeletedFromTheCloud) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

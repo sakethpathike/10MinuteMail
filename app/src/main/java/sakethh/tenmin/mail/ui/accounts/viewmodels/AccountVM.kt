@@ -10,27 +10,23 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.data.local.model.Accounts
-import sakethh.tenmin.mail.data.local.model.CurrentSession
+import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
-import sakethh.tenmin.mail.data.local.repo.currentSession.CurrentSessionRepo
-import sakethh.tenmin.mail.data.local.repo.inbox.InboxRepo
-import sakethh.tenmin.mail.data.remote.api.MailRepository
+import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
+import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsUiEvent
 import javax.inject.Inject
 
 @HiltViewModel
 class AccountVM @Inject constructor(
-    private val currentSessionRepo: CurrentSessionRepo,
-    private val mailRepository: MailRepository,
-    private val accountsRepo: AccountsRepo,
-    private val inboxRepo: InboxRepo
+    private val remoteMailRepository: RemoteMailRepository,
+    private val accountsRepo: AccountsRepo, private val localMailRepo: LocalMailRepo
 ) :
     ViewModel() {
 
     private val _currentSessionData = MutableStateFlow(
-        CurrentSession(
+        LocalMailAccount(
             accountAddress = "",
             accountPassword = "",
             accountId = "",
@@ -42,21 +38,22 @@ class AccountVM @Inject constructor(
     private val _uiEvent = Channel<AccountsEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private val _allAccountsExcludingCurrentSessionData = MutableStateFlow(emptyList<Accounts>())
+    private val _allLocalMailAccountExcludingCurrentSessionData =
+        MutableStateFlow(emptyList<LocalMailAccount>())
     val allAccountsExcludingCurrentSessionData =
-        _allAccountsExcludingCurrentSessionData.asStateFlow()
+        _allLocalMailAccountExcludingCurrentSessionData.asStateFlow()
 
     init {
         viewModelScope.launch {
-            currentSessionRepo.getCurrentSessionAsAFlow().collect { currentSessionData ->
-                currentSessionData?.let {
+            accountsRepo.getCurrentSessionAsAFlow().collect {
+                if (it != null) {
                     _currentSessionData.emit(it)
                 }
             }
         }
         viewModelScope.launch {
             accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
-                _allAccountsExcludingCurrentSessionData.emit(it)
+                _allLocalMailAccountExcludingCurrentSessionData.emit(it)
             }
         }
     }
@@ -68,21 +65,18 @@ class AccountVM @Inject constructor(
                 val currentSession = currentSessionData.value
                 viewModelScope.launch {
                     if (event.deleteAccountFromCloud) {
-                        mailRepository.deleteAnAccount(
+                        remoteMailRepository.deleteAnAccount(
                             currentSession.accountId, currentSession.accountToken
                         )
                         accountsRepo.updateAccountStatus(
                             currentSession.accountId, isDeletedFromTheCloud = true
                         )
-                        currentSessionRepo.updateAccountStatus(
-                            currentSession.accountId, isDeletedFromTheCloud = true
-                        )
                         sendUIEvent(AccountsEvent.RelaunchTheApp)
                     }
                     if (event.deleteAccountLocally) {
-                        inboxRepo.deleteThisAccountMails(currentSession.accountId)
+                        localMailRepo.deleteThisAccountMails(currentSession.accountId)
                         accountsRepo.deleteAnAccount(currentSession.accountId)
-                        currentSessionRepo.deleteCurrentSession(currentSession)
+                        accountsRepo.resetCurrentSessionData()
                         sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.STARTUP.name))
                     }
                 }
@@ -91,8 +85,7 @@ class AccountVM @Inject constructor(
             is AccountsUiEvent.SignOut -> {
                 StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
                 viewModelScope.launch {
-                    val currentSession = currentSessionData.value
-                    currentSessionRepo.deleteCurrentSession(currentSession)
+                    accountsRepo.resetCurrentSessionData()
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.STARTUP.name))
                 }
             }
@@ -108,14 +101,9 @@ class AccountVM @Inject constructor(
 
             is AccountsUiEvent.SwitchAccount -> {
                 viewModelScope.launch {
-                    currentSessionRepo.updateCurrentSession(
-                        CurrentSession(
-                            accountAddress = event.account.accountAddress,
-                            accountPassword = event.account.accountPassword,
-                            accountId = event.account.accountId,
-                            accountToken = event.account.accountToken,
-                            accountCreatedAt = event.account.accountCreatedAt
-                        )
+
+                    accountsRepo.initANewCurrentSession(
+                        event.account.accountId
                     )
                 }.invokeOnCompletion {
                     sendUIEvent(AccountsEvent.RelaunchTheApp)
