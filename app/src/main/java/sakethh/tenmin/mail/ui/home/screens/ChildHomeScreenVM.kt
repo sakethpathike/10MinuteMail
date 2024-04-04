@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.home.screens
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.LocalMail
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
@@ -40,6 +42,9 @@ class ChildHomeScreenVM @Inject constructor(
     private val _currentSessionTrash = MutableStateFlow(emptyList<LocalMail>())
     val currentSessionTrash = _currentSessionTrash.asStateFlow()
 
+    companion object {
+        val currentChildHomeScreenType = mutableStateOf(NavigationRoutes.INBOX)
+    }
     val sampleList = mutableStateListOf(
         LocalMail(
             id = 1,
@@ -257,19 +262,59 @@ class ChildHomeScreenVM @Inject constructor(
             is ChildHomeScreenEvent.OnStarIconClick -> {
                 viewModelScope.launch {
                     if (localMailRepo.isMarkedAsStar(childHomeScreenEvent.mailId)) {
-                        localMailRepo.unMarkAStarredMail(childHomeScreenEvent.mailId)
+                        if (!localMailRepo.doesThisMailExistsInOtherSectionsExcludingStarred(
+                                childHomeScreenEvent.mailId
+                            )
+                        ) {
+                            localMailRepo.deleteAMail(childHomeScreenEvent.mailId)
+                        } else {
+                            localMailRepo.unMarkAStarredMail(childHomeScreenEvent.mailId)
+                        }
                     } else {
                         localMailRepo.markAMailStarred(childHomeScreenEvent.mailId)
-
                     }
                 }
             }
 
-            is ChildHomeScreenEvent.DeletePermanently -> {
+            is ChildHomeScreenEvent.RemoveFromArchive -> {
+                viewModelScope.launch {
+                    if (!localMailRepo.doesThisMailExistsInOtherSectionsExcludingArchive(
+                            childHomeScreenEvent.mailId
+                        )
+                    ) {
+                        localMailRepo.deleteAMail(childHomeScreenEvent.mailId)
+                    } else {
+                        localMailRepo.removeFromArchive(childHomeScreenEvent.mailId)
+                    }
+                }
+            }
+
+            is ChildHomeScreenEvent.RemoveFromTrash -> {
                 viewModelScope.launch {
                     localMailRepo.deleteAMail(childHomeScreenEvent.mailId)
                 }
             }
+
+            is ChildHomeScreenEvent.UnMarkStarredMail -> {
+                viewModelScope.launch {
+                    if (!localMailRepo.doesThisMailExistsInOtherSectionsExcludingStarred(
+                            childHomeScreenEvent.mailId
+                        )
+                    ) {
+                        localMailRepo.deleteAMail(childHomeScreenEvent.mailId)
+                    } else {
+                        localMailRepo.unMarkAStarredMail(childHomeScreenEvent.mailId)
+                    }
+                }
+            }
+
+            is ChildHomeScreenEvent.RemoveFromInbox -> {
+                viewModelScope.launch {
+                    localMailRepo.removeFromInbox(childHomeScreenEvent.mailId)
+                }
+            }
+
+            ChildHomeScreenEvent.None -> Unit
         }
     }
 

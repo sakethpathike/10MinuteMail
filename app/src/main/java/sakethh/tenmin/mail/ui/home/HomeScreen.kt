@@ -1,7 +1,6 @@
 package sakethh.tenmin.mail.ui.home
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,7 +34,6 @@ import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.screens.AccountsScreen
 import sakethh.tenmin.mail.ui.home.screens.ChildHomeScreen
-import sakethh.tenmin.mail.ui.info.InfoScreen
 import sakethh.tenmin.mail.ui.settings.SettingsScreen
 import sakethh.tenmin.mail.ui.settings.SpecificSettingsScreen
 
@@ -84,9 +82,7 @@ fun HomeScreen(mainNavController: NavController) {
                                 leadingIcon = {
                                     IconButton(onClick = {
                                         coroutineScope.launch {
-                                            modalNavigationBarState.animateTo(
-                                                DrawerValue.Open, tween(300)
-                                            )
+                                            modalNavigationBarState.open()
                                         }
                                     }) {
                                         Icon(
@@ -116,31 +112,7 @@ fun HomeScreen(mainNavController: NavController) {
                 modifier = Modifier.padding(it)
             ) {
                 composable(NavigationRoutes.INBOX.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.INBOX)
-                }
-                composable(NavigationRoutes.STARRED.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.STARRED)
-                }
-                composable(NavigationRoutes.ARCHIVE.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ARCHIVE)
-                }
-                composable(NavigationRoutes.TRASH.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.TRASH)
-                }
-                composable(NavigationRoutes.ALL_STARRED.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_STARRED)
-                }
-                composable(NavigationRoutes.ALL_INBOXES.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_INBOXES)
-                }
-                composable(NavigationRoutes.ALL_ARCHIVES.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_ARCHIVES)
-                }
-                composable(NavigationRoutes.ALL_TRASHED.name) {
-                    ChildHomeScreen(childHomeScreenType = NavigationRoutes.ALL_TRASHED)
-                }
-                composable(NavigationRoutes.INFO.name) {
-                    InfoScreen(navController)
+                    ChildHomeScreen()
                 }
                 composable(NavigationRoutes.ACCOUNTS.name) {
                     AccountsScreen(

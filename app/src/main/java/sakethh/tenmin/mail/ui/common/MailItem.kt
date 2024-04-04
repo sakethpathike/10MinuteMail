@@ -51,6 +51,7 @@ fun MailItem(
     fromName: String,
     onDragRight: () -> Unit,
     onDragLeft: () -> Unit,
+    shouldStarIconVisible: Boolean,
     isStarred: MutableState<Boolean>,
     onStarClick: () -> Unit,
     draggedLeftColor: Color,
@@ -214,13 +215,15 @@ fun MailItem(
                             )
                         )
                     }
-                    Icon(
-                        modifier = Modifier.clickable {
-                            onStarClick()
-                        },
-                        imageVector = if (isStarred.value) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                        contentDescription = "Star State Icon"
-                    )
+                    if (shouldStarIconVisible) {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                onStarClick()
+                            },
+                            imageVector = if (isStarred.value) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                            contentDescription = "Star State Icon"
+                        )
+                    }
                 }
             }
         }

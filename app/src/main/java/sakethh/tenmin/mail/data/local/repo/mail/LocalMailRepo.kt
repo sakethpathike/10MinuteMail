@@ -8,6 +8,7 @@ interface LocalMailRepo {
     fun getArchivedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
     fun getTrashedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
     fun getStarredMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
+    suspend fun removeFromArchive(mailId: String)
 
     suspend fun addANewMail(localMail: LocalMail)
 
@@ -16,6 +17,10 @@ interface LocalMailRepo {
     suspend fun isMarkedAsStar(mailId: String): Boolean
     suspend fun markAMailStarred(mailId: String)
     suspend fun unMarkAStarredMail(mailId: String)
+    suspend fun doesThisMailExistsInOtherSectionsExcludingStarred(mailId: String): Boolean
+    suspend fun doesThisMailExistsInOtherSectionsExcludingArchive(mailId: String): Boolean
+    suspend fun removeFromInbox(mailId: String)
+
     suspend fun addAMultipleMails(localMail: List<LocalMail>)
     suspend fun doesThisMailExists(mailId: String): Boolean
 

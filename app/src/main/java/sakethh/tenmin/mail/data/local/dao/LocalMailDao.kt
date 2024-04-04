@@ -51,6 +51,18 @@ interface LocalMailDao {
     @Query("DELETE FROM localMail WHERE accountId = :accountId")
     suspend fun deleteThisAccountMails(accountId: String)
 
+    @Query("UPDATE localMail SET isArchived = 0 WHERE mailId = :mailId")
+    suspend fun removeFromArchive(mailId: String)
+
+    @Query("UPDATE localMail SET isInInbox = 0 WHERE mailId = :mailId")
+    suspend fun removeFromInbox(mailId: String)
+
+    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM localMail WHERE (isInInbox = 1 OR isArchived = 1 OR isInTrash = 1) AND mailId = :mailId")
+    suspend fun doesThisMailExistsInOtherSectionsExcludingStarred(mailId: String): Boolean
+
+    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM localMail WHERE (isInInbox = 1 OR isStarred = 1 OR isInTrash = 1) AND mailId = :mailId")
+    suspend fun doesThisMailExistsInOtherSectionsExcludingArchive(mailId: String): Boolean
+
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM localMail WHERE mailId = :mailId")
     suspend fun doesThisMailExists(mailId: String): Boolean
 }

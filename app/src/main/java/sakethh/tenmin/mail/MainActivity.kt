@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = NavigationRoutes.STARTUP.name
                     ) {
                         composable(route = NavigationRoutes.INBOX.name) {
-                            ChildHomeScreen(childHomeScreenType = NavigationRoutes.INBOX)
+                            ChildHomeScreen()
                         }
                         composable(route = NavigationRoutes.STARTUP.name) {
                             StartUpScreen(navController)

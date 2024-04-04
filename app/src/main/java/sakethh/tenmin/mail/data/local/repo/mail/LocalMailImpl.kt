@@ -21,6 +21,10 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         return localMailDao.getStarredMailsForCurrentSession(accountId)
     }
 
+    override suspend fun removeFromArchive(mailId: String) {
+        localMailDao.removeFromArchive(mailId)
+    }
+
     override suspend fun addANewMail(localMail: LocalMail) {
         localMailDao.addANewMail(localMail)
     }
@@ -43,6 +47,18 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
 
     override suspend fun unMarkAStarredMail(mailId: String) {
         localMailDao.unMarkAStarredMail(mailId)
+    }
+
+    override suspend fun doesThisMailExistsInOtherSectionsExcludingStarred(mailId: String): Boolean {
+        return localMailDao.doesThisMailExistsInOtherSectionsExcludingStarred(mailId)
+    }
+
+    override suspend fun doesThisMailExistsInOtherSectionsExcludingArchive(mailId: String): Boolean {
+        return localMailDao.doesThisMailExistsInOtherSectionsExcludingArchive(mailId)
+    }
+
+    override suspend fun removeFromInbox(mailId: String) {
+        localMailDao.removeFromInbox(mailId)
     }
 
     override suspend fun addAMultipleMails(localMail: List<LocalMail>) {

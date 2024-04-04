@@ -1,6 +1,5 @@
 package sakethh.tenmin.mail.ui.home
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +29,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
@@ -49,6 +47,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
+import sakethh.tenmin.mail.ui.home.screens.ChildHomeScreenVM
 
 @Composable
 fun NavigationDrawer(
@@ -164,17 +163,11 @@ fun NavigationDrawer(
                             coroutineScope.launch {
                                 awaitAll(
                                     async {
-                                        navController.navigate(it.navigationRoute) {
-                                            launchSingleTop = true
-                                            popUpTo(0) {
-                                                inclusive = true
-                                            }
-                                        }
+                                        ChildHomeScreenVM.currentChildHomeScreenType.value =
+                                            NavigationRoutes.valueOf(it.navigationRoute)
                                     },
                                     async {
-                                        modalNavigationBarState.animateTo(
-                                            DrawerValue.Closed, tween(300)
-                                        )
+                                        modalNavigationBarState.close()
                                     })
                             }
                         })
@@ -212,9 +205,7 @@ fun NavigationDrawer(
                             coroutineScope.launch {
                                 awaitAll(async { navController.navigate(it.navigationRoute) },
                                     async {
-                                        modalNavigationBarState.animateTo(
-                                            DrawerValue.Closed, tween(300)
-                                        )
+                                        modalNavigationBarState.close()
                                     })
                             }
                         })
@@ -241,9 +232,7 @@ fun NavigationDrawer(
                         coroutineScope.launch {
                             awaitAll(async { navController.navigate(NavigationRoutes.SETTINGS.name) },
                                 async {
-                                    modalNavigationBarState.animateTo(
-                                        DrawerValue.Closed, tween(300)
-                                    )
+                                    modalNavigationBarState.close()
                                 })
                         }
                     })
@@ -269,9 +258,7 @@ fun NavigationDrawer(
                             awaitAll(
                                 async { navController.navigate(NavigationRoutes.INFO.name) },
                                 async {
-                                    modalNavigationBarState.animateTo(
-                                        DrawerValue.Closed, tween(300)
-                                    )
+                                    modalNavigationBarState.close()
                                 })
                         }
                     })
