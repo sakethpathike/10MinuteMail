@@ -6,6 +6,10 @@ import sakethh.tenmin.mail.data.local.model.LocalMail
 interface LocalMailRepo {
     fun getInboxMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
     fun getArchivedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
+    fun getInboxMailsFromAllSessions(): Flow<List<LocalMail>>
+    fun getArchivedMailsFromAllSessions(): Flow<List<LocalMail>>
+    fun getTrashedMailsFromAllSessions(): Flow<List<LocalMail>>
+    fun getStarredMailsFromAllSessions(): Flow<List<LocalMail>>
     fun getTrashedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
     fun getStarredMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
     suspend fun removeFromArchive(mailId: String)

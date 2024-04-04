@@ -203,7 +203,11 @@ fun NavigationDrawer(
                         onClick = {
                             selectedItem.value = it.itemName
                             coroutineScope.launch {
-                                awaitAll(async { navController.navigate(it.navigationRoute) },
+                                awaitAll(
+                                    async {
+                                        ChildHomeScreenVM.currentChildHomeScreenType.value =
+                                            NavigationRoutes.valueOf(it.navigationRoute)
+                                    },
                                     async {
                                         modalNavigationBarState.close()
                                     })

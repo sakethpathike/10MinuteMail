@@ -13,6 +13,22 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         return localMailDao.getArchivedMailsForCurrentSession(accountId)
     }
 
+    override fun getInboxMailsFromAllSessions(): Flow<List<LocalMail>> {
+        return localMailDao.getInboxMailsFromAllSessions()
+    }
+
+    override fun getArchivedMailsFromAllSessions(): Flow<List<LocalMail>> {
+        return localMailDao.getArchivedMailsFromAllSessions()
+    }
+
+    override fun getTrashedMailsFromAllSessions(): Flow<List<LocalMail>> {
+        return localMailDao.getTrashedMailsFromAllSessions()
+    }
+
+    override fun getStarredMailsFromAllSessions(): Flow<List<LocalMail>> {
+        return localMailDao.getStarredMailsFromAllSessions()
+    }
+
     override fun getTrashedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>> {
         return localMailDao.getTrashedMailsForCurrentSession(accountId)
     }

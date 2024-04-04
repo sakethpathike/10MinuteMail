@@ -12,14 +12,26 @@ interface LocalMailDao {
     @Query("SELECT * FROM localMail WHERE accountId=:accountId AND isInInbox = 1 AND isArchived = 0 AND isInTrash = 0 ORDER BY id DESC")
     fun getInboxMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
 
+    @Query("SELECT * FROM localMail WHERE isInInbox = 1 AND isArchived = 0 AND isInTrash = 0 ORDER BY id DESC")
+    fun getInboxMailsFromAllSessions(): Flow<List<LocalMail>>
+
     @Query("SELECT * FROM localMail WHERE accountId=:accountId AND isArchived = 1 ORDER BY id DESC")
     fun getArchivedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
+
+    @Query("SELECT * FROM localMail WHERE isArchived = 1 ORDER BY id DESC")
+    fun getArchivedMailsFromAllSessions(): Flow<List<LocalMail>>
 
     @Query("SELECT * FROM localMail WHERE accountId=:accountId AND isInTrash=1 ORDER BY id DESC")
     fun getTrashedMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
 
+    @Query("SELECT * FROM localMail WHERE isInTrash=1 ORDER BY id DESC")
+    fun getTrashedMailsFromAllSessions(): Flow<List<LocalMail>>
+
     @Query("SELECT * FROM localMail WHERE accountId=:accountId AND isStarred=1 ORDER BY id DESC")
     fun getStarredMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
+
+    @Query("SELECT * FROM localMail WHERE isStarred=1 ORDER BY id DESC")
+    fun getStarredMailsFromAllSessions(): Flow<List<LocalMail>>
 
     @Query("UPDATE localMail SET isArchived = 1 WHERE mailId = :mailId")
     suspend fun moveAMailToArchive(mailId: String)

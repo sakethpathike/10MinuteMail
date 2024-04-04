@@ -42,9 +42,22 @@ class ChildHomeScreenVM @Inject constructor(
     private val _currentSessionTrash = MutableStateFlow(emptyList<LocalMail>())
     val currentSessionTrash = _currentSessionTrash.asStateFlow()
 
+    private val _allSessionsInbox = MutableStateFlow(emptyList<LocalMail>())
+    val allSessionsInbox = _allSessionsInbox.asStateFlow()
+
+    private val _allSessionsStarred = MutableStateFlow(emptyList<LocalMail>())
+    val allSessionsStarred = _allSessionsStarred.asStateFlow()
+
+    private val _allSessionsArchive = MutableStateFlow(emptyList<LocalMail>())
+    val allSessionsArchive = _allSessionsArchive.asStateFlow()
+
+    private val _allSessionsTrash = MutableStateFlow(emptyList<LocalMail>())
+    val allSessionsTrash = _allSessionsTrash.asStateFlow()
+
     companion object {
         val currentChildHomeScreenType = mutableStateOf(NavigationRoutes.INBOX)
     }
+
     val sampleList = mutableStateListOf(
         LocalMail(
             id = 1,
@@ -195,7 +208,7 @@ class ChildHomeScreenVM @Inject constructor(
 
     init {
         viewModelScope.launch {
-            // localMailRepo.addAMultipleMails(sampleMails.value.toList())
+            //  localMailRepo.addAMultipleMails(sampleMails.value.toList())
         }
         viewModelScope.launch {
             accountsRepo.getCurrentSessionAsAFlow().collect { currentSession ->
@@ -232,6 +245,26 @@ class ChildHomeScreenVM @Inject constructor(
                             .collect {
                                 _currentSessionArchive.emit(it)
                             }
+                    }
+                }
+                this.launch {
+                    localMailRepo.getInboxMailsFromAllSessions().collect {
+                        _allSessionsInbox.emit(it)
+                    }
+                }
+                this.launch {
+                    localMailRepo.getArchivedMailsFromAllSessions().collect {
+                        _allSessionsArchive.emit(it)
+                    }
+                }
+                this.launch {
+                    localMailRepo.getStarredMailsFromAllSessions().collect {
+                        _allSessionsStarred.emit(it)
+                    }
+                }
+                this.launch {
+                    localMailRepo.getTrashedMailsFromAllSessions().collect {
+                        _allSessionsTrash.emit(it)
                     }
                 }
             }
