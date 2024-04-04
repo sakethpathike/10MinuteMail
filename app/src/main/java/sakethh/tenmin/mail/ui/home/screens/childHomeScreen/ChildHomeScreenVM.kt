@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.home.screens
+package sakethh.tenmin.mail.ui.home.screens.childHomeScreen
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -208,7 +208,7 @@ class ChildHomeScreenVM @Inject constructor(
 
     init {
         viewModelScope.launch {
-            //  localMailRepo.addAMultipleMails(sampleMails.value.toList())
+            //localMailRepo.addAMultipleMails(sampleMails.value.toList())
         }
         viewModelScope.launch {
             accountsRepo.getCurrentSessionAsAFlow().collect { currentSession ->

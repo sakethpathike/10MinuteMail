@@ -47,7 +47,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
-import sakethh.tenmin.mail.ui.home.screens.ChildHomeScreenVM
+import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreenVM
 
 @Composable
 fun NavigationDrawer(

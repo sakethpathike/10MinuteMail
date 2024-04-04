@@ -13,7 +13,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import sakethh.tenmin.mail.ui.accounts.screens.SignInScreen
 import sakethh.tenmin.mail.ui.accounts.screens.StartUpScreen
 import sakethh.tenmin.mail.ui.home.HomeScreen
-import sakethh.tenmin.mail.ui.home.screens.ChildHomeScreen
 import sakethh.tenmin.mail.ui.theme.TenMinuteMailTheme
 
 @AndroidEntryPoint
@@ -30,9 +29,6 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = NavigationRoutes.STARTUP.name
                     ) {
-                        composable(route = NavigationRoutes.INBOX.name) {
-                            ChildHomeScreen()
-                        }
                         composable(route = NavigationRoutes.STARTUP.name) {
                             StartUpScreen(navController)
                         }

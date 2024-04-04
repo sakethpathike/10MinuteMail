@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.home.screens
+package sakethh.tenmin.mail.ui.home.screens.childHomeScreen
 
 sealed class ChildHomeScreenEvent {
     data object None : ChildHomeScreenEvent()

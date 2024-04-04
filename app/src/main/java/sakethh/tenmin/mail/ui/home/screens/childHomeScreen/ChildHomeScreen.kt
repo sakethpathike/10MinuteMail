@@ -1,4 +1,4 @@
-package sakethh.tenmin.mail.ui.home.screens
+package sakethh.tenmin.mail.ui.home.screens.childHomeScreen
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
@@ -21,15 +21,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,21 +33,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.components.AccountDeletedFromTheCloudCard
 import sakethh.tenmin.mail.ui.common.MailItem
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChildHomeScreen(
-    childHomeScreenVM: ChildHomeScreenVM = hiltViewModel()
+    childHomeScreenVM: ChildHomeScreenVM
 ) {
     val currentSessionData = childHomeScreenVM.currentSessionData.collectAsState().value
     val isCurrentSessionMailExpanded = rememberSaveable {
@@ -65,26 +58,12 @@ fun ChildHomeScreen(
     val allSessionsStarred = childHomeScreenVM.allSessionsStarred.collectAsState().value
     val allSessionsArchive = childHomeScreenVM.allSessionsArchive.collectAsState().value
     val allSessionsTrash = childHomeScreenVM.allSessionsTrash.collectAsState().value
-    val pullRefreshState = rememberPullToRefreshState()
-    LaunchedEffect(key1 = pullRefreshState.isRefreshing) {
-        if (currentSessionData.isDeletedFromTheCloud) {
-            pullRefreshState.endRefresh()
-            return@LaunchedEffect
-        }
-        if (pullRefreshState.isRefreshing) {
-            childHomeScreenVM.loadMailsFromTheCloud(isRefreshing = true, onLoadingComplete = {
-                pullRefreshState.endRefresh()
-            })
-        }
-    }
     val draggedLeft = remember {
         mutableStateOf(false)
     }
-    Box(modifier = Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
                 Row(Modifier
-                    .padding(top = 12.dp)
                     .fillMaxWidth()
                     .clickable {
                         isCurrentSessionMailExpanded.value = !isCurrentSessionMailExpanded.value
@@ -262,8 +241,4 @@ fun ChildHomeScreen(
                 }
             }
         }
-        PullToRefreshContainer(
-            state = pullRefreshState, modifier = Modifier.align(Alignment.TopCenter)
-        )
-    }
 }
