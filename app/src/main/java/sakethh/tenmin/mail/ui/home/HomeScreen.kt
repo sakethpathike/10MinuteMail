@@ -151,7 +151,7 @@ fun HomeScreen(
                                     !SearchContentVM.isSearchEnabled.value
                             },
                             content = {
-                                SearchContent(navController = navController)
+                                SearchContent(searchQuery, navController)
                             })
                             }
                 }

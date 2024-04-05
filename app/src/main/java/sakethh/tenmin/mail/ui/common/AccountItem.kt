@@ -13,10 +13,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -24,7 +28,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AccountItem(emailAddress: String, emailId: String, onAccountClick: () -> Unit) {
+fun AccountItem(
+    emailAddress: String,
+    emailId: String,
+    onAccountClick: () -> Unit,
+    selected: MutableState<Boolean> = rememberSaveable {
+        mutableStateOf(false)
+    }
+) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -41,7 +52,7 @@ fun AccountItem(emailAddress: String, emailId: String, onAccountClick: () -> Uni
             modifier = Modifier.padding(end = 15.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.AccountCircle,
+                imageVector = if (selected.value) Icons.Default.Check else Icons.Default.AccountCircle,
                 contentDescription = "Mail Sender Image",
                 modifier = Modifier.size(50.dp)
             )
