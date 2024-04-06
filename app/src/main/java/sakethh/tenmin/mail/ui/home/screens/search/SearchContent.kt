@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,19 +45,21 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -68,8 +71,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
@@ -91,7 +96,10 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
         mutableStateOf(false)
     }
     val coroutineScope = rememberCoroutineScope()
-
+    val dateRangePickerState = rememberDateRangePickerState()
+    val isDateRangePickerVisible = rememberSaveable {
+        mutableStateOf(false)
+    }
     val currentSessionList = remember {
         listOf(
             NavigationDrawerModel(
@@ -155,7 +163,6 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
         verticalArrangement = Arrangement.spacedBy(25.dp)
     ) {
         stickyHeader {
-            if (searchQuery.value.isNotEmpty()) {
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -188,6 +195,9 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                                     if (it == "Labels" || it == "From") {
                                         shouldModalBtmSheetBeVisible.value = true
                                     }
+                                    if (it == "Date") {
+                                        isDateRangePickerVisible.value = true
+                                    }
                                 },
                                 label = {
                                     Text(
@@ -214,7 +224,6 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                 }
-            }
         }
     }
     if (shouldModalBtmSheetBeVisible.value) {
@@ -280,9 +289,7 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                 Scaffold(floatingActionButtonPosition = FabPosition.Center, floatingActionButton = {
                     Box(
                         modifier = Modifier
-                            .wrapContentHeight(
-
-                            )
+                            .wrapContentHeight()
                             .fillMaxWidth()
                             .padding(start = 20.dp, end = 20.dp)
                     ) {
@@ -290,6 +297,9 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                             modifier = Modifier
                                 .clip(RoundedCornerShape(25.dp))
                                 .fillMaxWidth()
+                                .clickable(indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    onClick = {})
                                 .background(MaterialTheme.colorScheme.surfaceBright)
                                 .align(Alignment.TopCenter)
                         ) {
@@ -304,15 +314,19 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                                     .height(ButtonDefaults.MinHeight)
                             )
                         }
-                        Button(
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth(),
-                            onClick = { }) {
-                            Text(
-                                text = "Apply Filter",
-                                textAlign = TextAlign.End,
-                                style = MaterialTheme.typography.titleSmall
-                            )
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                        ) {
+                            Spacer(modifier = Modifier.height(45.dp))
+                            Button(modifier = Modifier.fillMaxWidth(), onClick = { }) {
+                                Text(
+                                    text = "Apply Filter",
+                                    textAlign = TextAlign.End,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
                         }
                     }
                 }) {
@@ -375,6 +389,9 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                                 onAccountClick = {}, selected = mutableStateOf(true)
                             )
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(200.dp))
+                        }
                     }
                 }
             }
@@ -389,6 +406,56 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                 )
             }
             Spacer(modifier = Modifier.navigationBarsPadding())
+        }
+    }
+    if (isDateRangePickerVisible.value) {
+        DatePickerDialog(
+            modifier = Modifier.scale(0.9f),
+            onDismissRequest = { isDateRangePickerVisible.value = false },
+            dismissButton = {
+                FilledTonalButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp)
+                        .pulsateEffect { }, onClick = { }) {
+                    Text(
+                        text = "Cancel",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp)
+                        .pulsateEffect { }, onClick = { }) {
+                    Text(
+                        text = "Apply Changes",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+            }) {
+            DateRangePicker(state = dateRangePickerState, title = {
+                Text(
+                    text = "By Date",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 15.dp),
+                    fontSize = 14.sp
+                )
+            }, headline = {
+                Text(
+                    text = "To find emails you received within a specific timeframe, choose the date range you want to search.",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(
+                        bottom = 20.dp,
+                        start = 20.dp,
+                        end = 20.dp,
+                        top = 5.dp
+                    ),
+                    fontSize = 16.sp
+                )
+            })
         }
     }
 }
