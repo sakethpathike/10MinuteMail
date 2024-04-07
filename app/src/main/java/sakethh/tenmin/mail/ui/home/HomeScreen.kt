@@ -28,7 +28,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -47,6 +46,7 @@ import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreen
 import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreenVM
 import sakethh.tenmin.mail.ui.home.screens.search.SearchContent
 import sakethh.tenmin.mail.ui.home.screens.search.SearchContentVM
+import sakethh.tenmin.mail.ui.home.screens.search.SearchUiEvent
 import sakethh.tenmin.mail.ui.settings.SettingsScreen
 import sakethh.tenmin.mail.ui.settings.SpecificSettingsScreen
 
@@ -54,7 +54,8 @@ import sakethh.tenmin.mail.ui.settings.SpecificSettingsScreen
 @Composable
 fun HomeScreen(
     mainNavController: NavController,
-    childHomeScreenVM: ChildHomeScreenVM = hiltViewModel()
+    childHomeScreenVM: ChildHomeScreenVM = hiltViewModel(),
+    searchContentVM: SearchContentVM = hiltViewModel()
 ) {
     val navController = rememberNavController()
     val modalNavigationBarState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -70,9 +71,6 @@ fun HomeScreen(
     }
     val currentSessionData = childHomeScreenVM.currentSessionData.collectAsState().value
     val pullRefreshState = rememberPullToRefreshState()
-    val searchQuery = rememberSaveable {
-        mutableStateOf("")
-    }
     LaunchedEffect(key1 = pullRefreshState.isRefreshing) {
         if (currentSessionData.isDeletedFromTheCloud) {
             pullRefreshState.endRefresh()
@@ -95,8 +93,8 @@ fun HomeScreen(
                         SearchBar(trailingIcon = {
                             IconButton(onClick = {
                                 if (SearchContentVM.isSearchEnabled.value) {
-                                    if (searchQuery.value.isNotEmpty()) {
-                                        searchQuery.value = ""
+                                    if (searchContentVM.searchQuery.value.isNotEmpty()) {
+                                        searchContentVM.onUiEvent(SearchUiEvent.ChangeQuery(""))
                                     } else {
                                         SearchContentVM.isSearchEnabled.value = false
                                     }
@@ -140,9 +138,9 @@ fun HomeScreen(
                                     bottom = if (SearchContentVM.isSearchEnabled.value) 0.dp else 15.dp,
                                     top = if (SearchContentVM.isSearchEnabled.value) 0.dp else 5.dp
                                 ),
-                            query = searchQuery.value,
+                            query = searchContentVM.searchQuery.collectAsState().value,
                             onQueryChange = {
-                                searchQuery.value = it
+                                searchContentVM.onUiEvent(SearchUiEvent.ChangeQuery(it))
                             },
                             onSearch = {},
                             active = SearchContentVM.isSearchEnabled.value,
@@ -151,7 +149,11 @@ fun HomeScreen(
                                     !SearchContentVM.isSearchEnabled.value
                             },
                             content = {
-                                SearchContent(searchQuery, navController)
+                                SearchContent(
+                                    remember(searchContentVM.searchQuery.collectAsState().value) {
+                                        mutableStateOf(searchContentVM.searchQuery.value)
+                                    }, navController
+                                )
                             })
                             }
                 }

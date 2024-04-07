@@ -20,9 +20,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AllInbox
 import androidx.compose.material.icons.filled.Archive
@@ -63,6 +65,7 @@ import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,6 +74,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,6 +83,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.common.AccountItem
+import sakethh.tenmin.mail.ui.common.MailItem
 import sakethh.tenmin.mail.ui.common.pulsateEffect
 import sakethh.tenmin.mail.ui.home.NavigationDrawerModel
 
@@ -94,6 +99,7 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
     val isLabelsSelected = rememberSaveable {
         mutableStateOf(false)
     }
+    val queriedMails = searchContentVM.searchResults.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val dateRangePickerState = rememberDateRangePickerState()
     val isDateRangePickerVisible = rememberSaveable {
@@ -183,8 +189,17 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                         Row(modifier = Modifier.animateContentSize()) {
                             Spacer(modifier = Modifier.width(10.dp))
                             androidx.compose.material3.FilterChip(
-                                selected = selectedLabelsFilter.contains(it),
+                                selected = if (it == "Attachments") searchContentVM.hasAttachments.collectAsState().value else selectedLabelsFilter.contains(
+                                    it
+                                ),
                                 onClick = {
+                                    if (it == "Attachments") {
+                                        searchContentVM.onUiEvent(
+                                            SearchUiEvent.ChangeAttachmentsSelectionState(
+                                                !searchContentVM.hasAttachments.value
+                                            )
+                                        )
+                                    }
                                     if (selectedLabelsFilter.contains(it)) {
                                         searchContentVM.onUiEvent(
                                             SearchUiEvent.RemoveALabelFilter(
@@ -231,6 +246,25 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                 }
+        }
+        items(queriedMails.value) {
+            MailItem(
+                intro = it.intro,
+                createdAt = it.createdAt,
+                subject = it.subject,
+                fromName = it.from.name,
+                onDragRight = { /*TODO*/ },
+                onDragLeft = { /*TODO*/ },
+                shouldStarIconVisible = true,
+                isStarred = mutableStateOf(it.isStarred),
+                onStarClick = { /*TODO*/ },
+                draggedLeftColor = Color.Transparent,
+                draggedRightColor = Color.Transparent,
+                draggedRightIcon = Icons.Default.Abc,
+                draggedRightText = "Abc",
+                draggedLeftIcon = Icons.Default.Abc,
+                draggedLeftText = "Abc"
+            )
         }
     }
     if (shouldModalBtmSheetBeVisible.value) {

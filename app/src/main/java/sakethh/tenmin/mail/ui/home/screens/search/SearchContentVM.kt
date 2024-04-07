@@ -3,7 +3,7 @@ package sakethh.tenmin.mail.ui.home.screens.search
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,8 +23,8 @@ import javax.inject.Inject
 class SearchContentVM @Inject constructor(
     private val localMailRepo: LocalMailRepo, private val localAccountsRepo: LocalAccountsRepo
 ) : ViewModel() {
-    private val _selectedLabelsFilter = MutableStateFlow(mutableListOf<String>())
-    val selectedLabelsFilter = _selectedLabelsFilter.value.toMutableStateList()
+    private val _selectedLabelsFilter = mutableStateListOf<String>()
+    val selectedLabelsFilter = _selectedLabelsFilter
 
     val selectedFromAccountsFilter = mutableStateListOf("")
 
@@ -40,9 +40,11 @@ class SearchContentVM @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                _searchQuery, hasAttachments, _selectedLabelsFilter
+                _searchQuery, hasAttachments, snapshotFlow {
+                    _selectedLabelsFilter.toList()
+                }
             ) { searchQuery, hasAttachments, selectedLabelsFilter ->
-                Log.d("10MinMail", "Triggered")
+                Log.d("10MinMail", "$searchQuery-$hasAttachments-$selectedLabelsFilter")
                 SearchFlow(searchQuery, hasAttachments, selectedLabelsFilter)
             }.collectLatest { searchFlow ->
                 merge(
@@ -75,10 +77,7 @@ class SearchContentVM @Inject constructor(
     fun onUiEvent(searchUiEvent: SearchUiEvent) {
         when (searchUiEvent) {
             is SearchUiEvent.AddANewLabelFilter -> {
-                _selectedLabelsFilter.value.add(searchUiEvent.filterName)
-                viewModelScope.launch {
-                    _selectedLabelsFilter.emit(_selectedLabelsFilter.value)
-                }
+                _selectedLabelsFilter.add(searchUiEvent.filterName)
             }
 
             is SearchUiEvent.ChangeAttachmentsSelectionState -> {
@@ -94,10 +93,7 @@ class SearchContentVM @Inject constructor(
             }
 
             is SearchUiEvent.RemoveALabelFilter -> {
-                _selectedLabelsFilter.value.remove(searchUiEvent.filterName)
-                viewModelScope.launch {
-                    _selectedLabelsFilter.emit(_selectedLabelsFilter.value)
-                }
+                _selectedLabelsFilter.remove(searchUiEvent.filterName)
             }
         }
     }
