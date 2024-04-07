@@ -63,7 +63,6 @@ import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -75,6 +74,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
@@ -85,9 +85,8 @@ import sakethh.tenmin.mail.ui.home.NavigationDrawerModel
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchContent(searchQuery: MutableState<String>, navController: NavController) {
-    val selectedSearchFilters = remember {
-        mutableStateListOf("")
-    }
+    val searchContentVM: SearchContentVM = hiltViewModel()
+    val selectedLabelsFilter = searchContentVM.selectedLabelsFilter
     val modalBtmSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val shouldModalBtmSheetBeVisible = rememberSaveable {
         mutableStateOf(false)
@@ -184,12 +183,20 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                         Row(modifier = Modifier.animateContentSize()) {
                             Spacer(modifier = Modifier.width(10.dp))
                             androidx.compose.material3.FilterChip(
-                                selected = selectedSearchFilters.contains(it),
+                                selected = selectedLabelsFilter.contains(it),
                                 onClick = {
-                                    if (selectedSearchFilters.contains(it)) {
-                                        selectedSearchFilters.remove(it)
+                                    if (selectedLabelsFilter.contains(it)) {
+                                        searchContentVM.onUiEvent(
+                                            SearchUiEvent.RemoveALabelFilter(
+                                                it
+                                            )
+                                        )
                                     } else {
-                                        selectedSearchFilters.add(it)
+                                        searchContentVM.onUiEvent(
+                                            SearchUiEvent.AddANewLabelFilter(
+                                                it
+                                            )
+                                        )
                                     }
                                     isLabelsSelected.value = it == "Labels"
                                     if (it == "Labels" || it == "From") {
@@ -207,7 +214,7 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                                 }, leadingIcon = {
                                     Icon(
                                         imageVector =
-                                        if (selectedSearchFilters.contains(it)) {
+                                        if (selectedLabelsFilter.contains(it)) {
                                             Icons.Default.Check
                                         } else {
                                             when (it) {
@@ -252,8 +259,8 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
             }
             if (isLabelsSelected.value) {
                 Spacer(modifier = Modifier.height(15.dp))
-                currentSessionList.plus(overAllList).forEach {
-                    if (it.itemName == "All Inboxes") {
+                currentSessionList.plus(overAllList).forEach { labelElement ->
+                    if (labelElement.itemName == "All Inboxes") {
                         Spacer(modifier = Modifier.height(15.dp))
                         HorizontalDivider()
                         Text(
@@ -266,22 +273,51 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-
+                                if (selectedLabelsFilter.contains(labelElement.itemName)) {
+                                    searchContentVM.onUiEvent(
+                                        SearchUiEvent.RemoveALabelFilter(
+                                            labelElement.itemName
+                                        )
+                                    )
+                                } else {
+                                    searchContentVM.onUiEvent(
+                                        SearchUiEvent.AddANewLabelFilter(
+                                            labelElement.itemName
+                                        )
+                                    )
+                                }
                             }
                             .padding(start = 20.dp, end = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = it.nonSelectedIcon, contentDescription = null)
+                            Icon(
+                                imageVector = labelElement.nonSelectedIcon,
+                                contentDescription = null
+                            )
                             Spacer(modifier = Modifier.width(25.dp))
                             Text(
-                                text = it.itemName,
+                                text = labelElement.itemName,
                                 style = MaterialTheme.typography.titleSmall
                             )
                         }
-                        Checkbox(checked = false, onCheckedChange = {
-
+                        Checkbox(
+                            checked = selectedLabelsFilter.contains(labelElement.itemName),
+                            onCheckedChange = {
+                                if (!it) {
+                                    searchContentVM.onUiEvent(
+                                        SearchUiEvent.RemoveALabelFilter(
+                                            labelElement.itemName
+                                        )
+                                    )
+                                } else {
+                                    searchContentVM.onUiEvent(
+                                        SearchUiEvent.AddANewLabelFilter(
+                                            labelElement.itemName
+                                        )
+                                    )
+                                }
                         })
                     }
                 }
@@ -386,7 +422,18 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                             AccountItem(
                                 emailAddress = it.toString(),
                                 emailId = it.toString(),
-                                onAccountClick = {}, selected = mutableStateOf(true)
+                                onAccountClick = {
+                                    if (searchContentVM.selectedFromAccountsFilter.contains(it.toString())) {
+                                        searchContentVM.selectedFromAccountsFilter.remove(it.toString())
+                                    } else {
+                                        searchContentVM.selectedFromAccountsFilter.add(it.toString())
+                                    }
+                                },
+                                selected = mutableStateOf(
+                                    searchContentVM.selectedFromAccountsFilter.contains(
+                                        it.toString()
+                                    )
+                                )
                             )
                         }
                         item {

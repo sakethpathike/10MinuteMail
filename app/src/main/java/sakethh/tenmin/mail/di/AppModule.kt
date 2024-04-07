@@ -11,8 +11,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import sakethh.tenmin.mail.data.local.LocalDatabase
-import sakethh.tenmin.mail.data.local.repo.accounts.AccountsImpl
-import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsImpl
+import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
 import sakethh.tenmin.mail.data.remote.api.MailService
 import sakethh.tenmin.mail.data.remote.api.RemoteMailImpl
@@ -46,8 +46,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAccountsRepository(db: LocalDatabase): AccountsRepo {
-        return AccountsImpl(db.localAccountsDao)
+    fun provideAccountsRepository(db: LocalDatabase): LocalAccountsRepo {
+        return LocalAccountsImpl(db.localAccountsDao)
     }
 
     @Provides

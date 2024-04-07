@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.dao.LocalAccountsDao
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 
-class AccountsImpl(private val localAccountsDao: LocalAccountsDao) : AccountsRepo {
+class LocalAccountsImpl(private val localAccountsDao: LocalAccountsDao) : LocalAccountsRepo {
     override fun getAllAccountsAsAFlow(): Flow<List<LocalMailAccount>> {
         return localAccountsDao.getAllAccountsAsAFlow()
     }

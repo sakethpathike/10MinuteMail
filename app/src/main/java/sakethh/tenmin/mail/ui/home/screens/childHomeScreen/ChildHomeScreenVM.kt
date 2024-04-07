@@ -15,7 +15,7 @@ import okhttp3.Request
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.LocalMail
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
-import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
 import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.data.remote.api.model.mail.From
@@ -27,7 +27,7 @@ import javax.inject.Inject
 class ChildHomeScreenVM @Inject constructor(
     private val remoteMailRepository: RemoteMailRepository,
     private val localMailRepo: LocalMailRepo,
-    private val accountsRepo: AccountsRepo
+    private val localAccountsRepo: LocalAccountsRepo
 ) : ViewModel() {
 
     private val _currentSessionInbox = MutableStateFlow(emptyList<LocalMail>())
@@ -211,7 +211,7 @@ class ChildHomeScreenVM @Inject constructor(
             //localMailRepo.addAMultipleMails(sampleMails.value.toList())
         }
         viewModelScope.launch {
-            accountsRepo.getCurrentSessionAsAFlow().collect { currentSession ->
+            localAccountsRepo.getCurrentSessionAsAFlow().collect { currentSession ->
                 if (currentSession != null) {
                     _currentSessionData.emit(currentSession)
                 }
@@ -270,7 +270,7 @@ class ChildHomeScreenVM @Inject constructor(
             }
         }
         viewModelScope.launch {
-            accountsRepo.getCurrentSession()?.isDeletedFromTheCloud?.let {
+            localAccountsRepo.getCurrentSession()?.isDeletedFromTheCloud?.let {
                 if (!it) {
                     // loadMailsFromTheCloud(isRefreshing = false, {})
                 }
@@ -358,7 +358,7 @@ class ChildHomeScreenVM @Inject constructor(
                 ++currentPageNo
             }
             viewModelScope.launch {
-                val token = accountsRepo.getCurrentSession()?.accountToken
+                val token = localAccountsRepo.getCurrentSession()?.accountToken
                 token?.let { nonNullToken ->
                     val rawMails = remoteMailRepository.getMessages(
                         token = nonNullToken, currentPageNo

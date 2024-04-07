@@ -3,7 +3,7 @@ package sakethh.tenmin.mail.data.local.repo.accounts
 import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
 
-interface AccountsRepo {
+interface LocalAccountsRepo {
     fun getAllAccountsAsAFlow(): Flow<List<LocalMailAccount?>>
     suspend fun getCurrentSession(): LocalMailAccount?
 

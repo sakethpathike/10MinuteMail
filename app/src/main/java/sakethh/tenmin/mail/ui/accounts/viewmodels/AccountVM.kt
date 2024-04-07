@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
-import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
 import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountVM @Inject constructor(
     private val remoteMailRepository: RemoteMailRepository,
-    private val accountsRepo: AccountsRepo, private val localMailRepo: LocalMailRepo
+    private val localAccountsRepo: LocalAccountsRepo, private val localMailRepo: LocalMailRepo
 ) :
     ViewModel() {
 
@@ -45,14 +45,14 @@ class AccountVM @Inject constructor(
 
     init {
         viewModelScope.launch {
-            accountsRepo.getCurrentSessionAsAFlow().collect {
+            localAccountsRepo.getCurrentSessionAsAFlow().collect {
                 if (it != null) {
                     _currentSessionData.emit(it)
                 }
             }
         }
         viewModelScope.launch {
-            accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
+            localAccountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
                 _allLocalMailAccountExcludingCurrentSessionData.emit(it)
             }
         }
@@ -68,15 +68,15 @@ class AccountVM @Inject constructor(
                         remoteMailRepository.deleteAnAccount(
                             currentSession.accountId, currentSession.accountToken
                         )
-                        accountsRepo.updateAccountStatus(
+                        localAccountsRepo.updateAccountStatus(
                             currentSession.accountId, isDeletedFromTheCloud = true
                         )
                         sendUIEvent(AccountsEvent.RelaunchTheApp)
                     }
                     if (event.deleteAccountLocally) {
                         localMailRepo.deleteThisAccountMails(currentSession.accountId)
-                        accountsRepo.deleteAnAccount(currentSession.accountId)
-                        accountsRepo.resetCurrentSessionData()
+                        localAccountsRepo.deleteAnAccount(currentSession.accountId)
+                        localAccountsRepo.resetCurrentSessionData()
                         sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.STARTUP.name))
                     }
                 }
@@ -85,7 +85,7 @@ class AccountVM @Inject constructor(
             is AccountsUiEvent.SignOut -> {
                 StartUpVM.isNavigatingFromAccountsScreenForANewAccountCreation = false
                 viewModelScope.launch {
-                    accountsRepo.resetCurrentSessionData()
+                    localAccountsRepo.resetCurrentSessionData()
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.STARTUP.name))
                 }
             }
@@ -102,7 +102,7 @@ class AccountVM @Inject constructor(
             is AccountsUiEvent.SwitchAccount -> {
                 viewModelScope.launch {
 
-                    accountsRepo.initANewCurrentSession(
+                    localAccountsRepo.initANewCurrentSession(
                         event.account.accountId
                     )
                 }.invokeOnCompletion {

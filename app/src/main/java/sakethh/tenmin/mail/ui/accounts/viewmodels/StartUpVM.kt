@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
-import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class StartUpVM @Inject constructor(
     private val remoteMailRepository: RemoteMailRepository,
-    private val accountsRepo: AccountsRepo
+    private val localAccountsRepo: LocalAccountsRepo
 ) :
     ViewModel() {
     private val _uiEvent = Channel<AccountsEvent>()
@@ -41,13 +41,13 @@ class StartUpVM @Inject constructor(
             if (!isNavigatingFromAccountsScreenForANewAccountCreation) {
                 sendUIEvent(AccountsEvent.CheckingIfAnySessionAlreadyExists)
             }
-            if (!isNavigatingFromAccountsScreenForANewAccountCreation && accountsRepo.hasAnActiveSession()) {
+            if (!isNavigatingFromAccountsScreenForANewAccountCreation && localAccountsRepo.hasAnActiveSession()) {
                 return@launch sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
             }
             sendUIEvent(AccountsEvent.None)
         }
         viewModelScope.launch {
-            accountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
+            localAccountsRepo.getAllAccountsExcludingCurrentSession().collectLatest {
                 _existingLocalMailAccountData.emit(it)
             }
         }
@@ -101,14 +101,14 @@ class StartUpVM @Inject constructor(
                         isACurrentSession = true
                     )
                     sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
-                    accountsRepo.addANewAccount(newData)
+                    localAccountsRepo.addANewAccount(newData)
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
 
             is AccountsUiEvent.LoginUsingALocallyExistingAccount -> {
                 viewModelScope.launch {
-                    accountsRepo.initANewCurrentSession(accountsUiEvent.account.accountId)
+                    localAccountsRepo.initANewCurrentSession(accountsUiEvent.account.accountId)
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }

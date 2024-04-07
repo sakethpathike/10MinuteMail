@@ -77,6 +77,42 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         localMailDao.removeFromInbox(mailId)
     }
 
+    override fun queryCurrentSessionMails(
+        query: String,
+        hasAttachments: Boolean,
+        inInbox: Boolean,
+        inStarred: Boolean,
+        inArchive: Boolean,
+        inTrash: Boolean
+    ): Flow<List<LocalMail>> {
+        return localMailDao.queryCurrentSessionMails(
+            query,
+            hasAttachments,
+            inInbox,
+            inStarred,
+            inArchive,
+            inTrash
+        )
+    }
+
+    override fun queryAllSessionMails(
+        query: String,
+        hasAttachments: Boolean,
+        inInbox: Boolean,
+        inStarred: Boolean,
+        inArchive: Boolean,
+        inTrash: Boolean
+    ): Flow<List<LocalMail>> {
+        return localMailDao.queryAllSessionMails(
+            query,
+            hasAttachments,
+            inInbox,
+            inStarred,
+            inArchive,
+            inTrash
+        )
+    }
+
     override suspend fun addAMultipleMails(localMail: List<LocalMail>) {
         localMailDao.addAMultipleMails(localMail)
     }

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.data.local.model.LocalMailAccount
-import sakethh.tenmin.mail.data.local.repo.accounts.AccountsRepo
+import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.data.remote.api.model.account.AccountInfo
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInVM @Inject constructor(
     private val remoteMailRepository: RemoteMailRepository,
-    private val accountsRepo: AccountsRepo
+    private val localAccountsRepo: LocalAccountsRepo
 ) : ViewModel() {
     private val _uiEvent = Channel<AccountsEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -28,8 +28,8 @@ class SignInVM @Inject constructor(
             is AccountsUiEvent.SignIn -> {
                 viewModelScope.launch {
                     val doesThisEmailAccountExists =
-                        accountsRepo.doesThisEmailAccountExistsInLocalDB(accountsUiEvent.emailAddress)
-                    if (doesThisEmailAccountExists && accountsRepo.hasAnActiveSession()) {
+                        localAccountsRepo.doesThisEmailAccountExistsInLocalDB(accountsUiEvent.emailAddress)
+                    if (doesThisEmailAccountExists && localAccountsRepo.hasAnActiveSession()) {
                         return@launch sendUIEvent(AccountsEvent.MailAlreadyExists)
                     }
                     sendUIEvent(AccountsEvent.FetchingTokenAndID)
@@ -61,9 +61,9 @@ class SignInVM @Inject constructor(
 
                     sendUIEvent(AccountsEvent.AddingDataToLocalDatabase)
                     if (!doesThisEmailAccountExists) {
-                        accountsRepo.addANewAccount(newData)
+                        localAccountsRepo.addANewAccount(newData)
                     }
-                    accountsRepo.initANewCurrentSession(newData.accountId)
+                    localAccountsRepo.initANewCurrentSession(newData.accountId)
                     sendUIEvent(AccountsEvent.Navigate(NavigationRoutes.HOME.name))
                 }
             }
