@@ -23,7 +23,16 @@ import javax.inject.Inject
 class SearchContentVM @Inject constructor(
     private val localMailRepo: LocalMailRepo, private val localAccountsRepo: LocalAccountsRepo
 ) : ViewModel() {
-    private val _selectedLabelsFilter = mutableStateListOf<String>()
+    private val _selectedLabelsFilter = mutableStateListOf(
+        "Inbox",
+        "Starred",
+        "Archive",
+        "Trash",
+        "All Inboxes",
+        "All Starred",
+        "All Archives",
+        "All Trashed"
+    )
     val selectedLabelsFilter = _selectedLabelsFilter
 
     val selectedFromAccountsFilter = mutableStateListOf("")

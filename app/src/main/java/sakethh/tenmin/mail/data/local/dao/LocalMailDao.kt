@@ -78,7 +78,7 @@ interface LocalMailDao {
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM localMail WHERE mailId = :mailId")
     suspend fun doesThisMailExists(mailId: String): Boolean
 
-    @Query("SELECT * FROM localMail WHERE accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1) AND isStarred = :inStarred AND isInTrash = :inTrash AND isInInbox = :inInbox AND isStarred = :inStarred AND hasAttachments=:hasAttachments AND isArchived = :inArchive AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')")
+    @Query("SELECT * FROM localMail WHERE (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isStarred = :inStarred OR hasAttachments=:hasAttachments OR isArchived = :inArchive) AND accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1) AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')")
     fun queryCurrentSessionMails(
         query: String,
         hasAttachments: Boolean,
@@ -89,7 +89,7 @@ interface LocalMailDao {
     ): Flow<List<LocalMail>>
 
 
-    @Query("SELECT * FROM localMail WHERE isStarred = :inStarred AND isInTrash = :inTrash AND isInInbox = :inInbox AND isStarred = :inStarred AND hasAttachments=:hasAttachments AND isArchived = :inArchive AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')")
+    @Query("SELECT * FROM localMail WHERE (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isStarred = :inStarred OR hasAttachments=:hasAttachments OR isArchived = :inArchive) AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')")
     fun queryAllSessionMails(
         query: String,
         hasAttachments: Boolean,
