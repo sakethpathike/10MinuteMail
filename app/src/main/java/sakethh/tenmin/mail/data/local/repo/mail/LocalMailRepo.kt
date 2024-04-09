@@ -2,6 +2,7 @@ package sakethh.tenmin.mail.data.local.repo.mail
 
 import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.model.LocalMail
+import sakethh.tenmin.mail.data.remote.api.model.mail.From
 
 interface LocalMailRepo {
     fun getInboxMailsForCurrentSession(accountId: String): Flow<List<LocalMail>>
@@ -25,6 +26,7 @@ interface LocalMailRepo {
     suspend fun doesThisMailExistsInOtherSectionsExcludingArchive(mailId: String): Boolean
     suspend fun removeFromInbox(mailId: String)
     fun queryCurrentSessionMails(
+        senders: List<From>?,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -33,7 +35,10 @@ interface LocalMailRepo {
         inTrash: Boolean
     ): Flow<List<LocalMail>>
 
+    fun getAllReceivedMailsSenders(): Flow<List<From>>
+
     fun queryAllSessionMails(
+        senders: List<From>?,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,

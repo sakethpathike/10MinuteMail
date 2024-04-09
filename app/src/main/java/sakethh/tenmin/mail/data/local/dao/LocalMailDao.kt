@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.model.LocalMail
+import sakethh.tenmin.mail.data.remote.api.model.mail.From
 
 @Dao
 interface LocalMailDao {
@@ -78,8 +79,16 @@ interface LocalMailDao {
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM localMail WHERE mailId = :mailId")
     suspend fun doesThisMailExists(mailId: String): Boolean
 
-    @Query("SELECT * FROM localMail WHERE (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isStarred = :inStarred OR hasAttachments=:hasAttachments OR isArchived = :inArchive) AND accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1) AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')")
+    @Query(
+        "SELECT * FROM localMail WHERE " +
+                "(:senders IS NULL OR `from` IN (:senders))" +
+                " AND (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive)" +
+                " AND accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1)" +
+                " AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL)" +
+                "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
+    )
     fun queryCurrentSessionMails(
+        senders: List<From>?,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -89,8 +98,15 @@ interface LocalMailDao {
     ): Flow<List<LocalMail>>
 
 
-    @Query("SELECT * FROM localMail WHERE (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isStarred = :inStarred OR hasAttachments=:hasAttachments OR isArchived = :inArchive) AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')")
+    @Query(
+        "SELECT * FROM localMail " +
+                "WHERE (:senders IS NULL OR `from` IN (:senders))" +
+                "AND (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive) " +
+                "AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL) " +
+                "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
+    )
     fun queryAllSessionMails(
+        senders: List<From>?,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -98,4 +114,7 @@ interface LocalMailDao {
         inArchive: Boolean,
         inTrash: Boolean,
     ): Flow<List<LocalMail>>
+
+    @Query("SELECT `from` FROM localMail")
+    fun getAllReceivedMailsSenders(): Flow<List<From>>
 }

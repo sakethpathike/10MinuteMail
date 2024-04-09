@@ -3,6 +3,7 @@ package sakethh.tenmin.mail.data.local.repo.mail
 import kotlinx.coroutines.flow.Flow
 import sakethh.tenmin.mail.data.local.dao.LocalMailDao
 import sakethh.tenmin.mail.data.local.model.LocalMail
+import sakethh.tenmin.mail.data.remote.api.model.mail.From
 
 class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
     override fun getInboxMailsForCurrentSession(accountId: String): Flow<List<LocalMail>> {
@@ -78,6 +79,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
     }
 
     override fun queryCurrentSessionMails(
+        senders: List<From>?,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -86,6 +88,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         inTrash: Boolean
     ): Flow<List<LocalMail>> {
         return localMailDao.queryCurrentSessionMails(
+            senders,
             query,
             hasAttachments,
             inInbox,
@@ -95,7 +98,12 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         )
     }
 
+    override fun getAllReceivedMailsSenders(): Flow<List<From>> {
+        return localMailDao.getAllReceivedMailsSenders()
+    }
+
     override fun queryAllSessionMails(
+        senders: List<From>?,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -104,6 +112,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         inTrash: Boolean
     ): Flow<List<LocalMail>> {
         return localMailDao.queryAllSessionMails(
+            senders,
             query,
             hasAttachments,
             inInbox,

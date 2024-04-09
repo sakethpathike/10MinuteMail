@@ -76,10 +76,15 @@ fun HomeScreen(
             pullRefreshState.endRefresh()
             return@LaunchedEffect
         }
-        if (/*pullRefreshState.isRefreshing*/false) {
+        if (pullRefreshState.isRefreshing) {
             childHomeScreenVM.loadMailsFromTheCloud(isRefreshing = true, onLoadingComplete = {
                 pullRefreshState.endRefresh()
             })
+        }
+    }
+    LaunchedEffect(key1 = SearchContentVM.isSearchEnabled.value) {
+        if (!SearchContentVM.isSearchEnabled.value) {
+            searchContentVM.onUiEvent(SearchUiEvent.ChangeQuery(""))
         }
     }
     NavigationDrawer(navController, modalNavigationBarState = modalNavigationBarState) {
@@ -150,9 +155,10 @@ fun HomeScreen(
                             },
                             content = {
                                 SearchContent(
-                                    remember(searchContentVM.searchQuery.collectAsState().value) {
+                                    searchContentVM = searchContentVM,
+                                    searchQuery = remember(searchContentVM.searchQuery.collectAsState().value) {
                                         mutableStateOf(searchContentVM.searchQuery.value)
-                                    }, navController
+                                    }, navController = navController
                                 )
                             })
                             }

@@ -1,6 +1,5 @@
 package sakethh.tenmin.mail.ui.home.screens.search
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
@@ -11,12 +10,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.data.local.model.LocalMail
 import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
-import sakethh.tenmin.mail.ui.home.screens.search.model.SearchFlow
+import sakethh.tenmin.mail.data.remote.api.model.mail.From
+import sakethh.tenmin.mail.ui.home.screens.search.model.SearchQueryFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +36,8 @@ class SearchContentVM @Inject constructor(
     )
     val selectedLabelsFilter = _selectedLabelsFilter
 
-    val selectedFromAccountsFilter = mutableStateListOf("")
+    private val _selectedFromAccountsFilter = mutableStateListOf<From>()
+    val selectedFromAccountsFilter = _selectedFromAccountsFilter
 
     private val _hasAttachments = MutableStateFlow(false)
     val hasAttachments = _hasAttachments.asStateFlow()
@@ -46,18 +48,32 @@ class SearchContentVM @Inject constructor(
     private val _searchResults = MutableStateFlow(emptyList<LocalMail>())
     val searchResults = _searchResults.asStateFlow()
 
+    private val _receivedMailsSenders = MutableStateFlow(emptyList<From>())
+    val receivedMailsSenders = _receivedMailsSenders.asStateFlow()
+
     init {
         viewModelScope.launch {
+            localMailRepo.getAllReceivedMailsSenders().collectLatest {
+                _receivedMailsSenders.emit(it)
+            }
+        }
+        viewModelScope.launch {
+            return@launch
             combine(
                 _searchQuery, hasAttachments, snapshotFlow {
                     _selectedLabelsFilter.toList()
-                }
-            ) { searchQuery, hasAttachments, selectedLabelsFilter ->
-                Log.d("10MinMail", "$searchQuery-$hasAttachments-$selectedLabelsFilter")
-                SearchFlow(searchQuery, hasAttachments, selectedLabelsFilter)
+                }, snapshotFlow { _selectedFromAccountsFilter.toList() }
+            ) { searchQuery, hasAttachments, selectedLabelsFilter, selectedFromAccountsFilter ->
+                SearchQueryFlow(
+                    searchQuery,
+                    hasAttachments,
+                    selectedLabelsFilter,
+                    selectedFromAccountsFilter
+                )
             }.collectLatest { searchFlow ->
                 merge(
                     localMailRepo.queryCurrentSessionMails(
+                        senders = searchFlow.selectedFromAccountsFilter,
                         query = searchFlow.searchQuery,
                         hasAttachments = searchFlow.hasAttachments,
                         inInbox = searchFlow.selectedLabelsFilter.contains("Inbox"),
@@ -65,6 +81,7 @@ class SearchContentVM @Inject constructor(
                         inArchive = searchFlow.selectedLabelsFilter.contains("Archive"),
                         inTrash = searchFlow.selectedLabelsFilter.contains("Trash")
                     ), localMailRepo.queryAllSessionMails(
+                        senders = searchFlow.selectedFromAccountsFilter,
                         query = searchFlow.searchQuery,
                         hasAttachments = hasAttachments.value,
                         inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),
@@ -72,9 +89,8 @@ class SearchContentVM @Inject constructor(
                         inArchive = searchFlow.selectedLabelsFilter.contains("All Archives"),
                         inTrash = searchFlow.selectedLabelsFilter.contains("All Trashed")
                     )
-                ).collectLatest {
+                ).distinctUntilChanged().collectLatest {
                     _searchResults.emit(it)
-                    Log.d("10MinMail", it.toString())
                 }
             }
         }

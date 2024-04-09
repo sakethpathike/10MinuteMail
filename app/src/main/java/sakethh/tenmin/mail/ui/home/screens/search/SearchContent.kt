@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.ui.home.screens.search
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -45,7 +46,6 @@ import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
@@ -73,12 +73,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
@@ -87,10 +95,14 @@ import sakethh.tenmin.mail.ui.common.MailItem
 import sakethh.tenmin.mail.ui.common.pulsateEffect
 import sakethh.tenmin.mail.ui.home.NavigationDrawerModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SearchContent(searchQuery: MutableState<String>, navController: NavController) {
-    val searchContentVM: SearchContentVM = hiltViewModel()
+fun SearchContent(
+    searchQuery: MutableState<String>,
+    navController: NavController,
+    searchContentVM: SearchContentVM
+) {
     val selectedLabelsFilter = searchContentVM.selectedLabelsFilter
     val modalBtmSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val shouldModalBtmSheetBeVisible = rememberSaveable {
@@ -105,6 +117,7 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
     val isDateRangePickerVisible = rememberSaveable {
         mutableStateOf(false)
     }
+    val receivedMailsSenders = searchContentVM.receivedMailsSenders.collectAsState()
     val currentSessionList = remember {
         listOf(
             NavigationDrawerModel(
@@ -164,8 +177,7 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface),
-        verticalArrangement = Arrangement.spacedBy(25.dp)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         stickyHeader {
                 Row(
@@ -357,13 +369,13 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                 }
             } else {
                 Scaffold(floatingActionButtonPosition = FabPosition.Center, floatingActionButton = {
-                    Box(
+                    Column(
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
                             .padding(start = 20.dp, end = 20.dp)
                     ) {
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(25.dp))
                                 .fillMaxWidth()
@@ -371,41 +383,47 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                                     interactionSource = remember { MutableInteractionSource() },
                                     onClick = {})
                                 .background(MaterialTheme.colorScheme.surfaceBright)
-                                .align(Alignment.TopCenter)
                         ) {
                             Text(
                                 modifier = Modifier.padding(15.dp),
-                                text = "Apply Filter",
+                                text = buildAnnotatedString {
+                                    append("Results are filtered based on your ")
+                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append("${searchContentVM.selectedFromAccountsFilter.size} selected accounts")
+                                    }
+                                    append(".")
+                                },
                                 textAlign = TextAlign.Justify,
                                 style = MaterialTheme.typography.titleSmall
                             )
-                            Spacer(
-                                modifier = Modifier
-                                    .height(ButtonDefaults.MinHeight)
-                            )
                         }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                        ) {
-                            Spacer(modifier = Modifier.height(45.dp))
-                            Button(modifier = Modifier.fillMaxWidth(), onClick = { }) {
+                        FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = { }) {
                                 Text(
-                                    text = "Apply Filter",
+                                    text = "Close",
                                     textAlign = TextAlign.End,
                                     style = MaterialTheme.typography.titleSmall
                                 )
                             }
-                        }
                     }
                 }) {
                     LazyColumn(
                         modifier = Modifier
-                            .padding(it)
+                            .background(MaterialTheme.colorScheme.surface)
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .background(MaterialTheme.colorScheme.surface)
+                            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                            .drawWithContent {
+                                drawContent()
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        listOf(
+                                            Color.Black,
+                                            Color.Black,
+                                            Color.Transparent
+                                        )
+                                    ), blendMode = BlendMode.DstIn
+                                )
+                            }
                     ) {
                         item {
                             SearchBar(trailingIcon = {
@@ -419,7 +437,7 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
                             },
                                 placeholder = {
                                     Text(
-                                        text = "Search Sender(s)",
+                                        text = "Search Sender",
                                         textAlign = TextAlign.End,
                                         modifier = Modifier.basicMarquee(),
                                         style = MaterialTheme.typography.titleSmall
@@ -452,20 +470,20 @@ fun SearchContent(searchQuery: MutableState<String>, navController: NavControlle
 
                                 })
                         }
-                        items(20) {
+                        items(receivedMailsSenders.value) {
                             AccountItem(
-                                emailAddress = it.toString(),
-                                emailId = it.toString(),
+                                emailAddress = it.address,
+                                emailId = it.name,
                                 onAccountClick = {
-                                    if (searchContentVM.selectedFromAccountsFilter.contains(it.toString())) {
-                                        searchContentVM.selectedFromAccountsFilter.remove(it.toString())
+                                    if (searchContentVM.selectedFromAccountsFilter.contains(it)) {
+                                        searchContentVM.selectedFromAccountsFilter.remove(it)
                                     } else {
-                                        searchContentVM.selectedFromAccountsFilter.add(it.toString())
+                                        searchContentVM.selectedFromAccountsFilter.add(it)
                                     }
                                 },
                                 selected = mutableStateOf(
                                     searchContentVM.selectedFromAccountsFilter.contains(
-                                        it.toString()
+                                        it
                                     )
                                 )
                             )
