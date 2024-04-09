@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +49,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreenVM
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @Composable
 fun NavigationDrawer(
@@ -122,7 +124,7 @@ fun NavigationDrawer(
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
                     .fillMaxHeight()
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
@@ -141,6 +143,7 @@ fun NavigationDrawer(
                 Spacer(modifier = Modifier.height(15.dp))
                 currentSessionList.forEach {
                     NavigationDrawerItem(
+                        colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = (if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)),
                         modifier = Modifier.fillMaxWidth(0.95f),
                         shape = RoundedCornerShape(
                             topStart = 0.dp,
@@ -183,6 +186,7 @@ fun NavigationDrawer(
                 Spacer(modifier = Modifier.height(15.dp))
                 overAllList.forEach {
                     NavigationDrawerItem(modifier = Modifier.fillMaxWidth(0.95f),
+                        colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = (if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)),
                         shape = RoundedCornerShape(
                             topStart = 0.dp, bottomStart = 0.dp, topEnd = 25.dp, bottomEnd = 25.dp
                         ),
@@ -218,6 +222,7 @@ fun NavigationDrawer(
                 Divider()
                 Spacer(modifier = Modifier.height(15.dp))
                 NavigationDrawerItem(
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = (if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)),
                     modifier = Modifier.fillMaxWidth(0.95f),
                     shape = RoundedCornerShape(
                         topStart = 0.dp, bottomStart = 0.dp, topEnd = 25.dp, bottomEnd = 25.dp
@@ -241,6 +246,7 @@ fun NavigationDrawer(
                         }
                     })
                 NavigationDrawerItem(modifier = Modifier.fillMaxWidth(0.95f),
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = (if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)),
                     shape = RoundedCornerShape(
                         topStart = 0.dp,
                         bottomStart = 0.dp,

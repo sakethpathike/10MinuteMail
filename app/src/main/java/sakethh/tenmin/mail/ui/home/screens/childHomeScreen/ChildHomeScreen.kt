@@ -5,6 +5,7 @@ import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.components.AccountDeletedFromTheCloudCard
 import sakethh.tenmin.mail.ui.common.MailItem
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @Composable
 fun ChildHomeScreen(
@@ -61,7 +63,11 @@ fun ChildHomeScreen(
     val draggedLeft = remember {
         mutableStateOf(false)
     }
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
+    ) {
             item {
                 Row(Modifier
                     .fillMaxWidth()

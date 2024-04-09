@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -141,7 +142,7 @@ fun MailItem(
                         isDragging.value = false
                     })
                 }
-                .background(MaterialTheme.colorScheme.surface)
+                .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                 .padding(15.dp)
                 .fillMaxWidth(),
         ) {

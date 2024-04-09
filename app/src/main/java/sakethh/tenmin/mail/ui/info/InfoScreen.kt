@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.info
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,13 +39,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import sakethh.tenmin.mail.ui.common.pulsateEffect
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoScreen(navController: NavController) {
     val infoScreenVM: InfoScreenVM = viewModel()
     Scaffold(topBar = {
-        TopAppBar(navigationIcon = {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface),
+            navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -60,6 +65,7 @@ fun InfoScreen(navController: NavController) {
     }) {
         LazyColumn(
             modifier = Modifier
+                .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                 .fillMaxSize()
                 .padding(it)
                 .padding(start = 15.dp, end = 15.dp),

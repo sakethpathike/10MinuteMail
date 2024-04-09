@@ -2,6 +2,7 @@ package sakethh.tenmin.mail.ui.home
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,9 @@ import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreenVM
 import sakethh.tenmin.mail.ui.home.screens.search.SearchContent
 import sakethh.tenmin.mail.ui.home.screens.search.SearchContentVM
 import sakethh.tenmin.mail.ui.home.screens.search.SearchUiEvent
+import sakethh.tenmin.mail.ui.info.InfoScreen
 import sakethh.tenmin.mail.ui.settings.SettingsScreen
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 import sakethh.tenmin.mail.ui.settings.SpecificSettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -92,7 +95,7 @@ fun HomeScreen(
             PullToRefreshContainer(
                 state = pullRefreshState, modifier = Modifier.align(Alignment.TopCenter)
             )
-            Column {
+            Column(Modifier.background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)) {
                 Box(modifier = Modifier.animateContentSize()) {
                     if (!nonHomeScreens.contains(currentRoute?.route)) {
                         SearchBar(trailingIcon = {
@@ -178,6 +181,9 @@ fun HomeScreen(
                     }
                     composable(NavigationRoutes.SETTINGS.name) {
                         SettingsScreen(navController)
+                    }
+                    composable(NavigationRoutes.INFO.name) {
+                        InfoScreen(navController)
                     }
                     composable(NavigationRoutes.SPECIFIC_SETTINGS.name) {
                         SpecificSettingsScreen(navController)

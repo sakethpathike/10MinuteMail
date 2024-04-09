@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @Composable
 fun AccountItem(
@@ -38,7 +39,7 @@ fun AccountItem(
 ) {
     Row(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
+            .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
             .fillMaxWidth()
             .clickable {
                 onAccountClick()

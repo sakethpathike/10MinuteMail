@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -68,7 +69,9 @@ fun SpecificSettingsScreen(
     }
     Scaffold(topBar = {
         Column {
-            LargeTopAppBar(navigationIcon = {
+            LargeTopAppBar(
+                colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface),
+                navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -89,8 +92,10 @@ fun SpecificSettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                 .padding(it)
                 .nestedScroll(topAppBarScrollState.nestedScrollConnection)
+                .animateContentSize()
         ) {
             when (SettingsScreenVM.settingsScreenType) {
                 SettingsScreenType.THEME -> {
@@ -122,7 +127,9 @@ fun SpecificSettingsScreen(
         }
         val intPickerList = (5..30).filter { it % 5 == 0 }.toList()
         val unitsOfTimePickerList = listOf("Seconds", "Minutes")
-        ModalBottomSheet(sheetState = btmSheetState,
+        ModalBottomSheet(
+            containerColor = if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface,
+            sheetState = btmSheetState,
             onDismissRequest = { isBtmTimePickerSheetVisible.value = false }) {
             Text(
                 text = "Select Auto-Refresh Interval",
@@ -288,7 +295,8 @@ private fun LazyListScope.themeSection() {
                     description = null,
                     isSwitchEnabled = SettingsScreenVM.Settings.shouldFollowSystemTheme,
                     onSwitchStateChange = {
-
+                        SettingsScreenVM.Settings.shouldFollowSystemTheme.value =
+                            !SettingsScreenVM.Settings.shouldFollowSystemTheme.value
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
                     })
@@ -304,6 +312,26 @@ private fun LazyListScope.themeSection() {
                     isSwitchNeeded = true,
                     isSwitchEnabled = SettingsScreenVM.Settings.shouldDarkThemeBeEnabled,
                     onSwitchStateChange = {
+                        SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value =
+                            !SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value
+                    }, isIconNeeded = remember {
+                        mutableStateOf(false)
+                    })
+            )
+        }
+    }
+    if (SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value) {
+        item(key = "Use Dim Dark Mode") {
+            SettingsComponent(
+                settingsComponentState = SettingsComponentState(
+                    title = "Use Dim Dark Mode",
+                    doesDescriptionExists = false,
+                    description = null,
+                    isSwitchNeeded = true,
+                    isSwitchEnabled = SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled,
+                    onSwitchStateChange = {
+                        SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value =
+                            !SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value
 
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
@@ -320,7 +348,8 @@ private fun LazyListScope.themeSection() {
                     isSwitchNeeded = true,
                     isSwitchEnabled = SettingsScreenVM.Settings.shouldFollowDynamicTheming,
                     onSwitchStateChange = {
-
+                        SettingsScreenVM.Settings.shouldFollowDynamicTheming.value =
+                            !SettingsScreenVM.Settings.shouldFollowDynamicTheming.value
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
                     })

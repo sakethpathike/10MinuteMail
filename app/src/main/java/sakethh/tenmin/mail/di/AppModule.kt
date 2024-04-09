@@ -1,11 +1,16 @@
 package sakethh.tenmin.mail.di
 
 import android.app.Application
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -62,5 +67,12 @@ object AppModule {
         return sakethh.tenmin.mail.data.local.repo.mail.LocalMailImpl(db.localMailDao)
     }
 
+    @Provides
+    @Singleton
+    fun provideDataStore(@ApplicationContext appContext: Application): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(produceFile = {
+            appContext.preferencesDataStoreFile("10MinMail")
+        })
+    }
 
 }

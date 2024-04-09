@@ -2,6 +2,7 @@ package sakethh.tenmin.mail.ui.accounts.screens
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +46,7 @@ import sakethh.tenmin.mail.ui.accounts.components.DeleteAccountDialogBox
 import sakethh.tenmin.mail.ui.accounts.components.SignOutDialogBox
 import sakethh.tenmin.mail.ui.accounts.viewmodels.AccountVM
 import sakethh.tenmin.mail.ui.common.AccountItem
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,7 +100,9 @@ fun AccountsScreen(
                 accountVM.onUIEvent(AccountsUiEvent.AddANewEmailAccount)
             })
     }, floatingActionButtonPosition = FabPosition.End, topBar = {
-        CenterAlignedTopAppBar(navigationIcon = {
+        CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface),
+            navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -115,6 +120,7 @@ fun AccountsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                 .padding(it), state = lazyListState
         ) {
             item {

@@ -1,10 +1,15 @@
 package sakethh.tenmin.mail.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 
 private val LightColorScheme = lightColorScheme(
@@ -74,14 +79,35 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun TenMinuteMailTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val localContext = LocalContext.current
+    val colorScheme = if (SettingsScreenVM.Settings.shouldFollowSystemTheme.value) {
+        if (Build.VERSION.SDK_INT >= 31 && isSystemInDarkTheme() && SettingsScreenVM.Settings.shouldFollowDynamicTheming.value) {
+            dynamicDarkColorScheme(localContext)
+        } else if (Build.VERSION.SDK_INT >= 31 && !isSystemInDarkTheme() && SettingsScreenVM.Settings.shouldFollowDynamicTheming.value) {
+            dynamicLightColorScheme(localContext)
+        } else {
+            if (isSystemInDarkTheme()) {
+                DarkColorScheme
+            } else {
+                LightColorScheme
+            }
+        }
+    } else {
+        if (SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value) {
+            if (SettingsScreenVM.Settings.shouldFollowDynamicTheming.value && Build.VERSION.SDK_INT >= 31) {
+                dynamicDarkColorScheme(localContext)
+            } else {
+                DarkColorScheme
+            }
+        } else {
+            if (SettingsScreenVM.Settings.shouldFollowDynamicTheming.value && Build.VERSION.SDK_INT >= 31) {
+                dynamicLightColorScheme(localContext)
+            } else {
+                LightColorScheme
+            }
+        }
     }
     MaterialTheme(
         colorScheme = colorScheme,

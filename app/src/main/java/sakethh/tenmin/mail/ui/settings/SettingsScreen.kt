@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +36,9 @@ fun SettingsScreen(navController: NavController) {
     val topAppBarScrollState = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(topBar = {
         Column {
-            LargeTopAppBar(navigationIcon = {
+            LargeTopAppBar(
+                colors = TopAppBarDefaults.largeTopAppBarColors(containerColor = if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface),
+                navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -54,6 +57,7 @@ fun SettingsScreen(navController: NavController) {
     }) {
         LazyColumn(
             modifier = Modifier
+                .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                 .fillMaxSize()
                 .padding(it)
                 .nestedScroll(topAppBarScrollState.nestedScrollConnection)

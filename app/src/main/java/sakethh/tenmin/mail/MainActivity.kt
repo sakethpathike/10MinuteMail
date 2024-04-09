@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import sakethh.tenmin.mail.ui.accounts.screens.SignInScreen
 import sakethh.tenmin.mail.ui.accounts.screens.StartUpScreen
 import sakethh.tenmin.mail.ui.home.HomeScreen
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 import sakethh.tenmin.mail.ui.theme.TenMinuteMailTheme
 
 @AndroidEntryPoint
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TenMinuteMailTheme {
                 val systemUiController = rememberSystemUiController()
-                systemUiController.setStatusBarColor(MaterialTheme.colorScheme.surface)
+                systemUiController.setStatusBarColor(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
                 val navController = rememberNavController()
                 Surface {
                     NavHost(
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 rememberSystemUiController().setNavigationBarColor(
-                    color = MaterialTheme.colorScheme.surface
+                    color = if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface
                 )
             }
         }

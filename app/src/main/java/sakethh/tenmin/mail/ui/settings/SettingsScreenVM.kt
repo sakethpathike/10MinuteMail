@@ -7,13 +7,22 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SystemUpdateAlt
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM.Settings.shouldAutomaticallyRetrieveMails
 import sakethh.tenmin.mail.ui.settings.model.SettingsComponentState
+import javax.inject.Inject
 
-class SettingsScreenVM : ViewModel() {
+@HiltViewModel
+class SettingsScreenVM @Inject constructor(private val dataStore: DataStore<Preferences>) :
+    ViewModel() {
     companion object {
         var settingsScreenType = SettingsScreenType.THEME
         const val APP_VERSION_NAME = "v0.0.1"
@@ -24,6 +33,7 @@ class SettingsScreenVM : ViewModel() {
         val shouldFollowDynamicTheming = mutableStateOf(false)
         val shouldFollowSystemTheme = mutableStateOf(true)
         val shouldDarkThemeBeEnabled = mutableStateOf(false)
+        val shouldDimDarkThemeBeEnabled = mutableStateOf(false)
         val isInAppWebTabEnabled = mutableStateOf(true)
         val isSendCrashReportsEnabled = mutableStateOf(true)
         val isAutoCheckUpdatesEnabled = mutableStateOf(false)
@@ -58,7 +68,11 @@ class SettingsScreenVM : ViewModel() {
             onSwitchStateChange = {
                 Settings.isInAppWebTabEnabled.value = it
                 viewModelScope.launch {
-
+                    changeSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
+                        dataStore = dataStore,
+                        newValue = !Settings.isInAppWebTabEnabled.value
+                    )
                 }
             }),
         SettingsComponentState(title = "Auto-Check for Updates",
@@ -71,7 +85,11 @@ class SettingsScreenVM : ViewModel() {
             onSwitchStateChange = {
                 Settings.isAutoCheckUpdatesEnabled.value = it
                 viewModelScope.launch {
-
+                    changeSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
+                        dataStore = dataStore,
+                        newValue = !Settings.isAutoCheckUpdatesEnabled.value
+                    )
                 }
             }),
         SettingsComponentState(title = "Show description for Settings",
@@ -84,8 +102,31 @@ class SettingsScreenVM : ViewModel() {
             onSwitchStateChange = {
                 Settings.showDescriptionForSettingsState.value = it
                 viewModelScope.launch {
-
+                    changeSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
+                        dataStore = dataStore,
+                        newValue = !Settings.showDescriptionForSettingsState.value
+                    )
                 }
             })
     )
+
+    private fun <T> changeSettingPreferenceValue(
+        preferenceKey: Preferences.Key<T>,
+        dataStore: DataStore<Preferences>,
+        newValue: T,
+    ) {
+        viewModelScope.launch {
+            dataStore.edit {
+                it[preferenceKey] = newValue
+            }
+        }
+    }
+
+    private suspend fun readSortingPreferenceValue(
+        preferenceKey: Preferences.Key<String>,
+        dataStore: DataStore<Preferences>,
+    ): String? {
+        return dataStore.data.first()[preferenceKey]
+    }
 }

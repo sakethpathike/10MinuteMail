@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.accounts.screens
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.SignInVM
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 import sakethh.tenmin.mail.ui.theme.fonts
 
 @Composable
@@ -52,6 +54,7 @@ fun SignInScreen(signInVM: SignInVM = hiltViewModel(), navController: NavControl
 
     Box(
         modifier = Modifier
+            .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
             .fillMaxSize()
             .animateContentSize()
             .navigationBarsPadding()

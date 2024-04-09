@@ -3,6 +3,7 @@ package sakethh.tenmin.mail.ui.accounts.screens
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,7 @@ import sakethh.tenmin.mail.NavigationRoutes
 import sakethh.tenmin.mail.ui.accounts.AccountsEvent
 import sakethh.tenmin.mail.ui.accounts.viewmodels.StartUpVM
 import sakethh.tenmin.mail.ui.common.AccountItem
+import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @Composable
 fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewModel()) {
@@ -77,6 +79,7 @@ fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewM
     }
     Box(
         modifier = Modifier
+            .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
             .fillMaxSize()
             .navigationBarsPadding()
             .imePadding(),
