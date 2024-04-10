@@ -14,6 +14,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM.Settings.shouldAutomaticallyRetrieveMails
@@ -54,6 +56,12 @@ class SettingsScreenVM @Inject constructor(private val dataStore: DataStore<Pref
             isSwitchEnabled = shouldAutomaticallyRetrieveMails,
             onSwitchStateChange = {
                 shouldAutomaticallyRetrieveMails.value = it
+                viewModelScope.launch {
+                    changeSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.AUTO_REFRESH_MAILS.name),
+                        newValue = !shouldAutomaticallyRetrieveMails.value
+                    )
+                }
             },
             isIconNeeded = mutableStateOf(true),
             icon = Icons.Default.Refresh
@@ -70,7 +78,6 @@ class SettingsScreenVM @Inject constructor(private val dataStore: DataStore<Pref
                 viewModelScope.launch {
                     changeSettingPreferenceValue(
                         preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
-                        dataStore = dataStore,
                         newValue = !Settings.isInAppWebTabEnabled.value
                     )
                 }
@@ -86,8 +93,7 @@ class SettingsScreenVM @Inject constructor(private val dataStore: DataStore<Pref
                 Settings.isAutoCheckUpdatesEnabled.value = it
                 viewModelScope.launch {
                     changeSettingPreferenceValue(
-                        preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
-                        dataStore = dataStore,
+                        preferenceKey = booleanPreferencesKey(Setting.AUTO_CHECK_FOR_UPDATES.name),
                         newValue = !Settings.isAutoCheckUpdatesEnabled.value
                     )
                 }
@@ -103,17 +109,26 @@ class SettingsScreenVM @Inject constructor(private val dataStore: DataStore<Pref
                 Settings.showDescriptionForSettingsState.value = it
                 viewModelScope.launch {
                     changeSettingPreferenceValue(
-                        preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
-                        dataStore = dataStore,
+                        preferenceKey = booleanPreferencesKey(Setting.SHOW_DESCRIPTION_FOR_SETTINGS.name),
                         newValue = !Settings.showDescriptionForSettingsState.value
                     )
                 }
             })
     )
 
+    fun onUiEvent(settingsUiEvent: SettingsUiEvent) {
+        when (settingsUiEvent) {
+            is SettingsUiEvent.ChangeSettingPreference -> {
+                changeSettingPreferenceValue(
+                    preferenceKey = booleanPreferencesKey(settingsUiEvent.settingType.name),
+                    settingsUiEvent.newValue
+                )
+            }
+        }
+    }
+
     private fun <T> changeSettingPreferenceValue(
         preferenceKey: Preferences.Key<T>,
-        dataStore: DataStore<Preferences>,
         newValue: T,
     ) {
         viewModelScope.launch {
@@ -123,10 +138,65 @@ class SettingsScreenVM @Inject constructor(private val dataStore: DataStore<Pref
         }
     }
 
-    private suspend fun readSortingPreferenceValue(
-        preferenceKey: Preferences.Key<String>,
+    private suspend fun readSettingPreferenceValue(
+        preferenceKey: Preferences.Key<Boolean>,
         dataStore: DataStore<Preferences>,
-    ): String? {
+    ): Boolean? {
         return dataStore.data.first()[preferenceKey]
+    }
+
+    fun readAllPreferenceValues() {
+        viewModelScope.launch {
+            awaitAll(
+                async {
+                    Settings.isInAppWebTabEnabled.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_IN_APP_BROWSER.name),
+                        dataStore = dataStore
+                    ) ?: Settings.isInAppWebTabEnabled.value
+                },
+                async {
+                    Settings.shouldFollowDynamicTheming.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_DYNAMIC_THEMING.name),
+                        dataStore = dataStore
+                    ) ?: Settings.shouldFollowDynamicTheming.value
+                },
+                async {
+                    Settings.shouldFollowSystemTheme.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_SYSTEM_THEME.name),
+                        dataStore = dataStore
+                    ) ?: Settings.shouldFollowSystemTheme.value
+                },
+                async {
+                    Settings.shouldDarkThemeBeEnabled.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_DARK_THEME.name),
+                        dataStore = dataStore
+                    ) ?: Settings.shouldDarkThemeBeEnabled.value
+                },
+                async {
+                    Settings.shouldDimDarkThemeBeEnabled.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.USE_DIM_DARK_THEME.name),
+                        dataStore = dataStore
+                    ) ?: Settings.shouldDimDarkThemeBeEnabled.value
+                },
+                async {
+                    Settings.isAutoCheckUpdatesEnabled.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.AUTO_CHECK_FOR_UPDATES.name),
+                        dataStore = dataStore
+                    ) ?: Settings.isAutoCheckUpdatesEnabled.value
+                },
+                async {
+                    Settings.showDescriptionForSettingsState.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.SHOW_DESCRIPTION_FOR_SETTINGS.name),
+                        dataStore = dataStore
+                    ) ?: Settings.showDescriptionForSettingsState.value
+                },
+                async {
+                    shouldAutomaticallyRetrieveMails.value = readSettingPreferenceValue(
+                        preferenceKey = booleanPreferencesKey(Setting.AUTO_REFRESH_MAILS.name),
+                        dataStore = dataStore
+                    ) ?: shouldAutomaticallyRetrieveMails.value
+                },
+            )
+        }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -67,6 +68,7 @@ fun SpecificSettingsScreen(
     val isBtmTimePickerSheetVisible = rememberSaveable {
         mutableStateOf(false)
     }
+    val isSystemInDarkTheme = isSystemInDarkTheme()
     Scaffold(topBar = {
         Column {
             LargeTopAppBar(
@@ -99,7 +101,7 @@ fun SpecificSettingsScreen(
         ) {
             when (SettingsScreenVM.settingsScreenType) {
                 SettingsScreenType.THEME -> {
-                    themeSection()
+                    themeSection(settingsScreenVM, mutableStateOf(isSystemInDarkTheme))
                 }
 
                 SettingsScreenType.GENERAL -> {
@@ -285,7 +287,10 @@ private fun LazyListScope.generalSection(
 }
 
 
-private fun LazyListScope.themeSection() {
+private fun LazyListScope.themeSection(
+    settingsScreenVM: SettingsScreenVM,
+    isSystemInDarkTheme: MutableState<Boolean>
+) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value) {
         item(key = "Follow System Theme") {
             SettingsComponent(
@@ -297,6 +302,19 @@ private fun LazyListScope.themeSection() {
                     onSwitchStateChange = {
                         SettingsScreenVM.Settings.shouldFollowSystemTheme.value =
                             !SettingsScreenVM.Settings.shouldFollowSystemTheme.value
+                        settingsScreenVM.onUiEvent(
+                            SettingsUiEvent.ChangeSettingPreference(
+                                Setting.USE_SYSTEM_THEME,
+                                it
+                            )
+                        )
+                        SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value = false
+                        settingsScreenVM.onUiEvent(
+                            SettingsUiEvent.ChangeSettingPreference(
+                                Setting.USE_DIM_DARK_THEME,
+                                false
+                            )
+                        )
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
                     })
@@ -314,13 +332,29 @@ private fun LazyListScope.themeSection() {
                     onSwitchStateChange = {
                         SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value =
                             !SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value
+                        settingsScreenVM.onUiEvent(
+                            SettingsUiEvent.ChangeSettingPreference(
+                                Setting.USE_DARK_THEME,
+                                it
+                            )
+                        )
+                        if (!SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value) {
+                            SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value =
+                                !SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value
+                            settingsScreenVM.onUiEvent(
+                                SettingsUiEvent.ChangeSettingPreference(
+                                    Setting.USE_DIM_DARK_THEME,
+                                    it
+                                )
+                            )
+                        }
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
                     })
             )
         }
     }
-    if (SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value) {
+    if (!SettingsScreenVM.Settings.shouldFollowDynamicTheming.value && (SettingsScreenVM.Settings.shouldDarkThemeBeEnabled.value || (SettingsScreenVM.Settings.shouldFollowSystemTheme.value && isSystemInDarkTheme.value))) {
         item(key = "Use Dim Dark Mode") {
             SettingsComponent(
                 settingsComponentState = SettingsComponentState(
@@ -332,6 +366,12 @@ private fun LazyListScope.themeSection() {
                     onSwitchStateChange = {
                         SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value =
                             !SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value
+                        settingsScreenVM.onUiEvent(
+                            SettingsUiEvent.ChangeSettingPreference(
+                                Setting.USE_DIM_DARK_THEME,
+                                it
+                            )
+                        )
 
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
@@ -350,6 +390,19 @@ private fun LazyListScope.themeSection() {
                     onSwitchStateChange = {
                         SettingsScreenVM.Settings.shouldFollowDynamicTheming.value =
                             !SettingsScreenVM.Settings.shouldFollowDynamicTheming.value
+                        settingsScreenVM.onUiEvent(
+                            SettingsUiEvent.ChangeSettingPreference(
+                                Setting.USE_DYNAMIC_THEMING,
+                                it
+                            )
+                        )
+                        SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value = false
+                        settingsScreenVM.onUiEvent(
+                            SettingsUiEvent.ChangeSettingPreference(
+                                Setting.USE_DIM_DARK_THEME,
+                                false
+                            )
+                        )
                     }, isIconNeeded = remember {
                         mutableStateOf(false)
                     })

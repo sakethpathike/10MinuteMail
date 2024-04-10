@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.di
 
 import android.app.Application
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -69,7 +70,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDataStore(@ApplicationContext appContext: Application): DataStore<Preferences> {
+    fun provideDataStore(@ApplicationContext appContext: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(produceFile = {
             appContext.preferencesDataStoreFile("10MinMail")
         })

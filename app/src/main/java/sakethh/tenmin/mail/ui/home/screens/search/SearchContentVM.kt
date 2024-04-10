@@ -58,7 +58,6 @@ class SearchContentVM @Inject constructor(
             }
         }
         viewModelScope.launch {
-            return@launch
             combine(
                 _searchQuery, hasAttachments, snapshotFlow {
                     _selectedLabelsFilter.toList()

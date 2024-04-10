@@ -54,7 +54,10 @@ import sakethh.tenmin.mail.ui.common.AccountItem
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @Composable
-fun StartUpScreen(navController: NavController, startUpVM: StartUpVM = hiltViewModel()) {
+fun StartUpScreen(
+    navController: NavController,
+    startUpVM: StartUpVM = hiltViewModel()
+) {
     val checkingForActiveSession = rememberSaveable {
         mutableStateOf(true)
     }
