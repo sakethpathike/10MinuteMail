@@ -6,6 +6,6 @@ sealed class SearchUiEvent {
     data class ChangeQuery(val query: String) : SearchUiEvent()
     data class ChangeAttachmentsSelectionState(val isSelected: Boolean) : SearchUiEvent()
 
-    data class ChangeDateRange(val startingDate: String?, val endingDate: String?) :
+    data class ChangeDateRange(val startingDateUTC: Long?, val endingDateUTC: Long?) :
         SearchUiEvent()
 }

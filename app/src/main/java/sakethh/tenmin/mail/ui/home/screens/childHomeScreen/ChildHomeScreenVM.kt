@@ -65,7 +65,7 @@ class ChildHomeScreenVM @Inject constructor(
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val parsedDate = dateFormat.parse(date)
         return parsedDate?.let {
-            SimpleDateFormat("yyyy-MM-dd").format(
+            SimpleDateFormat("yyyyMMdd").format(
                 it
             )
         }!!
@@ -390,7 +390,7 @@ class ChildHomeScreenVM @Inject constructor(
                         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
                         val parsedDate = dateFormat.parse(mailData.createdAt)
                         val formattedDate = parsedDate?.let {
-                            SimpleDateFormat("yyyy-MM-dd").format(
+                            SimpleDateFormat("yyyyMMdd").format(
                                 it
                             )
                         }

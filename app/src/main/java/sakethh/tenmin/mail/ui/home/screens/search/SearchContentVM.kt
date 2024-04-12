@@ -13,15 +13,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.data.local.model.LocalMail
-import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
 import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
 import sakethh.tenmin.mail.data.remote.api.model.mail.From
 import sakethh.tenmin.mail.ui.home.screens.search.model.SearchQueryFlow
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchContentVM @Inject constructor(
-    private val localMailRepo: LocalMailRepo, private val localAccountsRepo: LocalAccountsRepo
+    private val localMailRepo: LocalMailRepo
 ) : ViewModel() {
     private val _selectedLabelsFilter = mutableStateListOf<String>()
     val selectedLabelsFilter = _selectedLabelsFilter
@@ -111,9 +113,17 @@ class SearchContentVM @Inject constructor(
 
             is SearchUiEvent.ChangeDateRange -> {
                 viewModelScope.launch {
+                    val dateFormat = SimpleDateFormat("yyyyMMdd")
+                    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+                    val startingDate = searchUiEvent.startingDateUTC?.let { Date(it) }?.let {
+                        dateFormat.format(it)
+                    }
+                    val endingDate = searchUiEvent.endingDateUTC?.let { Date(it) }?.let {
+                        dateFormat.format(it)
+                    }
                     _selectedDateRange.emit(
                         Pair(
-                            searchUiEvent.startingDate, searchUiEvent.endingDate
+                            startingDate, endingDate
                         )
                     )
                 }

@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.home.screens.search
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -49,6 +50,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledTonalButton
@@ -81,6 +83,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -96,9 +99,6 @@ import sakethh.tenmin.mail.ui.common.MailItem
 import sakethh.tenmin.mail.ui.common.pulsateEffect
 import sakethh.tenmin.mail.ui.home.NavigationDrawerModel
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SimpleDateFormat")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -122,6 +122,7 @@ fun SearchContent(
     val isDateRangePickerVisible = rememberSaveable {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
     val receivedMailsSenders = searchContentVM.receivedMailsSenders.collectAsState()
     val currentSessionList = remember {
         listOf(
@@ -198,17 +199,16 @@ fun SearchContent(
                         "Attachments",
                         "Date"
                     ).forEach {
-                        /* if (it == "Saved Links" && queriedSavedLinks.isNotEmpty() || it == "Important Links" && impLinksQueriedData.isNotEmpty() ||
-                             it == "Archived Links" && archiveLinksQueriedData.isNotEmpty() || it == "Folders" && queriedUnarchivedFoldersData.isNotEmpty()
-                             || it == "Archived Folders" && queriedArchivedFoldersData.isNotEmpty() || it == "Links from folders" && queriedFolderLinks.isNotEmpty()
-                             || it == "History" && historyLinksQueriedData.isNotEmpty()
-                         ) {*/
                         Row(modifier = Modifier.animateContentSize()) {
                             Spacer(modifier = Modifier.width(10.dp))
                             androidx.compose.material3.FilterChip(
-                                selected = if (it == "Attachments") searchContentVM.hasAttachments.collectAsState().value else selectedLabelsFilter.contains(
-                                    it
-                                ),
+                                selected = when (it) {
+                                    "Attachments" -> searchContentVM.hasAttachments.collectAsState().value
+                                    "Labels" -> searchContentVM.selectedLabelsFilter.isNotEmpty()
+                                    "From" -> searchContentVM.selectedFromAccountsFilter.isNotEmpty()
+                                    "Date" -> dateRangePickerState.selectedStartDateMillis != null && dateRangePickerState.selectedEndDateMillis != null
+                                    else -> false
+                                },
                                 onClick = {
                                     if (it == "Attachments") {
                                         searchContentVM.onUiEvent(
@@ -246,7 +246,6 @@ fun SearchContent(
                                     )
                                 })
                         }
-                        /* }*/
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                 }
@@ -389,7 +388,13 @@ fun SearchContent(
                                 style = MaterialTheme.typography.titleSmall
                             )
                         }
-                        FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = { }) {
+                        FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                            coroutineScope.launch {
+                                modalBtmSheetState.hide()
+                            }.invokeOnCompletion {
+                                shouldModalBtmSheetBeVisible.value = false
+                            }
+                        }) {
                                 Text(
                                     text = "Close",
                                     textAlign = TextAlign.End,
@@ -488,9 +493,15 @@ fun SearchContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 20.dp, end = 20.dp, top = 15.dp)
-                    .pulsateEffect { }, onClick = { }) {
+                    .pulsateEffect { }, onClick = {
+                    coroutineScope.launch {
+                        modalBtmSheetState.hide()
+                    }.invokeOnCompletion {
+                        shouldModalBtmSheetBeVisible.value = false
+                    }
+                }) {
                 Text(
-                    text = "Apply Changes",
+                    text = "Close",
                     style = MaterialTheme.typography.titleSmall
                 )
             }
@@ -506,7 +517,9 @@ fun SearchContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp)
-                        .pulsateEffect { }, onClick = { }) {
+                        .pulsateEffect { }, onClick = {
+                        isDateRangePickerVisible.value = false
+                    }) {
                     Text(
                         text = "Cancel",
                         style = MaterialTheme.typography.titleSmall
@@ -518,7 +531,21 @@ fun SearchContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp)
-                        .pulsateEffect { }, onClick = { }) {
+                        .pulsateEffect { }, onClick = {
+                        if (dateRangePickerState.selectedStartDateMillis == null || dateRangePickerState.selectedEndDateMillis == null) {
+                            Toast.makeText(
+                                context,
+                                "Start date and End date should not be empty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        searchContentVM.onUiEvent(
+                            SearchUiEvent.ChangeDateRange(
+                                startingDateUTC = dateRangePickerState.selectedStartDateMillis,
+                                endingDateUTC = dateRangePickerState.selectedEndDateMillis
+                            )
+                        )
+                    }) {
                     Text(
                         text = "Apply Changes",
                         style = MaterialTheme.typography.titleSmall
@@ -547,24 +574,21 @@ fun SearchContent(
             })
         }
     }
-    if (isDateRangePickerVisible.value) {
         LaunchedEffect(
             dateRangePickerState.selectedStartDateMillis, dateRangePickerState.selectedEndDateMillis
         ) {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-            dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-            val startingDate = dateRangePickerState.selectedStartDateMillis?.let { Date(it) }?.let {
-                dateFormat.format(it)
-            }
-            val endingDate = dateRangePickerState.selectedEndDateMillis?.let { Date(it) }?.let {
-                dateFormat.format(it)
-            }
-            searchContentVM.onUiEvent(
-                SearchUiEvent.ChangeDateRange(
-                    startingDate = startingDate,
-                    endingDate = endingDate
+            if (dateRangePickerState.displayMode == DisplayMode.Picker) {
+                searchContentVM.onUiEvent(
+                    SearchUiEvent.ChangeDateRange(
+                        startingDateUTC = dateRangePickerState.selectedStartDateMillis,
+                        endingDateUTC = dateRangePickerState.selectedEndDateMillis
+                    )
                 )
-            )
+            }
+        }
+    LaunchedEffect(dateRangePickerState.selectedEndDateMillis) {
+        if (dateRangePickerState.selectedEndDateMillis != null && dateRangePickerState.selectedStartDateMillis != null) {
+            isDateRangePickerVisible.value = false
         }
     }
 }
