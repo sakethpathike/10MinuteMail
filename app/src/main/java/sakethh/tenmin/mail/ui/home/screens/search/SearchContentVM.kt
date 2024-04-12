@@ -73,6 +73,7 @@ class SearchContentVM @Inject constructor(
                 merge(
                     localMailRepo.queryCurrentSessionMails(
                         senders = searchFlow.selectedFromAccountsFilter,
+                        sendersCount = searchFlow.selectedFromAccountsFilter.size,
                         query = searchFlow.searchQuery,
                         hasAttachments = searchFlow.hasAttachments,
                         inInbox = searchFlow.selectedLabelsFilter.contains("Inbox"),
@@ -81,6 +82,7 @@ class SearchContentVM @Inject constructor(
                         inTrash = searchFlow.selectedLabelsFilter.contains("Trash")
                     ), localMailRepo.queryAllSessionMails(
                         senders = searchFlow.selectedFromAccountsFilter,
+                        sendersCount = searchFlow.selectedFromAccountsFilter.size,
                         query = searchFlow.searchQuery,
                         hasAttachments = hasAttachments.value,
                         inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),

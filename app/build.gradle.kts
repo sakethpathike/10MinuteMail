@@ -30,7 +30,6 @@ android {
             getByName("debug").assets.srcDirs(files("$projectDir/schemas")) // Room
         }
     }
-
     buildTypes {
         release {
             isShrinkResources = true

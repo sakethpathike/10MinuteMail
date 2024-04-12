@@ -26,7 +26,8 @@ interface LocalMailRepo {
     suspend fun doesThisMailExistsInOtherSectionsExcludingArchive(mailId: String): Boolean
     suspend fun removeFromInbox(mailId: String)
     fun queryCurrentSessionMails(
-        senders: List<From>?,
+        senders: List<From>,
+        sendersCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -38,7 +39,8 @@ interface LocalMailRepo {
     fun getAllReceivedMailsSenders(): Flow<List<From>>
 
     fun queryAllSessionMails(
-        senders: List<From>?,
+        senders: List<From>,
+        sendersCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,

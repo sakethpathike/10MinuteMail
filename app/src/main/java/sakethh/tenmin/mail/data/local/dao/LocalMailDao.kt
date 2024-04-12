@@ -79,16 +79,18 @@ interface LocalMailDao {
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END FROM localMail WHERE mailId = :mailId")
     suspend fun doesThisMailExists(mailId: String): Boolean
 
+    // referred to https://stackoverflow.com/a/78300880/14963389
     @Query(
         "SELECT * FROM localMail WHERE " +
-                "(:senders IS NULL OR `from` IN (:senders))" +
+                "CASE WHEN :sendersCount > 0 THEN `from` IN (:senders) ELSE 1 END " +
                 " AND (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive)" +
                 " AND accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1)" +
                 " AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL)" +
                 "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
     )
     fun queryCurrentSessionMails(
-        senders: List<From>?,
+        senders: List<From>,
+        sendersCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -99,14 +101,15 @@ interface LocalMailDao {
 
 
     @Query(
-        "SELECT * FROM localMail " +
-                "WHERE (:senders IS NULL OR `from` IN (:senders))" +
+        "SELECT * FROM localMail WHERE " +
+                "CASE WHEN :sendersCount > 0 THEN `from` IN (:senders) ELSE 1 END " +
                 "AND (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive) " +
                 "AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL) " +
                 "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
     )
     fun queryAllSessionMails(
-        senders: List<From>?,
+        senders: List<From>,
+        sendersCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,

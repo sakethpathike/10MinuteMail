@@ -18,6 +18,7 @@ import sakethh.tenmin.mail.ui.home.HomeScreen
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 import sakethh.tenmin.mail.ui.theme.TenMinuteMailTheme
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
