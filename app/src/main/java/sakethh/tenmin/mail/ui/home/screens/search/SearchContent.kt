@@ -124,6 +124,9 @@ fun SearchContent(
     }
     val context = LocalContext.current
     val receivedMailsSenders = searchContentVM.receivedMailsSenders.collectAsState()
+    val sendersSearchQuery = rememberSaveable {
+        mutableStateOf("")
+    }
     val currentSessionList = remember {
         listOf(
             NavigationDrawerModel(
@@ -406,8 +409,7 @@ fun SearchContent(
                     LazyColumn(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.surface)
-                            .fillMaxWidth()
-                            .wrapContentHeight()
+                            .fillMaxSize()
                             .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                             .drawWithContent {
                                 drawContent()
@@ -421,13 +423,17 @@ fun SearchContent(
                             }
                     ) {
                         item {
+                            Spacer(modifier = Modifier.height(15.dp))
                             SearchBar(trailingIcon = {
-                                IconButton(onClick = {
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Cancel,
-                                        contentDescription = Icons.Default.Cancel.name + " icon to clear the search query or to disable search mode if query is empty."
-                                    )
+                                if (sendersSearchQuery.value.isNotEmpty()) {
+                                    IconButton(onClick = {
+                                        sendersSearchQuery.value = ""
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Cancel,
+                                            contentDescription = Icons.Default.Cancel.name + " icon to clear the search query or to disable search mode if query is empty."
+                                        )
+                                    }
                                 }
                             },
                                 placeholder = {
@@ -452,9 +458,9 @@ fun SearchContent(
                                         start = 15.dp,
                                         end = 15.dp,
                                     ),
-                                query = "",
+                                query = sendersSearchQuery.value,
                                 onQueryChange = {
-                                    searchQuery.value = it
+                                    sendersSearchQuery.value = it
                                 },
                                 onSearch = {},
                                 active = false,
@@ -464,8 +470,13 @@ fun SearchContent(
                                 content = {
 
                                 })
+                            Spacer(modifier = Modifier.height(15.dp))
                         }
-                        items(receivedMailsSenders.value) {
+                        items(if (sendersSearchQuery.value.isEmpty()) receivedMailsSenders.value else receivedMailsSenders.value.filter {
+                            it.name.lowercase().contains(
+                                sendersSearchQuery.value.trim().lowercase()
+                            )
+                        }) {
                             AccountItem(
                                 emailAddress = it.address,
                                 emailId = it.name,
