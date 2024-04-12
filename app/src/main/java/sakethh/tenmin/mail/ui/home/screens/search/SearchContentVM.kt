@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.data.local.model.LocalMail
@@ -70,27 +71,32 @@ class SearchContentVM @Inject constructor(
                     selectedFromAccountsFilter
                 )
             }.collectLatest { searchFlow ->
-                merge(
-                    localMailRepo.queryCurrentSessionMails(
-                        senders = searchFlow.selectedFromAccountsFilter,
-                        sendersCount = searchFlow.selectedFromAccountsFilter.size,
-                        query = searchFlow.searchQuery,
-                        hasAttachments = searchFlow.hasAttachments,
-                        inInbox = searchFlow.selectedLabelsFilter.contains("Inbox"),
-                        inStarred = searchFlow.selectedLabelsFilter.contains("Starred"),
-                        inArchive = searchFlow.selectedLabelsFilter.contains("Archive"),
-                        inTrash = searchFlow.selectedLabelsFilter.contains("Trash")
-                    ), localMailRepo.queryAllSessionMails(
-                        senders = searchFlow.selectedFromAccountsFilter,
-                        sendersCount = searchFlow.selectedFromAccountsFilter.size,
-                        query = searchFlow.searchQuery,
-                        hasAttachments = hasAttachments.value,
-                        inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),
-                        inStarred = searchFlow.selectedLabelsFilter.contains("All Starred"),
-                        inArchive = searchFlow.selectedLabelsFilter.contains("All Archives"),
-                        inTrash = searchFlow.selectedLabelsFilter.contains("All Trashed")
+                if (searchFlow.selectedLabelsFilter.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    merge(
+                        localMailRepo.queryCurrentSessionMails(
+                            senders = searchFlow.selectedFromAccountsFilter,
+                            sendersCount = searchFlow.selectedFromAccountsFilter.size,
+                            query = searchFlow.searchQuery,
+                            hasAttachments = searchFlow.hasAttachments,
+                            inInbox = searchFlow.selectedLabelsFilter.contains("Inbox"),
+                            inStarred = searchFlow.selectedLabelsFilter.contains("Starred"),
+                            inArchive = searchFlow.selectedLabelsFilter.contains("Archive"),
+                            inTrash = searchFlow.selectedLabelsFilter.contains("Trash")
+                        ),
+                        localMailRepo.queryAllSessionMails(
+                            senders = searchFlow.selectedFromAccountsFilter,
+                            sendersCount = searchFlow.selectedFromAccountsFilter.size,
+                            query = searchFlow.searchQuery,
+                            hasAttachments = hasAttachments.value,
+                            inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),
+                            inStarred = searchFlow.selectedLabelsFilter.contains("All Starred"),
+                            inArchive = searchFlow.selectedLabelsFilter.contains("All Archives"),
+                            inTrash = searchFlow.selectedLabelsFilter.contains("All Trashed")
+                        )
                     )
-                ).distinctUntilChanged().collectLatest {
+                }.distinctUntilChanged().collectLatest {
                     _searchResults.emit(it)
                 }
             }

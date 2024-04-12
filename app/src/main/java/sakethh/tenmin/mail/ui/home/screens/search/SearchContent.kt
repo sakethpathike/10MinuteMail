@@ -213,19 +213,6 @@ fun SearchContent(
                                             )
                                         )
                                     }
-                                    if (selectedLabelsFilter.contains(it)) {
-                                        searchContentVM.onUiEvent(
-                                            SearchUiEvent.RemoveALabelFilter(
-                                                it
-                                            )
-                                        )
-                                    } else {
-                                        searchContentVM.onUiEvent(
-                                            SearchUiEvent.AddANewLabelFilter(
-                                                it
-                                            )
-                                        )
-                                    }
                                     isLabelsSelected.value = it == "Labels"
                                     if (it == "Labels" || it == "From") {
                                         shouldModalBtmSheetBeVisible.value = true
