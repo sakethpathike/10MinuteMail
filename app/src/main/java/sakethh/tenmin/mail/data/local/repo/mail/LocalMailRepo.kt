@@ -28,6 +28,7 @@ interface LocalMailRepo {
     fun queryCurrentSessionMails(
         senders: List<From>,
         sendersCount: Int,
+        labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -41,6 +42,7 @@ interface LocalMailRepo {
     fun queryAllSessionMails(
         senders: List<From>,
         sendersCount: Int,
+        labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,

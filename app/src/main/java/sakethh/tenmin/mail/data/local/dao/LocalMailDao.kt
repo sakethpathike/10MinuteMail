@@ -83,7 +83,9 @@ interface LocalMailDao {
     @Query(
         "SELECT * FROM localMail WHERE " +
                 "CASE WHEN :sendersCount > 0 THEN `from` IN (:senders) ELSE 1 END " +
-                " AND (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive)" +
+                "AND CASE WHEN :hasAttachments == 1 THEN hasAttachments=1 ELSE 1 END " +
+                "AND CASE WHEN (:labelsCount == 0 AND hasAttachments = 1) THEN hasAttachments=1 ELSE 1 END " +
+                "AND CASE WHEN :labelsCount > 0 THEN (isStarred=:inStarred AND isInTrash = :inTrash AND isInInbox = :inInbox AND isArchived = :inArchive) ELSE (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isArchived = :inArchive) END" +
                 " AND accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1)" +
                 " AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL)" +
                 "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
@@ -91,6 +93,7 @@ interface LocalMailDao {
     fun queryCurrentSessionMails(
         senders: List<From>,
         sendersCount: Int,
+        labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -103,13 +106,17 @@ interface LocalMailDao {
     @Query(
         "SELECT * FROM localMail WHERE " +
                 "CASE WHEN :sendersCount > 0 THEN `from` IN (:senders) ELSE 1 END " +
-                "AND (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive) " +
+                "AND CASE WHEN :hasAttachments == 1 THEN hasAttachments=1 ELSE 1 END " +
+                "AND CASE WHEN (:labelsCount == 0 AND hasAttachments = 1) THEN hasAttachments=1 ELSE 1 END " +
+                "AND CASE WHEN :labelsCount > 0 THEN (isStarred=:inStarred AND isInTrash = :inTrash AND isInInbox = :inInbox AND isArchived = :inArchive) ELSE (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR hasAttachments = :hasAttachments OR isArchived = :inArchive) END" +
+                " AND (isStarred = :inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isArchived = :inArchive) " +
                 "AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL) " +
                 "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
     )
     fun queryAllSessionMails(
         senders: List<From>,
         sendersCount: Int,
+        labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,

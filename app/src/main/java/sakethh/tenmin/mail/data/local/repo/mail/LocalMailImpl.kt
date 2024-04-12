@@ -81,6 +81,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
     override fun queryCurrentSessionMails(
         senders: List<From>,
         sendersCount: Int,
+        labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -91,6 +92,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         return localMailDao.queryCurrentSessionMails(
             senders,
             sendersCount,
+            labelsCount,
             query,
             hasAttachments,
             inInbox,
@@ -107,6 +109,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
     override fun queryAllSessionMails(
         senders: List<From>,
         sendersCount: Int,
+        labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
         inInbox: Boolean,
@@ -117,6 +120,7 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         return localMailDao.queryAllSessionMails(
             senders,
             sendersCount,
+            labelsCount,
             query,
             hasAttachments,
             inInbox,

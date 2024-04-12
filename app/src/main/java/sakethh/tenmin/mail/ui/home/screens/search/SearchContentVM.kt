@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.data.local.model.LocalMail
@@ -25,16 +24,7 @@ import javax.inject.Inject
 class SearchContentVM @Inject constructor(
     private val localMailRepo: LocalMailRepo, private val localAccountsRepo: LocalAccountsRepo
 ) : ViewModel() {
-    private val _selectedLabelsFilter = mutableStateListOf(
-        "Inbox",
-        "Starred",
-        "Archive",
-        "Trash",
-        "All Inboxes",
-        "All Starred",
-        "All Archives",
-        "All Trashed"
-    )
+    private val _selectedLabelsFilter = mutableStateListOf<String>()
     val selectedLabelsFilter = _selectedLabelsFilter
 
     private val _selectedFromAccountsFilter = mutableStateListOf<From>()
@@ -71,13 +61,11 @@ class SearchContentVM @Inject constructor(
                     selectedFromAccountsFilter
                 )
             }.collectLatest { searchFlow ->
-                if (searchFlow.selectedLabelsFilter.isEmpty()) {
-                    flowOf(emptyList())
-                } else {
                     merge(
                         localMailRepo.queryCurrentSessionMails(
                             senders = searchFlow.selectedFromAccountsFilter,
                             sendersCount = searchFlow.selectedFromAccountsFilter.size,
+                            labelsCount = searchFlow.selectedLabelsFilter.size,
                             query = searchFlow.searchQuery,
                             hasAttachments = searchFlow.hasAttachments,
                             inInbox = searchFlow.selectedLabelsFilter.contains("Inbox"),
@@ -88,6 +76,7 @@ class SearchContentVM @Inject constructor(
                         localMailRepo.queryAllSessionMails(
                             senders = searchFlow.selectedFromAccountsFilter,
                             sendersCount = searchFlow.selectedFromAccountsFilter.size,
+                            labelsCount = searchFlow.selectedLabelsFilter.size,
                             query = searchFlow.searchQuery,
                             hasAttachments = hasAttachments.value,
                             inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),
@@ -95,8 +84,7 @@ class SearchContentVM @Inject constructor(
                             inArchive = searchFlow.selectedLabelsFilter.contains("All Archives"),
                             inTrash = searchFlow.selectedLabelsFilter.contains("All Trashed")
                         )
-                    )
-                }.distinctUntilChanged().collectLatest {
+                    ).distinctUntilChanged().collectLatest {
                     _searchResults.emit(it)
                 }
             }
