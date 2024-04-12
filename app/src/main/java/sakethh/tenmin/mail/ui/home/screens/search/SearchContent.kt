@@ -64,6 +64,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -95,8 +96,11 @@ import sakethh.tenmin.mail.ui.common.MailItem
 import sakethh.tenmin.mail.ui.common.pulsateEffect
 import sakethh.tenmin.mail.ui.home.NavigationDrawerModel
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SimpleDateFormat")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchContent(
@@ -405,9 +409,7 @@ fun SearchContent(
                                 drawRect(
                                     brush = Brush.verticalGradient(
                                         listOf(
-                                            Color.Black,
-                                            Color.Black,
-                                            Color.Transparent
+                                            Color.Black, Color.Black, Color.Transparent
                                         )
                                     ), blendMode = BlendMode.DstIn
                                 )
@@ -543,6 +545,26 @@ fun SearchContent(
                     fontSize = 16.sp
                 )
             })
+        }
+    }
+    if (isDateRangePickerVisible.value) {
+        LaunchedEffect(
+            dateRangePickerState.selectedStartDateMillis, dateRangePickerState.selectedEndDateMillis
+        ) {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+            dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+            val startingDate = dateRangePickerState.selectedStartDateMillis?.let { Date(it) }?.let {
+                dateFormat.format(it)
+            }
+            val endingDate = dateRangePickerState.selectedEndDateMillis?.let { Date(it) }?.let {
+                dateFormat.format(it)
+            }
+            searchContentVM.onUiEvent(
+                SearchUiEvent.ChangeDateRange(
+                    startingDate = startingDate,
+                    endingDate = endingDate
+                )
+            )
         }
     }
 }

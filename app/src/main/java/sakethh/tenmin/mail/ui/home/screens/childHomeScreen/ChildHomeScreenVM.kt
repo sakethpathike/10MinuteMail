@@ -1,5 +1,6 @@
 package sakethh.tenmin.mail.ui.home.screens.childHomeScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -20,6 +21,7 @@ import sakethh.tenmin.mail.data.local.repo.mail.LocalMailRepo
 import sakethh.tenmin.mail.data.remote.api.RemoteMailRepository
 import sakethh.tenmin.mail.data.remote.api.model.mail.From
 import sakethh.tenmin.mail.data.remote.api.model.mail.To
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 
@@ -58,10 +60,20 @@ class ChildHomeScreenVM @Inject constructor(
         val currentChildHomeScreenType = mutableStateOf(NavigationRoutes.INBOX)
     }
 
+    @SuppressLint("SimpleDateFormat")
+    fun formattedDate(date: String): String? {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        val parsedDate = dateFormat.parse(date)
+        return parsedDate?.let {
+            SimpleDateFormat("yyyy-MM-dd").format(
+                it
+            )
+        }!!
+    }
     val sampleList = mutableStateListOf(
         LocalMail(
             id = 1,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-27T08:15:00+00:00",
             from = From(name = "John Doe", address = "john.doe@example.com"),
             hasAttachments = true,
@@ -70,11 +82,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 256,
             subject = "Meeting Reminder",
             to = listOf(To(name = "Alice", address = "bob@example.com")),
-            updatedAt = "2024-03-27T10:30:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-27T08:15:00+00:00").toString()
         ), LocalMail(
             id = 2,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-26T09:20:00+00:00",
             from = From(name = "Jane Smith", address = "jane.smith@example.com"),
             hasAttachments = false,
@@ -83,11 +95,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 128,
             subject = "Weekly Report",
             to = listOf(To(name = "Team", address = "team@example.com")),
-            updatedAt = "2024-03-26T11:45:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-26T09:20:00+00:00").toString()
         ), LocalMail(
             id = 3,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-25T10:00:00+00:00",
             from = From(name = "David Brown", address = "david.brown@example.com"),
             hasAttachments = true,
@@ -96,11 +108,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 512,
             subject = "Project Update",
             to = listOf(To(name = "Manager", address = "manager@example.com")),
-            updatedAt = "2024-03-25T12:20:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-25T10:00:00+00:00").toString()
         ), LocalMail(
             id = 4,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-24T14:45:00+00:00",
             from = From(name = "Emily Green", address = "emily.green@example.com"),
             hasAttachments = false,
@@ -109,11 +121,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 64,
             subject = "Quick Question",
             to = listOf(To(name = "Support", address = "support@example.com")),
-            updatedAt = "2024-03-24T16:10:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-24T14:45:00+00:00").toString()
         ), LocalMail(
             id = 5,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-23T13:00:00+00:00",
             from = From(name = "Michael Johnson", address = "michael.johnson@example.com"),
             hasAttachments = true,
@@ -122,11 +134,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 1024,
             subject = "Important Announcement",
             to = listOf(To(name = "All", address = "all@example.com")),
-            updatedAt = "2024-03-23T15:20:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-23T13:00:00+00:00").toString()
         ), LocalMail(
             id = 6,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-22T11:30:00+00:00",
             from = From(name = "Sophia Lee", address = "sophia.lee@example.com"),
             hasAttachments = false,
@@ -135,11 +147,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 128,
             subject = "Discussion Forum",
             to = listOf(To(name = "Group", address = "group@example.com")),
-            updatedAt = "2024-03-22T13:45:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-22T11:30:00+00:00").toString()
         ), LocalMail(
             id = 7,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-21T09:00:00+00:00",
             from = From(name = "William Taylor", address = "william.taylor@example.com"),
             hasAttachments = true,
@@ -148,11 +160,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 512,
             subject = "Upcoming Event",
             to = listOf(To(name = "Participants", address = "participants@example.com")),
-            updatedAt = "2024-03-21T11:20:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-21T09:00:00+00:00").toString()
         ), LocalMail(
             id = 8,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-20T14:00:00+00:00",
             from = From(name = "Olivia Martinez", address = "olivia.martinez@example.com"),
             hasAttachments = false,
@@ -161,11 +173,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 256,
             subject = "Project Deadline",
             to = listOf(To(name = "Project Team", address = "project.team@example.com")),
-            updatedAt = "2024-03-20T16:30:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-20T14:00:00+00:00").toString()
         ), LocalMail(
             id = 9,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-19T12:30:00+00:00",
             from = From(name = "Daniel Wilson", address = "daniel.wilson@example.com"),
             hasAttachments = true,
@@ -174,11 +186,11 @@ class ChildHomeScreenVM @Inject constructor(
             size = 64,
             subject = "Feedback Request",
             to = listOf(To(name = "Feedback Team", address = "feedback.team@example.com")),
-            updatedAt = "2024-03-19T14:45:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-19T12:30:00+00:00").toString()
         ), LocalMail(
             id = 10,
-            accountId = "66192b860b05a41efa508441",
+            accountId = "66197a055609f5199753f817",
             createdAt = "2024-03-18T15:00:00+00:00",
             from = From(name = "Isabella Adams", address = "isabella.adams@example.com"),
             hasAttachments = false,
@@ -187,8 +199,8 @@ class ChildHomeScreenVM @Inject constructor(
             size = 128,
             subject = "Team Building Activity",
             to = listOf(To(name = "Team", address = "team@example.com")),
-            updatedAt = "2024-03-18T17:20:00+00:00",
-            rawMail = "..."
+            rawMail = "...",
+            formattedDate = formattedDate("2024-03-18T15:00:00+00:00").toString()
         )
     )
     val sampleMails = MutableStateFlow(sampleList).asStateFlow()
@@ -351,6 +363,7 @@ class ChildHomeScreenVM @Inject constructor(
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     fun loadMailsFromTheCloud(isRefreshing: Boolean, onLoadingComplete: () -> Unit) {
         if (loadedPreviouslyRequestedMailsPage) {
             loadedPreviouslyRequestedMailsPage = false
@@ -374,6 +387,13 @@ class ChildHomeScreenVM @Inject constructor(
                                     .build()
                             ).execute()
                         }.body?.string()
+                        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                        val parsedDate = dateFormat.parse(mailData.createdAt)
+                        val formattedDate = parsedDate?.let {
+                            SimpleDateFormat("yyyy-MM-dd").format(
+                                it
+                            )
+                        }
                         LocalMail(
                             accountId = mailData.accountId.replace("/accounts/", ""),
                             createdAt = mailData.createdAt,
@@ -384,8 +404,8 @@ class ChildHomeScreenVM @Inject constructor(
                             size = mailData.size,
                             subject = mailData.subject,
                             to = mailData.to,
-                            updatedAt = mailData.updatedAt,
-                            rawMail = rawMail ?: ""
+                            rawMail = rawMail ?: "",
+                            formattedDate = formattedDate.toString()
                         )
                     })
                 }

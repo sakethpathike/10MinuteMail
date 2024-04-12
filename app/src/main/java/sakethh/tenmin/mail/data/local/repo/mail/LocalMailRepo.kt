@@ -25,12 +25,16 @@ interface LocalMailRepo {
     suspend fun doesThisMailExistsInOtherSectionsExcludingStarred(mailId: String): Boolean
     suspend fun doesThisMailExistsInOtherSectionsExcludingArchive(mailId: String): Boolean
     suspend fun removeFromInbox(mailId: String)
-    fun queryCurrentSessionMails(
+    fun queryMails(
+        onlyCurrentSession: Boolean,
         senders: List<From>,
         sendersCount: Int,
         labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
+        isDateRangeSelected: Boolean,
+        startDate: String,
+        endDate: String,
         inInbox: Boolean,
         inStarred: Boolean,
         inArchive: Boolean,
@@ -39,17 +43,6 @@ interface LocalMailRepo {
 
     fun getAllReceivedMailsSenders(): Flow<List<From>>
 
-    fun queryAllSessionMails(
-        senders: List<From>,
-        sendersCount: Int,
-        labelsCount: Int,
-        query: String,
-        hasAttachments: Boolean,
-        inInbox: Boolean,
-        inStarred: Boolean,
-        inArchive: Boolean,
-        inTrash: Boolean
-    ): Flow<List<LocalMail>>
     suspend fun addAMultipleMails(localMail: List<LocalMail>)
     suspend fun doesThisMailExists(mailId: String): Boolean
 

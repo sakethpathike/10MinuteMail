@@ -78,51 +78,35 @@ class LocalMailImpl(private val localMailDao: LocalMailDao) : LocalMailRepo {
         localMailDao.removeFromInbox(mailId)
     }
 
-    override fun queryCurrentSessionMails(
-        senders: List<From>,
-        sendersCount: Int,
-        labelsCount: Int,
-        query: String,
-        hasAttachments: Boolean,
-        inInbox: Boolean,
-        inStarred: Boolean,
-        inArchive: Boolean,
-        inTrash: Boolean
-    ): Flow<List<LocalMail>> {
-        return localMailDao.queryCurrentSessionMails(
-            senders,
-            sendersCount,
-            labelsCount,
-            query,
-            hasAttachments,
-            inInbox,
-            inStarred,
-            inArchive,
-            inTrash
-        )
-    }
-
     override fun getAllReceivedMailsSenders(): Flow<List<From>> {
         return localMailDao.getAllReceivedMailsSenders()
     }
 
-    override fun queryAllSessionMails(
+    override fun queryMails(
+        onlyCurrentSession: Boolean,
         senders: List<From>,
         sendersCount: Int,
         labelsCount: Int,
         query: String,
         hasAttachments: Boolean,
+        isDateRangeSelected: Boolean,
+        startDate: String,
+        endDate: String,
         inInbox: Boolean,
         inStarred: Boolean,
         inArchive: Boolean,
         inTrash: Boolean
     ): Flow<List<LocalMail>> {
-        return localMailDao.queryAllSessionMails(
+        return localMailDao.queryMails(
+            onlyCurrentSession,
             senders,
             sendersCount,
             labelsCount,
             query,
             hasAttachments,
+            isDateRangeSelected,
+            startDate,
+            endDate,
             inInbox,
             inStarred,
             inArchive,

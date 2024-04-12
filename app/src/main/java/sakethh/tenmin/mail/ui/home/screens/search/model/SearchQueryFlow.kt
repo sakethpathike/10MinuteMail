@@ -6,5 +6,6 @@ data class SearchQueryFlow(
     val searchQuery: String,
     val hasAttachments: Boolean,
     val selectedLabelsFilter: List<String>,
-    val selectedFromAccountsFilter: List<From>
+    val selectedFromAccountsFilter: List<From>,
+    val selectedDateRange: Pair<String?, String?>
 )

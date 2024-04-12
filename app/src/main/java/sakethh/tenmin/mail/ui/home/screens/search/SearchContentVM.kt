@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import sakethh.tenmin.mail.data.local.model.LocalMail
 import sakethh.tenmin.mail.data.local.repo.accounts.LocalAccountsRepo
@@ -42,6 +41,8 @@ class SearchContentVM @Inject constructor(
     private val _receivedMailsSenders = MutableStateFlow(emptyList<From>())
     val receivedMailsSenders = _receivedMailsSenders.asStateFlow()
 
+    private val _selectedDateRange = MutableStateFlow(Pair<String?, String?>(null, null))
+
     init {
         viewModelScope.launch {
             localMailRepo.getAllReceivedMailsSenders().collectLatest {
@@ -52,39 +53,31 @@ class SearchContentVM @Inject constructor(
             combine(
                 _searchQuery, hasAttachments, snapshotFlow {
                     _selectedLabelsFilter.toList()
-                }, snapshotFlow { _selectedFromAccountsFilter.toList() }
-            ) { searchQuery, hasAttachments, selectedLabelsFilter, selectedFromAccountsFilter ->
+                }, snapshotFlow { _selectedFromAccountsFilter.toList() }, _selectedDateRange
+            ) { searchQuery, hasAttachments, selectedLabelsFilter, selectedFromAccountsFilter, selectedDateRange ->
                 SearchQueryFlow(
                     searchQuery,
                     hasAttachments,
                     selectedLabelsFilter,
-                    selectedFromAccountsFilter
+                    selectedFromAccountsFilter,
+                    selectedDateRange
                 )
             }.collectLatest { searchFlow ->
-                    merge(
-                        localMailRepo.queryCurrentSessionMails(
-                            senders = searchFlow.selectedFromAccountsFilter,
-                            sendersCount = searchFlow.selectedFromAccountsFilter.size,
-                            labelsCount = searchFlow.selectedLabelsFilter.size,
-                            query = searchFlow.searchQuery,
-                            hasAttachments = searchFlow.hasAttachments,
-                            inInbox = searchFlow.selectedLabelsFilter.contains("Inbox"),
-                            inStarred = searchFlow.selectedLabelsFilter.contains("Starred"),
-                            inArchive = searchFlow.selectedLabelsFilter.contains("Archive"),
-                            inTrash = searchFlow.selectedLabelsFilter.contains("Trash")
-                        ),
-                        localMailRepo.queryAllSessionMails(
-                            senders = searchFlow.selectedFromAccountsFilter,
-                            sendersCount = searchFlow.selectedFromAccountsFilter.size,
-                            labelsCount = searchFlow.selectedLabelsFilter.size,
-                            query = searchFlow.searchQuery,
-                            hasAttachments = hasAttachments.value,
-                            inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),
-                            inStarred = searchFlow.selectedLabelsFilter.contains("All Starred"),
-                            inArchive = searchFlow.selectedLabelsFilter.contains("All Archives"),
-                            inTrash = searchFlow.selectedLabelsFilter.contains("All Trashed")
-                        )
-                    ).distinctUntilChanged().collectLatest {
+                localMailRepo.queryMails(
+                    onlyCurrentSession = !searchFlow.selectedLabelsFilter.all { it.startsWith("All") },
+                    senders = searchFlow.selectedFromAccountsFilter,
+                    sendersCount = searchFlow.selectedFromAccountsFilter.size,
+                    labelsCount = searchFlow.selectedLabelsFilter.size,
+                    query = searchFlow.searchQuery,
+                    hasAttachments = hasAttachments.value,
+                    inInbox = searchFlow.selectedLabelsFilter.contains("All Inboxes"),
+                    inStarred = searchFlow.selectedLabelsFilter.contains("All Starred"),
+                    inArchive = searchFlow.selectedLabelsFilter.contains("All Archives"),
+                    inTrash = searchFlow.selectedLabelsFilter.contains("All Trashed"),
+                    isDateRangeSelected = searchFlow.selectedDateRange.first != null && searchFlow.selectedDateRange.second != null,
+                    startDate = searchFlow.selectedDateRange.first.toString(),
+                    endDate = searchFlow.selectedDateRange.second.toString()
+                ).distinctUntilChanged().collectLatest {
                     _searchResults.emit(it)
                 }
             }
@@ -114,6 +107,16 @@ class SearchContentVM @Inject constructor(
 
             is SearchUiEvent.RemoveALabelFilter -> {
                 _selectedLabelsFilter.remove(searchUiEvent.filterName)
+            }
+
+            is SearchUiEvent.ChangeDateRange -> {
+                viewModelScope.launch {
+                    _selectedDateRange.emit(
+                        Pair(
+                            searchUiEvent.startingDate, searchUiEvent.endingDate
+                        )
+                    )
+                }
             }
         }
     }

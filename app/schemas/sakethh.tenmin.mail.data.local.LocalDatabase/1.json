@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9afc6689422c41b7d9fa8895843a2009",
+    "identityHash": "7b6ed9625d1d929914a1e130c42a8390",
     "entities": [
       {
         "tableName": "localMailAccount",
@@ -68,7 +68,7 @@
       },
       {
         "tableName": "localMail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `from` TEXT NOT NULL, `hasAttachments` INTEGER NOT NULL, `intro` TEXT NOT NULL, `mailId` TEXT NOT NULL, `size` INTEGER NOT NULL, `subject` TEXT NOT NULL, `to` TEXT NOT NULL, `updatedAt` TEXT NOT NULL, `rawMail` TEXT NOT NULL, `isInInbox` INTEGER NOT NULL, `isStarred` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, `isInTrash` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `formattedDate` TEXT NOT NULL, `from` TEXT NOT NULL, `hasAttachments` INTEGER NOT NULL, `intro` TEXT NOT NULL, `mailId` TEXT NOT NULL, `size` INTEGER NOT NULL, `subject` TEXT NOT NULL, `to` TEXT NOT NULL, `rawMail` TEXT NOT NULL, `isInInbox` INTEGER NOT NULL, `isStarred` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, `isInTrash` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -85,6 +85,12 @@
           {
             "fieldPath": "createdAt",
             "columnName": "createdAt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "formattedDate",
+            "columnName": "formattedDate",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -127,12 +133,6 @@
           {
             "fieldPath": "to",
             "columnName": "to",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "updatedAt",
-            "columnName": "updatedAt",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -180,7 +180,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9afc6689422c41b7d9fa8895843a2009')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7b6ed9625d1d929914a1e130c42a8390')"
     ]
   }
 }

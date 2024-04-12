@@ -13,6 +13,7 @@ data class LocalMail(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val accountId: String,
     val createdAt: String,
+    val formattedDate: String,
     @TypeConverters(FromMailTypeConverter::class)
     val from: From,
     val hasAttachments: Boolean,
@@ -22,7 +23,6 @@ data class LocalMail(
     val subject: String,
     @TypeConverters(ToMailTypeConverter::class)
     val to: List<To>,
-    val updatedAt: String,
     val rawMail: String,
     val isInInbox: Boolean = true,
     val isStarred: Boolean = false,
