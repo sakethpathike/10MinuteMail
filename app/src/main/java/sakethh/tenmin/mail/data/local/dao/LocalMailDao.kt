@@ -83,7 +83,7 @@ interface LocalMailDao {
         "SELECT * FROM localMail WHERE " +
                 "CASE WHEN :sendersCount > 0 THEN `from` IN (:senders) ELSE 1 END " + "AND CASE WHEN :isDateRangeSelected = 1 THEN formattedDate BETWEEN :startDate AND :endDate ELSE 1 END " +
                 "AND CASE WHEN :hasAttachments == 1 THEN hasAttachments=1 ELSE 1 END " +
-                "AND CASE WHEN (:labelsCount == 0 AND hasAttachments = 1) THEN hasAttachments=1 ELSE 1 END " + " AND CASE WHEN :labelsCount > 0 THEN (isStarred=:inStarred AND isInTrash = :inTrash AND isInInbox = :inInbox AND isArchived = :inArchive) ELSE (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isArchived = :inArchive) END" + " AND CASE WHEN :onlyCurrentSession = 1 THEN accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1) ELSE 1 END" +
+                "AND CASE WHEN (:labelsCount == 0 AND hasAttachments = 1) THEN hasAttachments=1 ELSE 1 END " + "AND CASE WHEN :labelsCount > 0 THEN (CASE WHEN :inStarred==1 THEN isStarred = 1 ELSE 1 END AND CASE WHEN :inTrash == 1 THEN isInTrash =1 ELSE 1 END AND CASE WHEN :inInbox == 1 THEN isInInbox = 1 ELSE 1 END AND CASE WHEN :inArchive == 1 THEN isArchived = 1 ELSE 1 END) ELSE (isStarred=:inStarred OR isInTrash = :inTrash OR isInInbox = :inInbox OR isArchived = :inArchive) END" + " AND CASE WHEN :onlyCurrentSession = 1 THEN accountId = (SELECT accountId FROM localMailAccount WHERE isACurrentSession = 1 LIMIT 1) ELSE 1 END" +
                 " AND (TRIM(:query) <> '' AND TRIM(:query) IS NOT NULL)" +
                 "AND (rawMail COLLATE NOCASE LIKE '%' || :query || '%' OR subject COLLATE NOCASE LIKE '%' || :query || '%' OR intro COLLATE NOCASE LIKE '%' || :query || '%')"
     )

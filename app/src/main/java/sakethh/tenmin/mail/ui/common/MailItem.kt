@@ -60,7 +60,8 @@ fun MailItem(
     draggedRightIcon: ImageVector,
     draggedRightText: String,
     draggedLeftIcon: ImageVector,
-    draggedLeftText: String
+    draggedLeftText: String,
+    inSearch: Boolean
 ) {
     val isChecked = remember {
         mutableStateOf(false)
@@ -130,6 +131,9 @@ fun MailItem(
                         } else {
                             itemOffSetX.value = 0f
                         }
+                        if (inSearch) {
+                            itemOffSetX.value = 0f
+                        }
                         isDragging.value = false
                     }, onDragCancel = {
                         if (itemOffSetX.value / totalWidth.value >= 0.5) {
@@ -137,6 +141,9 @@ fun MailItem(
                         } else if (itemOffSetX.value / totalWidth.value <= -0.5) {
                             onDragLeft()
                         } else {
+                            itemOffSetX.value = 0f
+                        }
+                        if (inSearch) {
                             itemOffSetX.value = 0f
                         }
                         isDragging.value = false

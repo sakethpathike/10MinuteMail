@@ -243,6 +243,7 @@ fun ChildHomeScreen(
                             else -> ""
                         },
                         shouldStarIconVisible = ChildHomeScreenVM.currentChildHomeScreenType.value != NavigationRoutes.TRASH || ChildHomeScreenVM.currentChildHomeScreenType.value != NavigationRoutes.ALL_TRASHED,
+                        inSearch = false
                     )
                 }
             }

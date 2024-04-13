@@ -331,8 +331,7 @@ fun SearchContent(
                 fromName = it.from.name,
                 onDragRight = {
                     draggedLeft.value = false
-                    when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                        NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> {
+                    if (it.isInInbox) {
                             childHomeScreenVM.onUiEvent(
                                 ChildHomeScreenEvent.MoveToArchive(it.mailId)
                             )
@@ -343,48 +342,49 @@ fun SearchContent(
                             )
                         }
 
-                        NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> childHomeScreenVM.onUiEvent(
+                    if (it.isStarred) {
+                        childHomeScreenVM.onUiEvent(
                             ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
                         )
+                    }
 
-                        NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> childHomeScreenVM.onUiEvent(
+                    if (it.isArchived) {
+                        childHomeScreenVM.onUiEvent(
                             ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
                         )
-
-                        NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> childHomeScreenVM.onUiEvent(
+                    }
+                    if (it.isInTrash) {
+                        childHomeScreenVM.onUiEvent(
                             ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
                         )
-
-                        else -> ChildHomeScreenEvent.None
                     }
                 },
                 onDragLeft = {
                     draggedLeft.value = true
-                    when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                        NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> {
-                            childHomeScreenVM.onUiEvent(
+                    if (it.isInInbox) {
+                        childHomeScreenVM.onUiEvent(
                                 ChildHomeScreenEvent.MoveToTrash(it.mailId)
                             )
-                            childHomeScreenVM.onUiEvent(
+                        childHomeScreenVM.onUiEvent(
                                 ChildHomeScreenEvent.RemoveFromInbox(
                                     it.mailId
                                 )
                             )
                         }
-
-                        NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> childHomeScreenVM.onUiEvent(
+                    if (it.isStarred) {
+                        childHomeScreenVM.onUiEvent(
                             ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
                         )
-
-                        NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> childHomeScreenVM.onUiEvent(
+                    }
+                    if (it.isArchived) {
+                        childHomeScreenVM.onUiEvent(
                             ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
                         )
-
-                        NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> childHomeScreenVM.onUiEvent(
+                    }
+                    if (it.isInTrash) {
+                        childHomeScreenVM.onUiEvent(
                             ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
                         )
-
-                        else -> ChildHomeScreenEvent.None
                     }
                 },
                 isStarred = rememberSaveable(it.isStarred) {
@@ -393,45 +393,46 @@ fun SearchContent(
                 onStarClick = {
                     childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.OnStarIconClick(it.mailId))
                 },
-                draggedLeftColor = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> MaterialTheme.colorScheme.primaryContainer
-                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name, NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> MaterialTheme.colorScheme.outlineVariant
-                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> MaterialTheme.colorScheme.errorContainer
+                draggedLeftColor = when {
+                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> MaterialTheme.colorScheme.outlineVariant
+                    it.isArchived || it.isStarred -> MaterialTheme.colorScheme.outlineVariant
+                    it.isInInbox -> MaterialTheme.colorScheme.primaryContainer
+                    it.isInTrash -> MaterialTheme.colorScheme.errorContainer
                     else -> Color.Transparent
                 },
-                draggedRightColor = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> MaterialTheme.colorScheme.errorContainer
-                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name, NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> MaterialTheme.colorScheme.outlineVariant
-                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> MaterialTheme.colorScheme.errorContainer
+                draggedRightColor = when {
+                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> MaterialTheme.colorScheme.outlineVariant
+                    it.isStarred || it.isArchived -> MaterialTheme.colorScheme.outlineVariant
+                    it.isInInbox || it.isInTrash -> MaterialTheme.colorScheme.errorContainer
                     else -> Color.Transparent
                 },
-                draggedRightIcon = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> Icons.Default.StarBorder
-                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name, NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name, NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> Icons.Default.Delete
+                draggedRightIcon = when {
+                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> Icons.Default.StarBorder
+                    it.isStarred || it.isArchived || it.isInTrash -> Icons.Default.Delete
+                    it.isInInbox -> Icons.Default.Archive
                     else -> Icons.Default.Abc
                 },
-                draggedRightText = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> " Move to\nTrash"
-                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> "Remove from\nStarred"
-                    NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> "Remove from\nArchive"
-                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> "Delete\npermanently"
+                draggedRightText = when {
+                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) || it.isStarred -> "Remove from\nStarred"
+                    it.isInInbox -> " Move to\nTrash"
+                    it.isArchived -> "Remove from\nArchive"
+                    it.isInTrash -> "Delete\npermanently"
                     else -> ""
                 },
-                draggedLeftIcon = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> Icons.Default.Archive
-                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> Icons.Default.StarBorder
-                    NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name, NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> Icons.Default.Delete
+                draggedLeftIcon = when {
+                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> Icons.Default.StarBorder
+                    it.isStarred || it.isArchived || it.isInTrash || it.isInInbox -> Icons.Default.Delete
                     else -> Icons.Default.Abc
-
                 },
-                draggedLeftText = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
-                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> "Move to\nArchive"
-                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> "Remove from\nStarred"
-                    NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> "Remove from\nArchive"
-                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> "Delete\npermanently"
+                draggedLeftText = when {
+                    it.isInInbox -> "Move to\nArchive"
+                    it.isStarred -> "Remove from\nStarred"
+                    it.isArchived -> "Remove from\nArchive"
+                    it.isInTrash -> "Delete\npermanently"
                     else -> ""
                 },
-                shouldStarIconVisible = ChildHomeScreenVM.currentChildHomeScreenType.value != NavigationRoutes.TRASH || ChildHomeScreenVM.currentChildHomeScreenType.value != NavigationRoutes.ALL_TRASHED,
+                shouldStarIconVisible = !it.isInTrash,
+                inSearch = true
             )
         }
     }
