@@ -60,7 +60,7 @@ fun MailItem(
     draggedRightIcon: ImageVector,
     draggedRightText: String,
     draggedLeftIcon: ImageVector,
-    draggedLeftText: String,
+    draggedLeftText: String
 ) {
     val isChecked = remember {
         mutableStateOf(false)

@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.outlined.AllInbox
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
@@ -69,6 +70,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -98,6 +100,8 @@ import sakethh.tenmin.mail.ui.common.AccountItem
 import sakethh.tenmin.mail.ui.common.MailItem
 import sakethh.tenmin.mail.ui.common.pulsateEffect
 import sakethh.tenmin.mail.ui.home.NavigationDrawerModel
+import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreenEvent
+import sakethh.tenmin.mail.ui.home.screens.childHomeScreen.ChildHomeScreenVM
 import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SimpleDateFormat")
@@ -106,7 +110,8 @@ import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 fun SearchContent(
     searchQuery: MutableState<String>,
     navController: NavController,
-    searchContentVM: SearchContentVM
+    searchContentVM: SearchContentVM,
+    childHomeScreenVM: ChildHomeScreenVM
 ) {
     val selectedLabelsFilter = searchContentVM.selectedLabelsFilter
     val modalBtmSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -183,6 +188,9 @@ fun SearchContent(
             ),
         )
     }
+    val draggedLeft = remember {
+        mutableStateOf(false)
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -252,6 +260,68 @@ fun SearchContent(
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                 }
+            val totalAppliedFilters = rememberSaveable(
+                dateRangePickerState.selectedStartDateMillis,
+                dateRangePickerState.selectedEndDateMillis,
+                searchContentVM.hasAttachments.value,
+                searchContentVM.selectedLabelsFilter.size,
+                searchContentVM.selectedFromAccountsFilter.size
+            ) {
+                mutableStateListOf(
+                    searchContentVM.selectedLabelsFilter.size > 0,
+                    searchContentVM.selectedFromAccountsFilter.size > 0,
+                    searchContentVM.hasAttachments.value,
+                    dateRangePickerState.selectedEndDateMillis != null && dateRangePickerState.selectedStartDateMillis != null
+                ).filter {
+                    it
+                }.toList().size
+            }
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                        append("Applied ")
+                        append("$totalAppliedFilters ")
+                        if (totalAppliedFilters == 1) append("Filter") else append("Filters")
+                    }
+                    if (totalAppliedFilters > 0) append(": ")
+                    if (searchContentVM.selectedLabelsFilter.size > 0) withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        append("Labels")
+                    }
+                    if (searchContentVM.selectedLabelsFilter.size > 0 && searchContentVM.selectedFromAccountsFilter.size > 0) append(
+                        ", "
+                    )
+                    if (searchContentVM.selectedFromAccountsFilter.size > 0) withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        append("From")
+                    }
+                    if (searchContentVM.hasAttachments.value && (searchContentVM.selectedLabelsFilter.size > 0 || (searchContentVM.selectedFromAccountsFilter.size > 0))) append(
+                        ", "
+                    )
+                    if (searchContentVM.hasAttachments.value) withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("Attachments")
+                    }
+                    if ((searchContentVM.hasAttachments.value || searchContentVM.selectedLabelsFilter.size > 0 || (searchContentVM.selectedFromAccountsFilter.size > 0)) && (dateRangePickerState.selectedEndDateMillis != null && dateRangePickerState.selectedStartDateMillis != null)) append(
+                        ", "
+                    )
+
+                    if (dateRangePickerState.selectedEndDateMillis != null && dateRangePickerState.selectedStartDateMillis != null) withStyle(
+                        SpanStyle(fontWeight = FontWeight.Bold)
+                    ) {
+                        append("Date Range")
+                    }
+                },
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 15.dp)
+                    .fillMaxWidth()
+            )
         }
         items(queriedMails.value) {
             MailItem(
@@ -259,17 +329,109 @@ fun SearchContent(
                 createdAt = it.createdAt,
                 subject = it.subject,
                 fromName = it.from.name,
-                onDragRight = { /*TODO*/ },
-                onDragLeft = { /*TODO*/ },
-                shouldStarIconVisible = true,
-                isStarred = mutableStateOf(it.isStarred),
-                onStarClick = { /*TODO*/ },
-                draggedLeftColor = Color.Transparent,
-                draggedRightColor = Color.Transparent,
-                draggedRightIcon = Icons.Default.Abc,
-                draggedRightText = "Abc",
-                draggedLeftIcon = Icons.Default.Abc,
-                draggedLeftText = "Abc"
+                onDragRight = {
+                    draggedLeft.value = false
+                    when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                        NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.MoveToArchive(it.mailId)
+                            )
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.RemoveFromInbox(
+                                    it.mailId
+                                )
+                            )
+                        }
+
+                        NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> childHomeScreenVM.onUiEvent(
+                            ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
+                        )
+
+                        NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> childHomeScreenVM.onUiEvent(
+                            ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
+                        )
+
+                        NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> childHomeScreenVM.onUiEvent(
+                            ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
+                        )
+
+                        else -> ChildHomeScreenEvent.None
+                    }
+                },
+                onDragLeft = {
+                    draggedLeft.value = true
+                    when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                        NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.MoveToTrash(it.mailId)
+                            )
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.RemoveFromInbox(
+                                    it.mailId
+                                )
+                            )
+                        }
+
+                        NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> childHomeScreenVM.onUiEvent(
+                            ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
+                        )
+
+                        NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> childHomeScreenVM.onUiEvent(
+                            ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
+                        )
+
+                        NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> childHomeScreenVM.onUiEvent(
+                            ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
+                        )
+
+                        else -> ChildHomeScreenEvent.None
+                    }
+                },
+                isStarred = rememberSaveable(it.isStarred) {
+                    mutableStateOf(it.isStarred)
+                },
+                onStarClick = {
+                    childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.OnStarIconClick(it.mailId))
+                },
+                draggedLeftColor = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> MaterialTheme.colorScheme.primaryContainer
+                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name, NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> MaterialTheme.colorScheme.outlineVariant
+                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> MaterialTheme.colorScheme.errorContainer
+                    else -> Color.Transparent
+                },
+                draggedRightColor = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> MaterialTheme.colorScheme.errorContainer
+                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name, NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> MaterialTheme.colorScheme.outlineVariant
+                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> MaterialTheme.colorScheme.errorContainer
+                    else -> Color.Transparent
+                },
+                draggedRightIcon = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> Icons.Default.StarBorder
+                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name, NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name, NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> Icons.Default.Delete
+                    else -> Icons.Default.Abc
+                },
+                draggedRightText = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> " Move to\nTrash"
+                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> "Remove from\nStarred"
+                    NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> "Remove from\nArchive"
+                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> "Delete\npermanently"
+                    else -> ""
+                },
+                draggedLeftIcon = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> Icons.Default.Archive
+                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> Icons.Default.StarBorder
+                    NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name, NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> Icons.Default.Delete
+                    else -> Icons.Default.Abc
+
+                },
+                draggedLeftText = when (ChildHomeScreenVM.currentChildHomeScreenType.value.name) {
+                    NavigationRoutes.INBOX.name, NavigationRoutes.ALL_INBOXES.name -> "Move to\nArchive"
+                    NavigationRoutes.STARRED.name, NavigationRoutes.ALL_STARRED.name -> "Remove from\nStarred"
+                    NavigationRoutes.ARCHIVE.name, NavigationRoutes.ALL_ARCHIVES.name -> "Remove from\nArchive"
+                    NavigationRoutes.TRASH.name, NavigationRoutes.ALL_TRASHED.name -> "Delete\npermanently"
+                    else -> ""
+                },
+                shouldStarIconVisible = ChildHomeScreenVM.currentChildHomeScreenType.value != NavigationRoutes.TRASH || ChildHomeScreenVM.currentChildHomeScreenType.value != NavigationRoutes.ALL_TRASHED,
             )
         }
     }

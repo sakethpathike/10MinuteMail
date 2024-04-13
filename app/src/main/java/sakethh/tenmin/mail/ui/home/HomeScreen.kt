@@ -161,7 +161,9 @@ fun HomeScreen(
                                     searchContentVM = searchContentVM,
                                     searchQuery = remember(searchContentVM.searchQuery.collectAsState().value) {
                                         mutableStateOf(searchContentVM.searchQuery.value)
-                                    }, navController = navController
+                                    },
+                                    navController = navController,
+                                    childHomeScreenVM = childHomeScreenVM
                                 )
                             })
                             }

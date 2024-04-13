@@ -1,7 +1,6 @@
 package sakethh.tenmin.mail.ui.settings.common.timePicker
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +35,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import sakethh.tenmin.mail.ui.settings.SettingsScreenVM
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -61,7 +59,6 @@ fun <T> AutoRefreshMailsIntervalPicker(
         Modifier
             .wrapContentHeight()
             .fillMaxWidth(0.5f)
-            .background(if (SettingsScreenVM.Settings.shouldDimDarkThemeBeEnabled.value) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surface)
     ) {
         LazyColumn(
             modifier = Modifier
