@@ -1,6 +1,7 @@
 package sakethh.tenmin.mail.ui.home.screens.search
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,7 +27,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AllInbox
 import androidx.compose.material.icons.filled.Archive
@@ -39,7 +39,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material.icons.outlined.AllInbox
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
@@ -324,6 +324,7 @@ fun SearchContent(
             )
         }
         items(queriedMails.value) {
+            // Color ✔; Text ✔ && Action ❌
             MailItem(
                 intro = it.intro,
                 createdAt = it.createdAt,
@@ -331,7 +332,17 @@ fun SearchContent(
                 fromName = it.from.name,
                 onDragRight = {
                     draggedLeft.value = false
-                    if (it.isInInbox) {
+                    Log.d("10MinMail", "onDragRight")
+
+                    when {
+                        it.isInTrash -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
+                            )
+                            Log.d("10MinMail", "RemoveFromTrash")
+                        }
+
+                        !it.isStarred && it.isInInbox -> {
                             childHomeScreenVM.onUiEvent(
                                 ChildHomeScreenEvent.MoveToArchive(it.mailId)
                             )
@@ -340,51 +351,60 @@ fun SearchContent(
                                     it.mailId
                                 )
                             )
+                            Log.d("10MinMail", "RemoveFromInbox")
                         }
 
-                    if (it.isStarred) {
-                        childHomeScreenVM.onUiEvent(
-                            ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
-                        )
-                    }
+                        (!it.isStarred && it.isArchived) -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
+                            )
+                            Log.d("10MinMail", "RemoveFromArchive")
+                        }
 
-                    if (it.isArchived) {
-                        childHomeScreenVM.onUiEvent(
-                            ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
-                        )
-                    }
-                    if (it.isInTrash) {
-                        childHomeScreenVM.onUiEvent(
-                            ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
-                        )
+                        else -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
+                            )
+                            Log.d("10MinMail", "UnMarkStarredMail")
+                        }
                     }
                 },
                 onDragLeft = {
                     draggedLeft.value = true
-                    if (it.isInInbox) {
-                        childHomeScreenVM.onUiEvent(
+                    Log.d("10MinMail", "onDragLeft")
+                    when {
+                        it.isInTrash -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
+                            )
+                            Log.d("10MinMail", "RemoveFromTrash")
+                        }
+
+                        !it.isStarred && it.isInInbox -> {
+                            childHomeScreenVM.onUiEvent(
                                 ChildHomeScreenEvent.MoveToTrash(it.mailId)
                             )
-                        childHomeScreenVM.onUiEvent(
+                            childHomeScreenVM.onUiEvent(
                                 ChildHomeScreenEvent.RemoveFromInbox(
                                     it.mailId
                                 )
                             )
+                            Log.d("10MinMail", "RemoveFromInbox")
                         }
-                    if (it.isStarred) {
-                        childHomeScreenVM.onUiEvent(
-                            ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
-                        )
-                    }
-                    if (it.isArchived) {
-                        childHomeScreenVM.onUiEvent(
-                            ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
-                        )
-                    }
-                    if (it.isInTrash) {
-                        childHomeScreenVM.onUiEvent(
-                            ChildHomeScreenEvent.RemoveFromTrash(it.mailId)
-                        )
+
+                        !it.isStarred && it.isArchived -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.RemoveFromArchive(it.mailId)
+                            )
+                            Log.d("10MinMail", "RemoveFromArchive")
+                        }
+
+                        else -> {
+                            childHomeScreenVM.onUiEvent(
+                                ChildHomeScreenEvent.UnMarkStarredMail(it.mailId)
+                            )
+                            Log.d("10MinMail", "UnMarkStarredMail")
+                        }
                     }
                 },
                 isStarred = rememberSaveable(it.isStarred) {
@@ -394,42 +414,34 @@ fun SearchContent(
                     childHomeScreenVM.onUiEvent(ChildHomeScreenEvent.OnStarIconClick(it.mailId))
                 },
                 draggedLeftColor = when {
-                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> MaterialTheme.colorScheme.outlineVariant
-                    it.isArchived || it.isStarred -> MaterialTheme.colorScheme.outlineVariant
-                    it.isInInbox -> MaterialTheme.colorScheme.primaryContainer
+                    it.isInInbox && !it.isStarred -> MaterialTheme.colorScheme.primaryContainer
                     it.isInTrash -> MaterialTheme.colorScheme.errorContainer
-                    else -> Color.Transparent
+                    else -> MaterialTheme.colorScheme.outlineVariant
                 },
                 draggedRightColor = when {
-                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> MaterialTheme.colorScheme.outlineVariant
-                    it.isStarred || it.isArchived -> MaterialTheme.colorScheme.outlineVariant
-                    it.isInInbox || it.isInTrash -> MaterialTheme.colorScheme.errorContainer
-                    else -> Color.Transparent
-                },
-                draggedRightIcon = when {
-                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> Icons.Default.StarBorder
-                    it.isStarred || it.isArchived || it.isInTrash -> Icons.Default.Delete
-                    it.isInInbox -> Icons.Default.Archive
-                    else -> Icons.Default.Abc
-                },
-                draggedRightText = when {
-                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) || it.isStarred -> "Remove from\nStarred"
-                    it.isInInbox -> " Move to\nTrash"
-                    it.isArchived -> "Remove from\nArchive"
-                    it.isInTrash -> "Delete\npermanently"
-                    else -> ""
+                    (it.isInInbox && !it.isStarred) || it.isInTrash -> MaterialTheme.colorScheme.errorContainer
+                    else -> MaterialTheme.colorScheme.outlineVariant
                 },
                 draggedLeftIcon = when {
-                    (it.isInInbox && it.isStarred) || (it.isStarred && it.isArchived) -> Icons.Default.StarBorder
-                    it.isStarred || it.isArchived || it.isInTrash || it.isInInbox -> Icons.Default.Delete
-                    else -> Icons.Default.Abc
+                    it.isInInbox && !it.isStarred -> Icons.Default.Archive
+                    (it.isArchived && !it.isStarred) || it.isInTrash -> Icons.Default.Delete
+                    else -> Icons.Default.StarOutline
                 },
                 draggedLeftText = when {
-                    it.isInInbox -> "Move to\nArchive"
-                    it.isStarred -> "Remove from\nStarred"
-                    it.isArchived -> "Remove from\nArchive"
-                    it.isInTrash -> "Delete\npermanently"
-                    else -> ""
+                    it.isInTrash -> "Delete\nPermanently"
+                    it.isInInbox && !it.isStarred -> "Move To\nArchive"
+                    (it.isArchived && !it.isStarred) -> "Remove from\nArchive"
+                    else -> "Remove from\nStarred"
+                },
+                draggedRightIcon = when {
+                    it.isInInbox && !it.isStarred || (it.isArchived && !it.isStarred) || it.isInTrash -> Icons.Default.Delete
+                    else -> Icons.Default.StarOutline
+                },
+                draggedRightText = when {
+                    it.isInTrash -> "Delete\nPermanently"
+                    it.isInInbox && !it.isStarred -> "Move To\nTrash"
+                    (it.isArchived && !it.isStarred) -> "Remove from\nArchive"
+                    else -> "Remove from\nStarred"
                 },
                 shouldStarIconVisible = !it.isInTrash,
                 inSearch = true
